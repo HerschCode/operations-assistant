@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File
+from fastapi.responses import HTMLResponse
 import uuid
 import tempfile
 from pathlib import Path
@@ -9,6 +10,7 @@ from src.api.schemas import (
     InvestigateRequest, InvestigateResponse, InvestigationReport,
 )
 from src.api.dependencies import check_ops_performance_reachable, check_vector_store_reachable
+from src.api.rate_limit import is_allowed as rate_limit_is_allowed
 from src.ingestion.document_loader import load_document
 from src.ingestion.chunker import chunk_text
 from src.ingestion.index_documents import index_document, list_indexed_documents
@@ -18,9 +20,11 @@ from src.agent.conversation_store import get_history, append_turn
 
 router = APIRouter()
 
-# /health is intentionally on an unauthenticated router -- same reasoning as
-# operations-performance's src/api/auth.py docstring (load balancer/orchestrator
-# liveness probes conventionally don't carry a credential).
+# /health and /demo/* are intentionally on an unauthenticated router -- /health for
+# the conventional load-balancer/orchestrator liveness-probe reason (same as
+# operations-performance's src/api/auth.py docstring), /demo/* because it's this
+# project's public portfolio demo surface, guarded instead by src/api/rate_limit.py
+# rather than an API key a site visitor obviously can't be expected to have.
 health_router = APIRouter()
 
 
@@ -30,6 +34,47 @@ def health():
         status="ok",
         ops_performance_api_reachable=check_ops_performance_reachable(),
         vector_store_reachable=check_vector_store_reachable(),
+    )
+
+
+@health_router.get("/", response_class=HTMLResponse, include_in_schema=False)
+def demo_page():
+    return (Path(__file__).parent / "demo.html").read_text(encoding="utf-8")
+
+
+@health_router.post("/demo/chat", response_model=ChatResponse)
+def demo_chat(request: ChatRequest, http_request: Request):
+    """Same underlying agent as the authenticated /chat, minus persisted
+    conversation history (a public demo visitor's turns aren't worth storing) and
+    rate-limited per client IP instead of requiring an API key -- see
+    src/api/rate_limit.py for why a site visitor can't reasonably be asked to have
+    one."""
+    # Behind a reverse proxy (Render, this project's actual deployment target),
+    # request.client.host is the proxy's own internal address for every request, not
+    # the real visitor's IP -- which would rate-limit every demo visitor as a single
+    # shared client. X-Forwarded-For's first entry is the original client; only trust
+    # it because this project deliberately runs behind exactly one known proxy layer,
+    # not directly exposed to the internet where a client could forge that header.
+    forwarded_for = http_request.headers.get("x-forwarded-for")
+    client_ip = forwarded_for.split(",")[0].strip() if forwarded_for else (
+        http_request.client.host if http_request.client else "unknown"
+    )
+    if not rate_limit_is_allowed(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Demo rate limit reached (5 questions per 10 minutes) -- please try again shortly.",
+        )
+
+    try:
+        result = run_agent(request.question)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Agent failed to produce a response: {exc}")
+
+    return ChatResponse(
+        answer=result.answer,
+        tools_used=result.tools_used,
+        citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in result.citations],
+        conversation_id="demo",
     )
 
 

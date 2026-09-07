@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations Assistant — Live Demo</title>
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #131922; --border: #232b36; --text: #e6edf3;
+    --muted: #8b98a5; --accent: #4f8cff; --accent-dim: #1f3a66;
+    --data-tag: #2f9e6f; --doc-tag: #b98a2f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; display: flex;
+    flex-direction: column; align-items: center; padding: 32px 16px;
+  }
+  .wrap { width: 100%; max-width: 720px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+  .subtitle a { color: var(--accent); }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  #log { display: flex; flex-direction: column; gap: 14px; min-height: 120px; max-height: 55vh; overflow-y: auto; }
+  .msg { padding: 12px 14px; border-radius: 10px; line-height: 1.5; font-size: 0.92rem; white-space: pre-wrap; }
+  .msg.user { background: var(--accent-dim); align-self: flex-end; max-width: 85%; }
+  .msg.assistant { background: #1a222c; border: 1px solid var(--border); }
+  .msg.error { background: #3a1f1f; border: 1px solid #5c2f2f; color: #ffb4b4; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .tag.data { border-color: var(--data-tag); color: var(--data-tag); }
+  .tag.document { border-color: var(--doc-tag); color: var(--doc-tag); }
+  form { display: flex; gap: 8px; }
+  input[type=text] {
+    flex: 1; background: #0e141b; border: 1px solid var(--border); color: var(--text);
+    padding: 11px 12px; border-radius: 8px; font-size: 0.92rem; outline: none;
+  }
+  input[type=text]:focus { border-color: var(--accent); }
+  button {
+    background: var(--accent); color: white; border: none; padding: 0 18px;
+    border-radius: 8px; font-size: 0.92rem; cursor: pointer; font-weight: 600;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+  .example {
+    font-size: 0.78rem; color: var(--accent); border: 1px solid var(--accent-dim);
+    padding: 4px 10px; border-radius: 999px; cursor: pointer; background: none;
+    font-weight: 400;
+  }
+  .example:hover { background: var(--accent-dim); }
+  footer { color: var(--muted); font-size: 0.78rem; margin-top: 18px; text-align: center; line-height: 1.6; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Operations Assistant</h1>
+  <p class="subtitle">
+    A RAG + tool-calling agent over a procurement analytics pipeline
+    (<a href="https://github.com/HerschCode/operations-performance" target="_blank">operations-performance</a>)
+    and real policy documents. Ask a question that needs live data, policy, or both —
+    every claim is grounded in a real tool call or document citation, never invented.
+    Rate-limited to 5 questions / 10 min on this free-tier demo.
+  </p>
+  <div class="panel">
+    <div id="log"></div>
+    <div class="examples">
+      <button class="example" type="button">What is the average cycle time?</button>
+      <button class="example" type="button">Who are the worst-performing suppliers?</button>
+      <button class="example" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
+      <button class="example" type="button">What is the company's revenue this quarter?</button>
+    </div>
+    <form id="form">
+      <input id="question" type="text" placeholder="Ask about cycle time, SLA breaches, suppliers, or procurement policy..." autocomplete="off" />
+      <button id="send" type="submit">Ask</button>
+    </form>
+  </div>
+  <footer>
+    Source: <a href="https://github.com/HerschCode/operations-assistant" target="_blank">operations-assistant</a>
+    · Real Groq LLM, real Neon Postgres data, real Chroma retrieval — nothing scripted.
+  </footer>
+</div>
+<script>
+const log = document.getElementById('log');
+const form = document.getElementById('form');
+const input = document.getElementById('question');
+const sendBtn = document.getElementById('send');
+
+function addMessage(text, cls) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls;
+  el.textContent = text;
+  log.appendChild(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+
+function addCitations(container, citations) {
+  if (!citations || !citations.length) return;
+  const tagsEl = document.createElement('div');
+  tagsEl.className = 'tags';
+  citations.forEach(c => {
+    const tag = document.createElement('span');
+    tag.className = 'tag ' + c.kind;
+    tag.textContent = (c.kind === 'data' ? 'data: ' : 'policy: ') + c.reference;
+    tagsEl.appendChild(tag);
+  });
+  container.appendChild(tagsEl);
+}
+
+async function ask(question) {
+  addMessage(question, 'user');
+  input.value = '';
+  sendBtn.disabled = true;
+  const thinking = addMessage('Thinking...', 'assistant');
+
+  try {
+    const res = await fetch('/demo/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+    thinking.remove();
+
+    if (!res.ok) {
+      addMessage(data.detail || 'Something went wrong.', 'error');
+      return;
+    }
+    const answerEl = addMessage(data.answer, 'assistant');
+    addCitations(answerEl, data.citations);
+  } catch (err) {
+    thinking.remove();
+    addMessage('Could not reach the assistant. It may be waking up from a free-tier sleep — try again in a moment.', 'error');
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const q = input.value.trim();
+  if (q) ask(q);
+});
+
+document.querySelectorAll('.example').forEach(btn => {
+  btn.addEventListener('click', () => ask(btn.textContent));
+});
+</script>
+</body>
+</html>
