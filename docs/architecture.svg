@@ -1,0 +1,70 @@
+<svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5b7a9d"/>
+    </marker>
+  </defs>
+  <rect width="900" height="600" fill="#ffffff"/>
+
+  <!-- User -->
+  <rect x="380" y="20" width="140" height="44" rx="8" fill="#eef3fb" stroke="#c7d7ee"/>
+  <text x="450" y="47" text-anchor="middle" font-size="13" font-weight="600" fill="#1b3a5c">Visitor / recruiter</text>
+  <line x1="450" y1="64" x2="450" y2="94" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Demo UI + FastAPI -->
+  <rect x="330" y="96" width="240" height="52" rx="8" fill="#f5eefb" stroke="#ddc7ee"/>
+  <text x="450" y="117" text-anchor="middle" font-size="13" font-weight="600" fill="#5c1b7a">Demo UI (/) + FastAPI</text>
+  <text x="450" y="133" text-anchor="middle" font-size="11" fill="#8a5b9d">/chat · /demo/chat (rate-limited) · /investigate</text>
+
+  <line x1="450" y1="148" x2="450" y2="178" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Agent loop -->
+  <rect x="330" y="180" width="240" height="52" rx="8" fill="#fbeee9" stroke="#f0c9b8"/>
+  <text x="450" y="201" text-anchor="middle" font-size="13" font-weight="600" fill="#8a3a1c">Agent loop</text>
+  <text x="450" y="217" text-anchor="middle" font-size="11" fill="#b25f3d">Groq / Gemini / Anthropic (switchable)</text>
+
+  <!-- fan out to tools -->
+  <line x1="450" y1="232" x2="450" y2="252" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="150" y1="252" x2="750" y2="252" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="150" y1="252" x2="150" y2="272" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="252" x2="450" y2="272" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="750" y1="252" x2="750" y2="272" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="50" y="274" width="200" height="46" rx="8" fill="#fdf4e3" stroke="#f0dba9"/>
+  <text x="150" y="302" text-anchor="middle" font-size="12" font-weight="600" fill="#8a6410">search_policy_documents</text>
+
+  <rect x="350" y="274" width="200" height="46" rx="8" fill="#fdf4e3" stroke="#f0dba9"/>
+  <text x="450" y="302" text-anchor="middle" font-size="12" font-weight="600" fill="#8a6410">get_cycle_time / get_sla_metrics / ...</text>
+
+  <rect x="650" y="274" width="200" height="46" rx="8" fill="#fdf4e3" stroke="#f0dba9"/>
+  <text x="750" y="302" text-anchor="middle" font-size="12" font-weight="600" fill="#8a6410">predict_sla_risk</text>
+
+  <!-- RAG side -->
+  <line x1="150" y1="320" x2="150" y2="350" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="50" y="352" width="200" height="46" rx="8" fill="#f2f7ee" stroke="#cfe4c0"/>
+  <text x="150" y="373" text-anchor="middle" font-size="12" font-weight="600" fill="#2c5222">Chroma vector store</text>
+  <text x="150" y="388" text-anchor="middle" font-size="10" fill="#4d7a3a">ONNX embeddings · real policy docs</text>
+
+  <!-- Data/prediction side -> operations-performance -->
+  <line x1="450" y1="320" x2="450" y2="350" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="750" y1="320" x2="750" y2="350" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="450" y1="350" x2="600" y2="350" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="600" y1="350" x2="600" y2="350" stroke="#5b7a9d" stroke-width="1.5"/>
+  <path d="M 450 350 L 750 350" fill="none" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="600" y1="350" x2="600" y2="380" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="480" y="382" width="240" height="52" rx="8" fill="#eef3fb" stroke="#c7d7ee"/>
+  <text x="600" y="403" text-anchor="middle" font-size="13" font-weight="600" fill="#1b3a5c">operations-performance API</text>
+  <text x="600" y="419" text-anchor="middle" font-size="11" fill="#5b7a9d">real Postgres data, never reimplemented here</text>
+
+  <!-- converge to answer -->
+  <line x1="150" y1="398" x2="450" y2="476" stroke="#5b7a9d" stroke-width="1.5"/>
+  <line x1="600" y1="434" x2="450" y2="476" stroke="#5b7a9d" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="300" y="478" width="300" height="60" rx="8" fill="#f2f7ee" stroke="#cfe4c0"/>
+  <text x="450" y="502" text-anchor="middle" font-size="13" font-weight="600" fill="#2c5222">Grounded, cited answer</text>
+  <text x="450" y="519" text-anchor="middle" font-size="11" fill="#4d7a3a">data vs. policy citations tagged separately</text>
+  <text x="450" y="533" text-anchor="middle" font-size="10" fill="#6b9457">or an honest "insufficient data" refusal</text>
+
+  <text x="20" y="580" font-size="11" fill="#9aa7b5">Nothing here is scripted — verified end-to-end against a live Groq model, live Postgres data, and real retrieval.</text>
+</svg>

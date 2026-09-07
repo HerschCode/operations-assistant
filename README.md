@@ -1,5 +1,7 @@
 # Operations Assistant
 
+![Tests](https://github.com/HerschCode/operations-assistant/actions/workflows/test.yml/badge.svg)
+
 **🔗 [Live demo](https://operations-assistant.onrender.com)** — ask a real question, get a real
 answer from a real Groq-backed agent over live data and real policy documents. Free-tier hosting,
 so the first request after idling may take 30-60s to wake up.
@@ -17,26 +19,7 @@ Python · FastAPI · PostgreSQL · RAG (embeddings + vector DB) · LLM tool-call
 orchestration · Docker · Cloud Run · GCP
 
 ## Architecture
-```
-                    User
-                     │
-                     ▼
-                  FastAPI
-                     │
-                   Agent
-                     │
-       ┌─────────────┼──────────────┐
-       ▼             ▼              ▼
-     RAG tool     SQL/analytics   Prediction tool
-       │            tools              │
-       ▼             ▼                 ▼
-   Documents    operations-performance data/logic
-       │             │                 │
-       └─────────────┼─────────────────┘
-                     ▼
-              Grounded, cited answer
-              (or "insufficient data")
-```
+![Architecture diagram](docs/architecture.svg)
 
 ## Status
 See [`FEATURES.md`](FEATURES.md) for the full, tiered feature specification and definition of done.
