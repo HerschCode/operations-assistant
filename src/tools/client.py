@@ -20,7 +20,13 @@ import json
 import os
 import httpx
 
-REQUEST_TIMEOUT_SECONDS = 15  # from config/tools.yaml
+REQUEST_TIMEOUT_SECONDS = 60  # from config/tools.yaml -- see that file's comment on why 60s
+# not the originally-documented 15s: a real deployment (Render free tier, both
+# services) can take 30-90s to wake from an idle sleep, and 15s wasn't enough patience
+# for that cold start -- every tool call would fail with a false "data unavailable"
+# exactly when a demo visitor's request happened to arrive while operations-performance
+# was still asleep. Found by hitting this in the actual live deployment, not a test
+# (every test here mocks the transport and never waits on a real cold start).
 
 
 class OpsPerformanceUnavailable(Exception):

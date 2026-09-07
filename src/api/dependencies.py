@@ -9,6 +9,17 @@ def get_ops_performance_client() -> httpx.Client:
     return httpx.Client(base_url=base_url, timeout=15.0)
 
 
+# Deliberately short (15s) and separate from src/tools/client.py's 60s tool-call
+# timeout: /health is a liveness probe -- this project's own Dockerfile HEALTHCHECK
+# and Render's infra-level health checks have short timeouts of their own (5s in the
+# Dockerfile), so a slow /health would make THIS container flap unhealthy, which is
+# worse than /health honestly reporting "operations-performance isn't reachable right
+# now" when it's mid-cold-start. A real chat question calling a tool gets the patient
+# 60s timeout instead, because failing a real answer over a slow-to-wake dependency is
+# a worse trade than a slightly-stale reachable=false flag on a health endpoint nobody
+# but infrastructure looks at directly.
+
+
 def check_ops_performance_reachable() -> bool:
     try:
         with get_ops_performance_client() as client:

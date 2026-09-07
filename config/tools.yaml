@@ -29,4 +29,8 @@ tools:
     module: src.tools.documents
     max_result_rows: 5
 
-request_timeout_seconds: 15
+# 60s, not the more typical 15s -- operations-performance can take 30-90s to wake from
+# an idle sleep on Render's free tier, and a shorter timeout was found (via an actual
+# live deployment, not a test) to fail every tool call with a false "data unavailable"
+# whenever a request arrived while it was still asleep.
+request_timeout_seconds: 60
