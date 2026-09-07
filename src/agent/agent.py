@@ -1,11 +1,19 @@
 """
-The tool-selection loop. Calls the Anthropic API with the full tool registry, executes
-whatever tools the model requests via src/tools/registry.py, feeds results back, and
-repeats until the model produces a final text answer or the tool-call budget
+The tool-selection loop. Calls the configured model provider with the full tool registry,
+executes whatever tools the model requests via src/tools/registry.py, feeds results back,
+and repeats until the model produces a final text answer or the tool-call budget
 (config/agent.yaml:max_tool_calls_per_turn) is exhausted.
 
-The Anthropic client is injectable (client=...) specifically so this is testable without
-a real API key or network call -- every test in tests/test_agent.py passes a fake client.
+`run_agent` itself is a thin dispatcher -- config["provider"] (default "anthropic") picks
+which implementation runs. The Anthropic path (`_run_agent_anthropic`, below) is the
+original implementation, unchanged, so every test in tests/test_agent.py that passes a
+fake client keeps passing exactly as before. Groq and Gemini live in
+src/agent/providers.py since their SDKs return differently-shaped responses and need
+their own message-formatting and tool-result round-tripping -- see that file's docstring
+for why they aren't forced into this same function body.
+
+Every provider's client is injectable (client=...) specifically so this is testable
+without a real API key or network call.
 """
 import os
 import json
@@ -24,6 +32,7 @@ from src.observability.logging_config import get_logger
 logger = get_logger("agent")
 
 DEFAULT_CONFIG = {
+    "provider": "anthropic",
     "model": "claude-sonnet-4-6",
     "max_tokens": 1500,
     "temperature": 0.0,
@@ -45,6 +54,14 @@ def load_agent_config(path: str = "config/agent.yaml") -> dict:
         # or investigation.py's config.get("investigation", {}) always sees nothing.
         if "investigation" in raw:
             config["investigation"] = raw["investigation"]
+    # Deployment picks a provider/model via env vars rather than editing the checked-in
+    # YAML, so config/agent.yaml's committed default (which tests/test_agent.py's
+    # Anthropic-shaped fake clients rely on) never has to change for a real deployment
+    # to run Groq or Gemini instead.
+    if os.environ.get("AGENT_PROVIDER"):
+        config["provider"] = os.environ["AGENT_PROVIDER"]
+    if os.environ.get("AGENT_MODEL"):
+        config["model"] = os.environ["AGENT_MODEL"]
     return config
 
 
@@ -120,6 +137,19 @@ def run_agent(
     config_override: dict | None = None, history: list[dict] | None = None,
 ) -> AgentResponse:
     config = config_override if config_override is not None else load_agent_config(config_path)
+    provider = config.get("provider", "anthropic")
+    if provider == "groq":
+        from src.agent.providers import run_agent_groq
+        return run_agent_groq(question, config, client=client, history=history)
+    if provider == "gemini":
+        from src.agent.providers import run_agent_gemini
+        return run_agent_gemini(question, config, client=client, history=history)
+    return _run_agent_anthropic(question, config, client=client, history=history)
+
+
+def _run_agent_anthropic(
+    question: str, config: dict, client=None, history: list[dict] | None = None,
+) -> AgentResponse:
     client = client or _default_client()
     # Prior turns (simple text Q/A pairs, not raw tool-call scaffolding -- see
     # src/agent/conversation_store.py's docstring for why) give the model

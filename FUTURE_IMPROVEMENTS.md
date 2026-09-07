@@ -1,5 +1,23 @@
 # Future Improvements (Backlog)
 
+## Post-v1.0 build session -- multi-provider agent
+`src/agent/agent.py::run_agent` is now a thin dispatcher over `config["provider"]`
+(anthropic/groq/gemini), so the portfolio deployment can run on Groq or Gemini's free
+tiers instead of requiring a paid Anthropic key. `src/agent/providers.py` holds the
+Groq (OpenAI-compatible `chat.completions`) and Gemini (`google-genai`, the current SDK
+-- `google-generativeai` is end-of-life and warns on import, caught while wiring this up
+and avoided) implementations, each converting the same `TOOL_SCHEMAS` (Anthropic's
+`input_schema` shape) into their own tool-schema format rather than maintaining three
+parallel tool definitions. `config/agent.yaml`'s committed default is deliberately left
+as `provider: anthropic` -- changing it would have broken every existing Anthropic-shaped
+fake-client test in `tests/test_agent.py`, since `load_agent_config` reads that same
+file. Provider selection for a real deployment goes through `AGENT_PROVIDER`/
+`AGENT_MODEL` env vars instead, checked at the end of `load_agent_config`, so the
+checked-in test fixture never has to change. 14 new tests in `tests/test_providers.py`
+(schema conversion, both providers' tool-loop/budget/error-handling paths, and dispatcher
+routing), all passing alongside the existing 139. Anthropic's own integration is
+untouched, not removed -- switching back is a one-line env var away.
+
 ## Done since v1.0 (moved out of this list)
 Conversational context, citation-correctness/groundedness scoring, a real cost estimator,
 `POST /documents`, process-conformance tooling, an in-process concurrency test, and API-key

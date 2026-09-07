@@ -1,3 +1,9 @@
+# provider: anthropic | groq | gemini -- see src/agent/agent.py's dispatcher and
+# src/agent/providers.py for the Groq/Gemini implementations. Kept as "anthropic" here
+# so this checked-in default never changes what tests/test_agent.py's Anthropic-shaped
+# fake clients exercise. Real deployment picks a provider via the AGENT_PROVIDER /
+# AGENT_MODEL env vars (see load_agent_config below), not by editing this file.
+provider: anthropic
 model: claude-sonnet-4-6
 max_tokens: 1500
 temperature: 0.0  # deterministic tool selection matters more than creative variance here
