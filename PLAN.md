@@ -293,3 +293,54 @@ doesn't exist in how this project actually runs Chroma. Documented in full in
 `docs/security-notes.md`, including the explicit condition under which this needs re-review (if
 Chroma deployment ever changes to a networked server) -- not swept under the rug, not treated as a
 blocker for a risk that isn't currently reachable either.
+
+## Post-v1.0 build session -- multi-provider agent (Groq/Gemini)
+`src/agent/agent.py::run_agent` is now a thin dispatcher over `config["provider"]`
+(anthropic/groq/gemini), so the portfolio deployment can run on Groq or Gemini's free
+tiers instead of requiring a paid Anthropic key. `src/agent/providers.py` holds the
+Groq (OpenAI-compatible `chat.completions`) and Gemini (`google-genai`, the current SDK
+-- `google-generativeai` is end-of-life and warns on import, caught while wiring this up
+and avoided) implementations, each converting the same `TOOL_SCHEMAS` (Anthropic's
+`input_schema` shape) into their own tool-schema format. `config/agent.yaml`'s committed
+default stays `provider: anthropic` deliberately -- changing it would have broken every
+existing Anthropic-shaped fake-client test in `tests/test_agent.py`, since
+`load_agent_config` reads that same file. Real deployment picks a provider via
+`AGENT_PROVIDER`/`AGENT_MODEL` env vars instead. 14 new tests in
+`tests/test_providers.py`; 153/153 passing overall.
+
+## Post-v1.0 build session -- the actual live run, first real answer through the full stack
+The unknown named at the end of nearly every phase note since Phase 17 -- "does a real
+model, given real tool results over a real network connection, actually behave the way
+the mocked tests say it should" -- is now closed. Ran both services live: this project's
+API on :8001 (Groq-backed) against `operations-performance` running for real on :8000
+against live Neon Postgres with real BPI 2019 data (see that project's own `PLAN.md` for
+the pipeline-side bugs that run found).
+
+**One real cross-project bug found, invisible to both projects' otherwise-passing test
+suites because each mocks the other side of the boundary:**
+`src/tools/client.py` never sent an API key to `operations-performance`'s API. That
+project's own test suite passes because it never calls this client; this project's own
+test suite passes because `test_failure_scenarios.py` fakes the transport. Only an actual
+live call across the real network boundary between two real running services surfaced
+it -- exactly the gap this kind of test double structurally cannot catch. Fixed with a
+new `OPS_PERFORMANCE_API_KEY` env var, sent as `X-API-Key` on every call in `get()`/
+`get_text()`.
+
+**The flagship combined scenario, live, for real** (the same one `docs/e2e-scenarios.md`
+and `tests/test_e2e_scenarios.py` Scenario 5 exercise with a scripted LLM): asked
+`/chat` "What is the average cycle time and does policy explain any of the delay?" --
+the agent correctly called both `get_cycle_time` (returning the live, real 2,393-hour
+mean from Neon) and `search_policy_documents` (real Chroma retrieval over the real
+indexed policy docs), then synthesized both into one answer with per-claim citations
+distinguishing data evidence from policy evidence. Nothing about this response was
+scripted -- real Groq model, real tool dispatch, real retrieval.
+
+Also found: the `AGENT_MODEL` default chosen when the provider session (above) was built
+(`llama-3.3-70b-versatile`) no longer exists on Groq's current lineup -- caught
+immediately by the first live call (`model_not_found`), not by any test (every existing
+test injects a fake client and never touches a real model name). Replaced with
+`openai/gpt-oss-120b`, confirmed against `client.models.list()` with the real key rather
+than guessed. `.env.example` now says explicitly to check Groq's current model list
+rather than trusting a name pinned in this file to stay valid.
+
+Full suite re-verified clean with no `.env` present: 153/153.

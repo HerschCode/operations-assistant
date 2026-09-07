@@ -34,6 +34,17 @@ def _base_url() -> str:
     return os.environ.get("OPS_PERFORMANCE_API_URL", "http://localhost:8000")
 
 
+def _auth_headers() -> dict:
+    # operations-performance's own API-key auth (src/api/auth.py over there) was built
+    # and tested in isolation from this project's tools -- every existing test here
+    # mocks or fakes the transport, so nothing caught that this client never sent the
+    # header operations-performance actually requires once OPS_PERFORMANCE_API_KEY (or
+    # that project's API_KEY) is set. Found by an actual live call through both
+    # deployed services, not by either project's own (individually-passing) test suite.
+    key = os.environ.get("OPS_PERFORMANCE_API_KEY")
+    return {"X-API-Key": key} if key else {}
+
+
 def _get_client(client: httpx.Client | None) -> tuple[httpx.Client, bool]:
     """Returns (client, should_close). A caller-supplied client (e.g. a test's
     MockTransport-backed one) is never closed here -- that's the caller's
@@ -46,7 +57,7 @@ def _get_client(client: httpx.Client | None) -> tuple[httpx.Client, bool]:
 def get(path: str, params: dict | None = None, client: httpx.Client | None = None) -> dict | list:
     http_client, should_close = _get_client(client)
     try:
-        response = http_client.get(f"{_base_url()}{path}", params=params)
+        response = http_client.get(f"{_base_url()}{path}", params=params, headers=_auth_headers())
         response.raise_for_status()
         try:
             return response.json()
@@ -86,7 +97,7 @@ def get_text(path: str, client: httpx.Client | None = None) -> str:
     genuinely different."""
     http_client, should_close = _get_client(client)
     try:
-        response = http_client.get(f"{_base_url()}{path}")
+        response = http_client.get(f"{_base_url()}{path}", headers=_auth_headers())
         response.raise_for_status()
         return response.text
     except httpx.HTTPStatusError as exc:
