@@ -1,0 +1,12 @@
+[
+  {
+    "question": "What was the average cycle time last month?",
+    "category": "data",
+    "expected_tools": ["database"]
+  },
+  {
+    "question": "What approvals are required for high-value purchases?",
+    "category": "document",
+    "expected_tools": ["rag"]
+  }
+]

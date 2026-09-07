@@ -1,0 +1,13 @@
+model: claude-sonnet-4-6
+max_tokens: 1500
+temperature: 0.0  # deterministic tool selection matters more than creative variance here
+
+system_prompt_file: src/agent/prompts.py  # PROMPT constants live in code, not here, so they're testable
+
+max_tool_calls_per_turn: 6  # guardrail against runaway multi-tool loops -- see docs/agent-design.md
+tool_timeout_seconds: 15
+
+# Investigation mode uses a stricter budget since it chains more tool calls by design
+investigation:
+  max_tool_calls: 12
+  tool_timeout_seconds: 15

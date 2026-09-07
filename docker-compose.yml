@@ -1,0 +1,31 @@
+# Runs operations-assistant standalone. It still needs a running operations-performance
+# instance to actually answer data questions (OPS_PERFORMANCE_API_URL) -- that project
+# doesn't have its own Dockerfile yet (see its PLAN.md), so for now this expects it
+# running on the host, reached via host.docker.internal (the extra_hosts entry below
+# makes that resolve on Linux too, where it isn't automatic like on Mac/Windows).
+# Once operations-performance gets a Dockerfile, the natural next step is a shared
+# external network so both containers can reach each other by service name instead.
+
+services:
+  operations-assistant:
+    build: .
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      # Overridable default -- set OPS_PERFORMANCE_API_URL in .env to point elsewhere
+      # (a real deployed URL, a shared Docker network's service name, etc.)
+      OPS_PERFORMANCE_API_URL: ${OPS_PERFORMANCE_API_URL:-http://host.docker.internal:8000}
+      CHROMA_PERSIST_DIR: /app/data/chroma
+    volumes:
+      # Vector store persists across container restarts -- without this, every restart
+      # would need scripts/index_documents.py run again before /chat could answer
+      # policy questions.
+      - ./data/chroma:/app/data/chroma
+      # Documents mounted read-only: the container can read them for indexing but
+      # shouldn't be the place documents get edited.
+      - ./data/documents:/app/data/documents:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

@@ -1,0 +1,32 @@
+# Every tool the agent can call, and its budget. The agent NEVER gets raw SQL or
+# unrestricted API access -- only these named, parameterized functions, registered
+# in src/tools/registry.py (the actual source of truth for what's callable; this
+# file documents intent and per-call limits, registry.py enforces what exists).
+
+tools:
+  - name: get_cycle_time
+    module: src.tools.analytics
+    max_result_rows: 1
+  - name: get_bottlenecks
+    module: src.tools.analytics
+    max_result_rows: 10
+  - name: get_sla_metrics
+    module: src.tools.analytics
+    max_result_rows: 20
+  - name: get_supplier_performance
+    module: src.tools.analytics
+    max_result_rows: 20
+  - name: get_management_report
+    module: src.tools.analytics
+    max_result_rows: 1  # returns one markdown document, not rows
+  - name: predict_sla_risk
+    module: src.tools.prediction
+    max_result_rows: 1
+  - name: get_pipeline_status
+    module: src.tools.database  # holds pipeline-health tools; see that file's docstring for why
+    max_result_rows: 20
+  - name: search_policy_documents
+    module: src.tools.documents
+    max_result_rows: 5
+
+request_timeout_seconds: 15

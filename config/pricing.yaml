@@ -1,0 +1,29 @@
+# Claude API pricing, USD per million tokens. NOT fetched from Anthropic's official
+# pricing page programmatically -- verify at https://claude.com/pricing before relying
+# on this for real budgeting. Rates below reflect third-party aggregator consensus as
+# of early September 2026 for the specific model this project's config/agent.yaml
+# pins (claude-sonnet-4-6), not necessarily the newest model generation, since pricing
+# for newer models (e.g. Claude Sonnet 5) was actively changing at the time this was
+# written and multiple sources disagreed on the exact current rate.
+#
+# Kept in config, not hardcoded in Python, specifically so updating a rate doesn't
+# require a code change -- this file is the one place that should need editing when
+# Anthropic changes pricing.
+
+models:
+  claude-sonnet-4-6:
+    input_per_million: 3.00
+    output_per_million: 15.00
+  claude-opus-4-6:
+    input_per_million: 5.00
+    output_per_million: 25.00
+  claude-haiku-4-5-20251001:
+    input_per_million: 1.00
+    output_per_million: 5.00
+
+# Batch API applies a flat 50% discount to both input and output, per every source
+# checked. Prompt caching (~90% off cached input) is NOT modeled here -- this
+# project doesn't use caching, so adding that discount would be speculative.
+batch_discount: 0.5
+
+default_model: claude-sonnet-4-6  # matches config/agent.yaml

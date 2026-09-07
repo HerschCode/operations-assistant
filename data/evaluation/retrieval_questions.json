@@ -1,0 +1,37 @@
+[
+  {
+    "question": "What approval is required for purchase orders above $10,000?",
+    "expected_document_id": "procurement-policy",
+    "expected_section_contains": "Secondary Approval"
+  },
+  {
+    "question": "When does an order go to manual credit review?",
+    "expected_document_id": "procurement-policy",
+    "expected_section_contains": "Manual Credit Review"
+  },
+  {
+    "question": "What is the SLA target for Consignment category orders?",
+    "expected_document_id": "sla-policy",
+    "expected_section_contains": "Targets by Category"
+  },
+  {
+    "question": "When should a case be escalated to Operations leadership?",
+    "expected_document_id": "escalation-procedure",
+    "expected_section_contains": "When to Escalate"
+  },
+  {
+    "question": "How are emergency purchases handled outside the normal process?",
+    "expected_document_id": "exception-handling-procedure",
+    "expected_section_contains": "Emergency Purchases"
+  },
+  {
+    "question": "Does a supplier dispute count against SLA breach metrics?",
+    "expected_document_id": "exception-handling-procedure",
+    "expected_section_contains": "Supplier Disputes"
+  },
+  {
+    "question": "What happens to a Purchase Order's approval if its price changes after release?",
+    "expected_document_id": "procurement-policy",
+    "expected_section_contains": "Purchase Order Changes"
+  }
+]

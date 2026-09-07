@@ -1,0 +1,10 @@
+embedding_model: all-MiniLM-L6-v2  # local sentence-transformers model, no external API call needed
+chunk_size_tokens: 400
+chunk_overlap_tokens: 60
+# Rationale for these two numbers lives in docs/rag-design.md -- don't change without updating
+# that doc, since it explains the reasoning, not just the values.
+
+top_k: 5
+min_similarity_score: 0.3  # below this, treat as "no relevant document found" rather than forcing a weak match
+
+collection_name: operations_policy_documents
