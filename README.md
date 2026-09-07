@@ -1,5 +1,9 @@
 # Operations Assistant
 
+**🔗 [Live demo](https://operations-assistant.onrender.com)** — ask a real question, get a real
+answer from a real Groq-backed agent over live data and real policy documents. Free-tier hosting,
+so the first request after idling may take 30-60s to wake up.
+
 An operations investigation assistant for **Northstar Manufacturing** that combines enterprise
 documents (policies/SOPs), operational data, process analytics, and predictive SLA-risk scores to
 answer business questions and conduct evidence-based investigations — grounded, cited, and
