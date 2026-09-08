@@ -381,3 +381,28 @@ clients, revocation isolation, the actual admin-vs-reader role gate on document
 upload (not speculative -- a real route enforces it), and legacy key coexistence.
 
 Full suite: 173/173.
+
+## Post-v1.0 build session -- hybrid retrieval (keyword + semantic) with reranking
+`src/retrieval/search.py::hybrid_search()` closes the FUTURE_IMPROVEMENTS.md gap
+("Hybrid retrieval (keyword + semantic) and reranking, Tier 3"). Combines the
+existing semantic search with real BM25 keyword search (`rank_bm25`) over the same
+corpus, merged via Reciprocal Rank Fusion (RRF, k=60, the standard constant from
+the original paper) -- a chunk ranking well in EITHER method surfaces near the
+top, rather than requiring it to win on cosine similarity alone. This project's
+policy documents use precise defined terms throughout ("PO Change Approval",
+"Manual Credit Review"), exactly the case keyword search catches that pure
+semantic similarity can miss.
+
+Wired into the real tool (`src/tools/documents.py::search_policy_documents` now
+calls `hybrid_search` instead of `semantic_search`) rather than left as
+unused-alongside scaffolding -- 2 existing tests in `test_tools.py` updated to
+patch the new function name, both still passing. `semantic_search` itself is
+unchanged and still used directly by `test_e2e_scenarios.py`'s real
+chunk/store/retrieve chain test.
+
+4 new tests in `test_hybrid_search.py`, including one that directly proves the
+actual point: a chunk containing the query's exact term, ranked LAST by semantic
+search, surfaces near the top via the keyword signal. Verified against the real
+live indexed corpus too, not just test fixtures.
+
+Full suite: 177/177.

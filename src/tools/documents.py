@@ -3,7 +3,7 @@ The RAG-backed tool -- calls straight into src/retrieval/search.py (Phase 15), n
 operations-performance's API, since this is the one tool that answers from this
 project's own document corpus rather than the companion project's data.
 """
-from src.retrieval.search import semantic_search, no_relevant_results_response
+from src.retrieval.search import hybrid_search, no_relevant_results_response
 from src.tools.validation import validate_query
 
 SEARCH_POLICY_DOCUMENTS_SCHEMA = {
@@ -26,7 +26,7 @@ SEARCH_POLICY_DOCUMENTS_SCHEMA = {
 
 def search_policy_documents(query: str) -> dict:
     query = validate_query(query)
-    results = semantic_search(query)
+    results = hybrid_search(query)
     if not results:
         return {"found": False, "message": no_relevant_results_response(), "results": []}
 

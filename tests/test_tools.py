@@ -89,7 +89,7 @@ def test_get_pipeline_status_default_limit(mock_get):
     mock_get.assert_called_once_with("/observability/pipeline-runs", params={"limit": 5})
 
 
-@patch("src.tools.documents.semantic_search")
+@patch("src.tools.documents.hybrid_search")
 def test_search_policy_documents_wraps_results(mock_search):
     mock_result = MagicMock()
     mock_result.citation = "Procurement Policy, Section 4.2"
@@ -102,7 +102,7 @@ def test_search_policy_documents_wraps_results(mock_search):
     assert result["results"][0]["citation"] == "Procurement Policy, Section 4.2"
 
 
-@patch("src.tools.documents.semantic_search")
+@patch("src.tools.documents.hybrid_search")
 def test_search_policy_documents_reports_not_found(mock_search):
     mock_search.return_value = []
     result = search_policy_documents(query="something unrelated")
