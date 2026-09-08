@@ -42,6 +42,55 @@ def test_tool_schemas_to_openai_preserves_name_and_parameters():
     assert converted[0]["function"]["parameters"] == schemas[0]["input_schema"]
 
 
+def test_tool_schemas_to_openai_makes_optional_params_nullable():
+    """Found by a real live agent evaluation run: Groq's model sometimes emits
+    null for an omitted optional param, and Groq's own strict validator then
+    rejects that against a plain "type": "string" schema. Optional (non-required)
+    string params must accept null too."""
+    schemas = [{
+        "name": "get_sla_metrics", "description": "desc",
+        "input_schema": {
+            "type": "object",
+            "properties": {"segment": {"type": "string", "description": "optional"}},
+            "required": [],
+        },
+    }]
+    converted = _tool_schemas_to_openai(schemas)
+    assert converted[0]["function"]["parameters"]["properties"]["segment"]["type"] == ["string", "null"]
+
+
+def test_tool_schemas_to_openai_leaves_required_params_unchanged():
+    """A required param should stay a plain "string" -- widening it to accept
+    null too would make a genuinely required argument look optional to the
+    model/validator."""
+    schemas = [{
+        "name": "get_order_risk", "description": "desc",
+        "input_schema": {
+            "type": "object",
+            "properties": {"case_id": {"type": "string"}},
+            "required": ["case_id"],
+        },
+    }]
+    converted = _tool_schemas_to_openai(schemas)
+    assert converted[0]["function"]["parameters"]["properties"]["case_id"]["type"] == "string"
+
+
+def test_tool_schemas_to_openai_does_not_mutate_the_original_schema():
+    """_make_optional_params_nullable must not mutate the shared TOOL_SCHEMAS
+    objects in place -- Anthropic's and Gemini's conversions read the same
+    source schemas and must not see Groq-specific nullable types."""
+    original = {
+        "name": "get_sla_metrics", "description": "desc",
+        "input_schema": {
+            "type": "object",
+            "properties": {"segment": {"type": "string"}},
+            "required": [],
+        },
+    }
+    _tool_schemas_to_openai([original])
+    assert original["input_schema"]["properties"]["segment"]["type"] == "string"
+
+
 def test_tool_schemas_to_gemini_wraps_in_function_declarations():
     schemas = [{"name": "get_bottlenecks", "description": "desc", "input_schema": {"type": "object", "properties": {}}}]
     converted = _tool_schemas_to_gemini(schemas)

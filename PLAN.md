@@ -431,3 +431,30 @@ behavior (clean refusal passes, fabricated number fails) rather than patched to
 keep passing superficially.
 
 11 new/updated tests. Full suite: 186/186.
+
+## Post-v1.0 build session -- fixed a real Groq tool-call schema bug (found live)
+Running the real agent evaluation report (src/evaluation/generate_agent_report.py)
+against the live Groq-backed agent -- the first genuine end-to-end run of this
+tool, not a mocked test -- crashed immediately: `groq.BadRequestError: Tool call
+validation failed ... /segment: expected string, but got null`.
+
+Root cause: Groq's model sometimes emits `null` for an OMITTED optional parameter
+(e.g. `{"segment": null}` for `get_sla_metrics`'s optional `segment` arg) instead
+of leaving the key out entirely, and Groq's own server-side schema validation then
+rejects that same output against a plain `"type": "string"` schema -- a failure
+mode Anthropic's format doesn't have (it doesn't validate arguments server-side
+the way Groq does), so nothing in 189 mocked tests could have caught it.
+
+Fixed in `src/agent/providers.py::_make_optional_params_nullable()`: every
+non-required property's type is widened to also accept `null` specifically in the
+OpenAI/Groq schema conversion, on a deep copy so the shared `TOOL_SCHEMAS` objects
+(also read by the Anthropic and Gemini conversions) are never mutated. Verified by
+re-running the exact same live evaluation that crashed -- it now completes
+cleanly, and the new automated adversarial/unanswerable scoring correctly scored
+PASS against genuine live Groq output for the first time.
+
+3 new tests: nullable widening applied to optional params, NOT applied to
+required ones (a required arg staying required matters), and the original schema
+object is never mutated.
+
+Full suite: 189/189.

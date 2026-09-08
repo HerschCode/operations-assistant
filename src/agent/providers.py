@@ -29,6 +29,31 @@ from src.observability.logging_config import get_logger
 logger = get_logger("agent")
 
 
+def _make_optional_params_nullable(input_schema: dict) -> dict:
+    """Found by a real live agent evaluation run, not by inspection: Groq's model
+    sometimes emits `null` for an OMITTED optional parameter (e.g.
+    `{"segment": null}` for get_sla_metrics's optional segment argument) instead of
+    leaving the key out entirely -- and Groq's own server-side schema validation
+    then rejects that same output against a strict `"type": "string"` schema,
+    producing a `tool_use_failed` 400 error the agent has no way to recover from.
+    Anthropic's schema format (this project's source of truth, see TOOL_SCHEMAS)
+    doesn't have this problem since it doesn't validate tool-call arguments against
+    the schema server-side the way Groq does. Fixed here, in the OpenAI/Groq
+    conversion specifically, by widening every non-required property's type to
+    also accept null -- Anthropic and Gemini's conversions are untouched since
+    neither exhibited this failure."""
+    import copy
+    schema = copy.deepcopy(input_schema)
+    required = set(schema.get("required", []))
+    for prop_name, prop_schema in schema.get("properties", {}).items():
+        if prop_name in required:
+            continue
+        prop_type = prop_schema.get("type")
+        if isinstance(prop_type, str) and prop_type != "null":
+            prop_schema["type"] = [prop_type, "null"]
+    return schema
+
+
 def _tool_schemas_to_openai(tool_schemas: list[dict]) -> list[dict]:
     """Anthropic's {name, description, input_schema} -> OpenAI/Groq's
     {type: "function", function: {name, description, parameters}}."""
@@ -38,7 +63,7 @@ def _tool_schemas_to_openai(tool_schemas: list[dict]) -> list[dict]:
             "function": {
                 "name": t["name"],
                 "description": t["description"],
-                "parameters": t["input_schema"],
+                "parameters": _make_optional_params_nullable(t["input_schema"]),
             },
         }
         for t in tool_schemas
