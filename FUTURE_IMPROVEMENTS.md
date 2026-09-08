@@ -1,5 +1,10 @@
 # Future Improvements (Backlog)
 
+## Post-v1.0: hybrid retrieval (keyword + semantic) with RRF reranking
+`src/retrieval/search.py::hybrid_search()`, real BM25 + semantic merged via
+Reciprocal Rank Fusion, wired into the actual `search_policy_documents` tool
+(not left unused). See PLAN.md.
+
 ## Post-v1.0 build session -- multi-provider agent
 `src/agent/agent.py::run_agent` is now a thin dispatcher over `config["provider"]`
 (anthropic/groq/gemini), so the portfolio deployment can run on Groq or Gemini's free
@@ -42,7 +47,6 @@ re-check it if this project's Chroma usage ever changes to a networked server de
 ## Still open
 - Automated adversarial-answer scoring, not just tool-selection scoring, for the
   unanswerable/adversarial evaluation categories
-- Hybrid retrieval (keyword + semantic) and reranking (Tier 3 in FEATURES.md)
 - MCP-style tool exposure, if there's ever a genuine multi-client reason to need it
 - LangGraph, only if a genuinely more complex multi-step workflow outgrows the current
   plain-loop agent -- not adopted speculatively
