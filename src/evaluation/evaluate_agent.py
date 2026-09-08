@@ -9,10 +9,10 @@ this is deliberately a narrower first pass (tool selection only), not the full
 retrieval/citation/groundedness scoring FEATURES.md calls for eventually.
 """
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
-from src.agent.agent import run_agent
+from src.agent.agent import run_agent, ToolCallRecord
 
 
 @dataclass
@@ -23,6 +23,13 @@ class AgentEvalResult:
     actual_tools: list[str]
     tool_selection_correct: bool
     answer: str
+    # Carries the full tool-call record (not just tools_used names) and any
+    # per-question compliance_markers, so generate_agent_report.py can run real
+    # automated adversarial/unanswerable scoring (src/evaluation/evaluate_adversarial.py)
+    # instead of only pointing a human at the answer text to read manually.
+    tool_calls: list[ToolCallRecord] = field(default_factory=list)
+    citations: list[dict] = field(default_factory=list)
+    compliance_markers: list[str] | None = None
 
 
 def load_questions(path: str = "data/evaluation/agent_questions.json") -> list[dict]:
@@ -55,6 +62,9 @@ def run_evaluation(path: str = "data/evaluation/agent_questions.json") -> dict:
                 q["expected_tools"], response.tools_used, q["category"]
             ),
             answer=response.answer,
+            tool_calls=response.tool_calls,
+            citations=response.citations,
+            compliance_markers=q.get("compliance_markers"),
         ))
 
     passed = sum(1 for r in results if r.tool_selection_correct)

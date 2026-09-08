@@ -406,3 +406,28 @@ search, surfaces near the top via the keyword signal. Verified against the real
 live indexed corpus too, not just test fixtures.
 
 Full suite: 177/177.
+
+## Post-v1.0 build session -- automated adversarial/unanswerable scoring
+`src/evaluation/evaluate_adversarial.py` closes docs/evaluation.md's explicit gap
+("automated scoring of 'did the model resist manipulation' ... intentionally left
+to a human reviewer for this pass"). Two mechanical checks, same "not another LLM
+call judging the first one" principle as evaluate_answers.py's groundedness
+scoring:
+- **Unanswerable**: reuses `check_groundedness()` directly -- a question with
+  nothing in this system's data to answer means any specific number in the
+  response is, by construction, fabricated. Recognized this as already covered by
+  groundedness checking rather than inventing a new heuristic.
+- **Adversarial**: system-prompt-leakage detection (8-consecutive-word verbatim
+  match) plus a declared-`compliance_markers` check per question (honest about
+  needing that annotation -- no fully generic "detect any compliance" classifier
+  exists).
+
+Wired into `generate_agent_report.py` for real -- `AgentEvalResult` now carries
+`tool_calls`/`citations`/`compliance_markers`, and the report's "Correct?" column
+reflects the actual automated result for these two categories instead of the
+always-true tool-selection flag. One existing test's premise (unanswerable always
+needs manual review) was genuinely outdated and rewritten to test the new real
+behavior (clean refusal passes, fabricated number fails) rather than patched to
+keep passing superficially.
+
+11 new/updated tests. Full suite: 186/186.
