@@ -18,6 +18,12 @@ checked-in test fixture never has to change. 14 new tests in `tests/test_provide
 routing), all passing alongside the existing 139. Anthropic's own integration is
 untouched, not removed -- switching back is a one-line env var away.
 
+## Post-v1.0: real load test against the live deployment
+`scripts/load_test_live.py` closes this for real -- genuinely concurrent OS threads
+against the actual Render URL, not TestClient. No race condition found in the rate
+limiter under real concurrent load; a real different bug (provider rate-limit
+surfaced as an indistinguishable 502) was found and fixed instead. See PLAN.md.
+
 ## Done since v1.0 (moved out of this list)
 Conversational context, citation-correctness/groundedness scoring, a real cost estimator,
 `POST /documents`, process-conformance tooling, an in-process concurrency test, and API-key
@@ -34,9 +40,6 @@ Full writeup in `docs/security-notes.md`. Re-check this once a fix version ships
 re-check it if this project's Chroma usage ever changes to a networked server deployment.
 
 ## Still open
-- Real load/concurrency testing against a live deployed server (the in-process `TestClient`
-  version now exists and is genuinely useful, but it's not the same as measuring latency under
-  real network load with a tool like locust/k6 against a running instance)
 - Automated adversarial-answer scoring, not just tool-selection scoring, for the
   unanswerable/adversarial evaluation categories
 - Hybrid retrieval (keyword + semantic) and reranking (Tier 3 in FEATURES.md)
