@@ -344,3 +344,26 @@ than guessed. `.env.example` now says explicitly to check Groq's current model l
 rather than trusting a name pinned in this file to stay valid.
 
 Full suite re-verified clean with no `.env` present: 153/153.
+
+## Post-v1.0 build session -- real load/concurrency test against the live deployment
+Closed FUTURE_IMPROVEMENTS.md's "real load/concurrency testing against a live deployed
+server" gap for real -- `scripts/load_test_live.py` hits the actual Render URL with
+genuinely concurrent OS threads (not async tasks on one thread), not TestClient.
+
+**Confirmed no race condition** in `src/api/rate_limit.py`'s check-then-append pattern
+under real concurrent load against the live server (ran multiple times at varying
+concurrency; the 5-request limit held every time). Worth having actually tested this
+rather than assumed it given FastAPI runs sync routes across a real thread pool.
+
+**Found a real, different bug while testing**: under concurrent /demo/chat requests,
+Groq's own free-tier API rate limit sometimes trips -- and the response was a 502
+indistinguishable from a genuine agent failure. A caller had no way to tell "retry
+shortly" from "something is actually broken." Fixed with
+`src/agent/provider_errors.py::is_rate_limit_error()` (checks `groq.RateLimitError`,
+`anthropic.RateLimitError`, and a generic `status_code == 429` fallback for
+google-genai, which doesn't expose a dedicated exception class), wired into both
+`/chat` and `/demo/chat` to return 503 + `Retry-After` instead of 502. No existing
+test caught this because every test mocks the provider client entirely -- a real
+rate-limit response from the SDK had never been exercised. 6 new tests.
+
+Full suite: 168/168.

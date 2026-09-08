@@ -11,6 +11,7 @@ from src.api.schemas import (
 )
 from src.api.dependencies import check_ops_performance_reachable, check_vector_store_reachable
 from src.api.rate_limit import is_allowed as rate_limit_is_allowed
+from src.agent.provider_errors import is_rate_limit_error
 from src.ingestion.document_loader import load_document
 from src.ingestion.chunker import chunk_text
 from src.ingestion.index_documents import index_document, list_indexed_documents
@@ -68,7 +69,7 @@ def demo_chat(request: ChatRequest, http_request: Request):
     try:
         result = run_agent(request.question)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Agent failed to produce a response: {exc}")
+        raise _agent_error_response(exc)
 
     return ChatResponse(
         answer=result.answer,
@@ -76,6 +77,21 @@ def demo_chat(request: ChatRequest, http_request: Request):
         citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in result.citations],
         conversation_id="demo",
     )
+
+
+def _agent_error_response(exc: Exception) -> HTTPException:
+    # A provider rate-limit (found by scripts/load_test_live.py hitting the real
+    # deployed service with genuinely concurrent requests -- Groq's free-tier limit
+    # tripped and surfaced as an indistinguishable-from-broken 502) is a distinct,
+    # retryable condition, not "the agent failed." 503 + Retry-After tells a real
+    # caller to back off and retry rather than treating this like a bug to report.
+    if is_rate_limit_error(exc):
+        return HTTPException(
+            status_code=503,
+            detail="The model provider is temporarily rate-limited -- please retry in a few seconds.",
+            headers={"Retry-After": "10"},
+        )
+    return HTTPException(status_code=502, detail=f"Agent failed to produce a response: {exc}")
 
 
 @router.get("/documents", response_model=list[DocumentListItem])
@@ -96,7 +112,7 @@ def chat(request: ChatRequest):
     try:
         result = run_agent(request.question, history=history)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Agent failed to produce a response: {exc}")
+        raise _agent_error_response(exc)
 
     append_turn(conversation_id, request.question, result.answer)
 

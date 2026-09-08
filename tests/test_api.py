@@ -57,6 +57,19 @@ def test_chat_endpoint_returns_502_on_agent_failure(mock_run_agent):
     assert response.status_code == 502
 
 
+@patch("src.api.routes.run_agent")
+def test_chat_endpoint_returns_503_on_provider_rate_limit(mock_run_agent):
+    """Found by a real load test (scripts/load_test_live.py) against the actual
+    deployed service -- a provider rate-limit was previously indistinguishable from
+    a genuine agent failure (both 502). This is the regression guard."""
+    import httpx, groq
+    response_obj = httpx.Response(status_code=429, request=httpx.Request("POST", "https://api.groq.com"))
+    mock_run_agent.side_effect = groq.RateLimitError("rate limited", response=response_obj, body=None)
+    response = client.post("/chat", json={"question": "test"})
+    assert response.status_code == 503
+    assert response.headers["retry-after"] == "10"
+
+
 def test_chat_endpoint_rejects_empty_question():
     response = client.post("/chat", json={"question": ""})
     assert response.status_code == 422  # pydantic min_length=1 validation
