@@ -1,10 +1,11 @@
 # Runs operations-assistant standalone. It still needs a running operations-performance
-# instance to actually answer data questions (OPS_PERFORMANCE_API_URL) -- that project
-# doesn't have its own Dockerfile yet (see its PLAN.md), so for now this expects it
-# running on the host, reached via host.docker.internal (the extra_hosts entry below
-# makes that resolve on Linux too, where it isn't automatic like on Mac/Windows).
-# Once operations-performance gets a Dockerfile, the natural next step is a shared
-# external network so both containers can reach each other by service name instead.
+# instance to actually answer data questions (OPS_PERFORMANCE_API_URL) -- this file
+# expects it running on the host, reached via host.docker.internal (the extra_hosts
+# entry below makes that resolve on Linux too, where it isn't automatic like on
+# Mac/Windows). operations-performance does now have its own Dockerfile; the
+# llm-security-gateway repo's docker-compose.trilogy.yml is the shared-network version
+# that runs both projects (plus a Postgres container) together instead of expecting
+# operations-performance on the host -- use that for a full local trilogy run.
 
 services:
   operations-assistant:
