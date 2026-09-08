@@ -458,3 +458,21 @@ required ones (a required arg staying required matters), and the original schema
 object is never mutated.
 
 Full suite: 189/189.
+
+## Post-v1.0 build session -- Dockerfile actually built and run for the first time
+Same fix as operations-performance's identical Dockerfile issue (see that project's
+PLAN.md for the full root-cause writeup: a real Docker Desktop + WSL2 host networking
+MTU issue causing intermittent SSLError "record layer failure" on large pip installs,
+fixed at the host level, plus a retry-loop correctness bug where a bash `for` loop's
+own exit status masked a fully-failed install as success).
+
+Verified end to end for real, not just built: ran the container against real
+GROQ_API_KEY/OPS_PERFORMANCE_API_KEY, watched the startup lifespan hook (added
+earlier this session) genuinely download the real ONNX embedding model and index
+the real policy documents inside the container from a cold start, confirmed
+`GET /health` reports `vector_store_reachable: true` against the container's own
+freshly-built Chroma store. `ops_performance_api_reachable: false` in this
+particular run was expected (the companion container wasn't running at the same
+time), not a bug -- the app degraded exactly as designed.
+
+Full suite: 189/189.
