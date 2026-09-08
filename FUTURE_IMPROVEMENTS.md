@@ -48,7 +48,6 @@ re-check it if this project's Chroma usage ever changes to a networked server de
   plain-loop agent -- not adopted speculatively
 - Real API usage tracking (the cost estimator exists and works; it has no real spend numbers to
   report yet since no live model has been called)
-- Per-client API keys, key rotation, and scopes/roles (single shared API key exists now)
 
 ## Post-v1.0: persisted conversation storage
 `src/agent/conversation_store.py` swapped from an in-memory dict to SQLite

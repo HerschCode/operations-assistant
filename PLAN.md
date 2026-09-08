@@ -367,3 +367,17 @@ test caught this because every test mocks the provider client entirely -- a real
 rate-limit response from the SDK had never been exercised. 6 new tests.
 
 Full suite: 168/168.
+
+## Post-v1.0 build session -- per-client API keys with named roles
+Mirrors operations-performance's identical `src/api/auth.py` addition: `API_KEYS`
+(comma-separated `name:key:role` triples) alongside the original single-secret
+`API_KEY`, fully backward compatible. Unlike the read-only companion project, this
+one has a genuine use for role-gating: `POST /documents` (the one real write
+endpoint here) now requires the "admin" role via `require_role("admin")` -- a
+reader-role key can chat and investigate but can't upload/index a new document.
+
+4 new tests alongside the 5 original (all passing unchanged): multiple independent
+clients, revocation isolation, the actual admin-vs-reader role gate on document
+upload (not speculative -- a real route enforces it), and legacy key coexistence.
+
+Full suite: 173/173.

@@ -71,12 +71,16 @@ just be noise, not a control.
   scored (see `docs/evaluation.md` for why).
 - No rate limiting on `/chat` or `/investigate` (Tier 3 in FEATURES.md)
 - **API-key authentication is now real** (`src/api/auth.py`, ported from
-  `operations-performance`'s identical mechanism) -- every endpoint except `GET /health` requires
-  a matching `X-API-Key` header, constant-time compared. Fails open if `API_KEY` is unset (local
-  dev only). This matters more here than in the read-only companion project: `/chat` and
-  `/investigate` each trigger a real LLM call once live, so an unauthenticated endpoint isn't just
-  a data-exposure risk, it's a real-money risk. Still just one shared secret -- no per-client keys,
-  rotation, or scopes.
+  `operations-performance`'s identical mechanism) -- every endpoint except `GET /health` and
+  `/demo/*` requires a matching `X-API-Key` header, constant-time compared. Fails open if neither
+  `API_KEY` nor `API_KEYS` is set (local dev only). This matters more here than in the read-only
+  companion project: `/chat` and `/investigate` each trigger a real LLM call once live, so an
+  unauthenticated endpoint isn't just a data-exposure risk, it's a real-money risk.
+- **Per-client keys with named roles now exist** (`API_KEYS`), same mechanism as
+  `operations-performance`. `POST /documents` (this project's one real write endpoint) requires
+  the "admin" role specifically -- a reader-role key can chat but can't upload/index a new
+  document. `API_KEY` still works too (a synthetic "default" admin client), so this project's live
+  deployment's already-configured key didn't need to change.
 - No sandboxing of what a tool call could theoretically do beyond input validation -- every tool
   is read-only against `operations-performance`'s API by construction (`src/tools/client.py` only
   ever issues GET requests), which is the real containment here, not a runtime permission check

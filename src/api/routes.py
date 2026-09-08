@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
 from fastapi.responses import HTMLResponse
 import uuid
 import tempfile
@@ -9,6 +9,7 @@ from src.api.schemas import (
     ChatRequest, ChatResponse, SourceCitation,
     InvestigateRequest, InvestigateResponse, InvestigationReport,
 )
+from src.api.auth import require_role
 from src.api.dependencies import check_ops_performance_reachable, check_vector_store_reachable
 from src.api.rate_limit import is_allowed as rate_limit_is_allowed
 from src.agent.provider_errors import is_rate_limit_error
@@ -128,7 +129,7 @@ ALLOWED_UPLOAD_SUFFIXES = {".md", ".pdf", ".txt"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5MB -- generous for a policy document, small enough to reject an accidental wrong-file upload fast
 
 
-@router.post("/documents", response_model=DocumentUploadResponse)
+@router.post("/documents", response_model=DocumentUploadResponse, dependencies=[Depends(require_role("admin"))])
 async def upload_document(file: UploadFile = File(...)):
     """Accepts a document, indexes it through the real Phase 14 pipeline (load ->
     chunk -> embed -> upsert), and makes it immediately searchable via
