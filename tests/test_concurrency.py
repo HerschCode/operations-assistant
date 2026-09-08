@@ -56,13 +56,14 @@ def test_concurrent_chat_requests_with_different_conversation_ids_stay_isolated(
 
 @patch("src.api.routes.run_agent")
 def test_concurrent_requests_to_same_conversation_do_not_crash(mock_run_agent):
-    """Real threads writing to the SAME conversation_id concurrently -- Python's GIL
-    makes the individual dict/list operations in conversation_store atomic enough
-    that this doesn't corrupt data structures, but the INTERLEAVING of which request's
-    turn gets appended first is genuinely a race (not deterministic) -- this test
-    checks the system doesn't crash or lose data, not that ordering is deterministic,
-    which is an honest distinction worth keeping rather than asserting something
-    concurrent access can't actually promise."""
+    """Real threads writing to the SAME conversation_id concurrently -- now backed by
+    SQLite (a per-call connection, relying on SQLite's own file-level locking rather
+    than Python's GIL, since conversation_store.py switched from an in-memory dict to
+    persist across restarts). The INTERLEAVING of which request's turn gets appended
+    first is genuinely a race (not deterministic) -- this test checks the system
+    doesn't crash or lose data, not that ordering is deterministic, which is an
+    honest distinction worth keeping rather than asserting something concurrent
+    access can't actually promise."""
     reset_all()
     mock_run_agent.side_effect = lambda question, history=None: AgentResponse(
         answer=f"answer to: {question}", tool_calls=[], tools_used=[], citations=[],

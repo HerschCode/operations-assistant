@@ -1,8 +1,36 @@
-from src.agent.conversation_store import get_history, append_turn, clear, reset_all, MAX_TURNS_RETAINED
+import sqlite3
+
+from src.agent.conversation_store import (
+    get_history, append_turn, clear, reset_all, MAX_TURNS_RETAINED, _DB_PATH,
+)
 
 
 def setup_function():
     reset_all()
+
+
+def test_conversation_actually_persists_to_disk_not_just_in_memory():
+    """The whole point of this module's SQLite backend over the original in-memory
+    dict: data survives a process restart. Simulating a real restart in a test isn't
+    possible, but reading the row back through a completely separate raw sqlite3
+    connection (not this module's own get_history()) proves the data genuinely
+    landed on disk rather than living only in a Python object that a real restart
+    would have dropped."""
+    append_turn("persist-check", "does this survive?", "yes, it's on disk")
+
+    raw_conn = sqlite3.connect(_DB_PATH)
+    try:
+        rows = raw_conn.execute(
+            "SELECT role, content FROM turns WHERE conversation_id = ? ORDER BY turn_order",
+            ("persist-check",),
+        ).fetchall()
+    finally:
+        raw_conn.close()
+
+    assert rows == [
+        ("user", "does this survive?"),
+        ("assistant", "yes, it's on disk"),
+    ]
 
 
 def test_get_history_empty_for_new_conversation():

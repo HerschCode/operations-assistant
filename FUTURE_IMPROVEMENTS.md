@@ -48,6 +48,14 @@ re-check it if this project's Chroma usage ever changes to a networked server de
   plain-loop agent -- not adopted speculatively
 - Real API usage tracking (the cost estimator exists and works; it has no real spend numbers to
   report yet since no live model has been called)
-- Persisted (not in-memory) conversation storage if this ever needs to survive a restart or run
-  across multiple instances
 - Per-client API keys, key rotation, and scopes/roles (single shared API key exists now)
+
+## Post-v1.0: persisted conversation storage
+`src/agent/conversation_store.py` swapped from an in-memory dict to SQLite
+(`data/conversations.db`) -- survives an ordinary process restart now, not just a
+Render redeploy (that free tier's disk is still ephemeral across redeploys, same
+limitation as the Chroma index). Public API unchanged, so all 5 existing tests pass
+against the new backend with zero changes; added a 6th proving the data actually
+lands on disk (read back through a separate raw sqlite3 connection, not this
+module's own functions) rather than just living in a Python object a real restart
+would drop.

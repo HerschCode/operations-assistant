@@ -6,6 +6,7 @@ __pycache__/
 .git/
 .github/
 data/chroma/
+data/conversations.db
 *.md
 !README.md
 tests/

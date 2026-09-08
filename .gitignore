@@ -6,3 +6,4 @@ __pycache__/
 .ipynb_checkpoints/
 data/documents/*.pdf
 data/chroma/
+data/conversations.db
