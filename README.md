@@ -15,8 +15,18 @@ Consumes the data model and analytics built in [`operations-performance`](../ope
 via a small set of controlled tools rather than re-implementing that logic.
 
 ## Stack
-Python · FastAPI · PostgreSQL · RAG (embeddings + vector DB) · LLM tool-calling / agent
-orchestration · Docker · Cloud Run · GCP
+Python · FastAPI · PostgreSQL · RAG (ChromaDB + hybrid BM25/semantic retrieval) ·
+LangChain · Groq / Anthropic / Gemini · Docker · Cloud Run · GCP
+
+## Agent orchestration
+Four interchangeable providers behind one interface (`config["provider"]`, switchable
+via `AGENT_PROVIDER` without touching code): Anthropic, Groq, Gemini, and
+**LangChain** (`src/agent/langchain_agent.py`) — the LangChain path wraps this
+project's real tools as `StructuredTool` objects (schema inferred from the actual
+function signatures, not a hand-copied duplicate) and drives them through
+`ChatGroq.bind_tools()`. Every provider calls the exact same underlying tool
+functions and returns the same response shape, so switching orchestration layers
+never changes what a tool actually does.
 
 ## Architecture
 ![Architecture diagram](docs/architecture.svg)
