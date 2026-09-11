@@ -45,8 +45,6 @@ Full writeup in `docs/security-notes.md`. Re-check this once a fix version ships
 re-check it if this project's Chroma usage ever changes to a networked server deployment.
 
 ## Still open
-- Automated adversarial-answer scoring, not just tool-selection scoring, for the
-  unanswerable/adversarial evaluation categories
 - MCP-style tool exposure, if there's ever a genuine multi-client reason to need it
 - LangGraph, only if a genuinely more complex multi-step workflow outgrows the current
   plain-loop agent -- not adopted speculatively
