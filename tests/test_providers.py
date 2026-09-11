@@ -13,6 +13,7 @@ import pytest
 from src.agent.agent import load_agent_config
 from src.agent.providers import (
     run_agent_groq, run_agent_gemini, _tool_schemas_to_openai, _tool_schemas_to_gemini,
+    _log_real_cost,
 )
 
 
@@ -107,8 +108,12 @@ def _groq_tool_call(name, args, call_id="call_1"):
     return SimpleNamespace(id=call_id, function=SimpleNamespace(name=name, arguments=json.dumps(args)))
 
 
-def _groq_response(message):
-    return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+def _groq_response(message, usage=None):
+    return SimpleNamespace(choices=[SimpleNamespace(message=message)], usage=usage)
+
+
+def _groq_usage(prompt_tokens, completion_tokens):
+    return SimpleNamespace(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens)
 
 
 def _groq_client(responses):
@@ -129,6 +134,39 @@ def test_run_agent_groq_no_tools_needed_returns_immediately():
     assert result.answer == "The answer is 42."
     assert result.tool_calls == []
     assert client.chat.completions.create.call_count == 1
+
+
+def test_run_agent_groq_captures_real_usage_from_response():
+    """Closes the FUTURE_IMPROVEMENTS.md gap: real token counts from the
+    provider's own response.usage, not the estimate_tokens() heuristic."""
+    client = _groq_client([
+        _groq_response(_groq_message(content="The answer is 42."), usage=_groq_usage(100, 20)),
+    ])
+    result = run_agent_groq("what is the answer", DEFAULT_TEST_CONFIG, client=client)
+    assert result.prompt_tokens == 100
+    assert result.completion_tokens == 20
+
+
+@patch("src.agent.providers.call_tool")
+def test_run_agent_groq_sums_usage_across_multiple_rounds(mock_call_tool):
+    """A multi-tool turn calls the model more than once -- real cost tracking
+    needs the SUM across every round, not just the last one."""
+    mock_call_tool.return_value = {"mean_hours": 48.0}
+    client = _groq_client([
+        _groq_response(_groq_message(tool_calls=[_groq_tool_call("get_cycle_time", {})]), usage=_groq_usage(50, 10)),
+        _groq_response(_groq_message(content="Mean cycle time is 48 hours."), usage=_groq_usage(70, 15)),
+    ])
+    result = run_agent_groq("what is the cycle time", DEFAULT_TEST_CONFIG, client=client)
+    assert result.prompt_tokens == 120  # 50 + 70
+    assert result.completion_tokens == 25  # 10 + 15
+
+
+def test_run_agent_groq_handles_missing_usage_gracefully():
+    """Some providers/mocked paths may not report usage at all -- should not crash."""
+    client = _groq_client([_groq_response(_groq_message(content="answer"), usage=None)])
+    result = run_agent_groq("q", DEFAULT_TEST_CONFIG, client=client)
+    assert result.prompt_tokens == 0
+    assert result.completion_tokens == 0
 
 
 @patch("src.agent.providers.call_tool")
@@ -251,3 +289,25 @@ def test_run_agent_dispatches_to_gemini_when_configured():
         "q", client=client, config_override={**DEFAULT_TEST_CONFIG, "provider": "gemini"},
     )
     assert result.answer == "42"
+
+
+# --- real cost logging ---------------------------------------------------------------
+
+def test_log_real_cost_computes_genuine_dollar_figure(caplog):
+    """Uses openai/gpt-oss-120b's real configured rate ($0.15/1M in, $0.60/1M out)
+    -- 1000 prompt + 500 completion tokens should compute to a specific, checkable
+    number, not just "doesn't crash"."""
+    import logging
+    with caplog.at_level(logging.INFO, logger="agent"):
+        _log_real_cost("turn-1", "openai/gpt-oss-120b", 1000, 500)
+
+    cost_records = [r for r in caplog.records if r.message == "real cost for this turn"]
+    assert len(cost_records) == 1
+    expected = round((1000 / 1_000_000) * 0.15 + (500 / 1_000_000) * 0.60, 6)
+    assert cost_records[0].total_cost_usd == expected
+
+
+def test_log_real_cost_does_not_raise_for_unconfigured_model():
+    """A model with no pricing.yaml entry shouldn't crash the agent turn -- cost
+    logging is observability, not something that should break a real answer."""
+    _log_real_cost("turn-1", "some-unconfigured-model", 100, 50)  # must not raise

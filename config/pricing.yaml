@@ -20,6 +20,14 @@ models:
   claude-haiku-4-5-20251001:
     input_per_million: 1.00
     output_per_million: 5.00
+  # Groq -- the provider this project's live deployment actually runs on
+  # (config/agent.yaml's committed default is anthropic, but AGENT_PROVIDER=groq is
+  # what's set on the real Render deployment; see src/agent/providers.py). Rate
+  # confirmed directly from console.groq.com/docs/model/openai/gpt-oss-120b, not a
+  # third-party aggregator, since this one actually gets used for real spend.
+  openai/gpt-oss-120b:
+    input_per_million: 0.15
+    output_per_million: 0.60
 
 # Batch API applies a flat 50% discount to both input and output, per every source
 # checked. Prompt caching (~90% off cached input) is NOT modeled here -- this

@@ -476,3 +476,34 @@ particular run was expected (the companion container wasn't running at the same
 time), not a bug -- the app degraded exactly as designed.
 
 Full suite: 189/189.
+
+## Post-v1.0 build session -- real cost/usage tracking, closing the last named P2 gap
+Closes FUTURE_IMPROVEMENTS.md's plainly-stated gap: "the cost estimator exists and
+works; it has no real spend numbers to report yet since no live model has been
+called." One has now, repeatedly, this session.
+
+**Found a real gap while wiring this up**: `config/pricing.yaml` only had Anthropic
+rates configured, despite the live deployment actually running on Groq
+(`AGENT_PROVIDER=groq`, `openai/gpt-oss-120b`) -- cost tracking would have silently
+failed (`ValueError: No pricing configured`) the moment anyone tried to use it for
+real. Added Groq's real rate ($0.15/1M input, $0.60/1M output), sourced directly
+from `console.groq.com/docs/model/openai/gpt-oss-120b`, not a third-party
+aggregator, since this is the rate that actually gets used.
+
+`AgentResponse` now carries `prompt_tokens`/`completion_tokens`, populated from
+Groq's own `response.usage` (real measured counts, never the
+`estimate_tokens()` chars/4 heuristic) and summed across every model round a
+multi-tool turn makes -- a 3-round investigation undercounting by 2/3 would have
+been a real, silent bug if only the last round's usage were captured.
+`src/agent/providers.py::_log_real_cost()` computes and logs a genuine dollar
+figure per turn; failures here are swallowed to a debug log rather than ever
+breaking a real user's answer, since cost logging is observability, not something
+that should be allowed to fail a request.
+
+**Verified for real, not just in tests**: fired a live call through the actual
+Groq-backed agent -- 2,146 real prompt tokens, 128 real completion tokens,
+**$0.000399** computed from genuine measured usage. 6 new tests (usage capture,
+multi-round summing, graceful handling when usage is absent, real cost
+computation against the configured rate, and unconfigured-model resilience).
+
+Full suite: 194/194.

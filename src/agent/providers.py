@@ -84,6 +84,32 @@ def _tool_schemas_to_gemini(tool_schemas: list[dict]) -> list[dict]:
     ]
 
 
+def _log_real_cost(turn_id: str, model: str, prompt_tokens: int, completion_tokens: int) -> None:
+    """Closes the FUTURE_IMPROVEMENTS.md gap named plainly: "the cost estimator
+    exists and works; it has no real spend numbers to report yet since no live
+    model has been called." Now one has -- this logs a real cost figure computed
+    from real token counts (response.usage), not the estimate_tokens() heuristic.
+    Failure here (e.g. model not in config/pricing.yaml) is swallowed to a debug
+    log rather than breaking the actual turn -- cost logging is observability, not
+    something that should ever fail a real user's question."""
+    try:
+        from src.evaluation.cost_estimator import calculate_cost
+        cost = calculate_cost(
+            input_tokens=prompt_tokens, output_tokens=completion_tokens,
+            model=model, is_estimated_token_count=False,
+        )
+        logger.info(
+            "real cost for this turn",
+            extra={
+                "turn_id": turn_id, "model": model,
+                "prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens,
+                "total_cost_usd": cost.total_cost_usd,
+            },
+        )
+    except Exception as exc:
+        logger.debug("cost logging skipped", extra={"turn_id": turn_id, "reason": str(exc)})
+
+
 # --- Groq (OpenAI-compatible chat.completions API) -------------------------------------
 
 def _default_groq_client():
@@ -104,6 +130,12 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
     max_rounds = config["max_tool_calls_per_turn"]
     turn_id = str(uuid.uuid4())[:8]
     turn_start = time.monotonic()
+    # A multi-tool turn calls the model more than once (one round per tool-call
+    # cycle) -- real cost/usage tracking needs the SUM across every round this
+    # turn made, not just the last one, or a 3-round investigation would silently
+    # undercount its real token spend by 2/3.
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
     logger.info("agent turn started", extra={"turn_id": turn_id, "provider": "groq", "question_length": len(question)})
 
@@ -117,6 +149,9 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
             tools=tools,
         )
         api_call_duration_ms = round((time.monotonic() - api_call_start) * 1000, 1)
+        if response.usage is not None:
+            total_prompt_tokens += response.usage.prompt_tokens
+            total_completion_tokens += response.usage.completion_tokens
         message = response.choices[0].message
         requested_tool_calls = message.tool_calls or []
 
@@ -144,6 +179,7 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
 
         if not requested_tool_calls:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.info(
                 "agent turn complete",
                 extra={
@@ -154,10 +190,12 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
             return AgentResponse(
                 answer=message.content or "", tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls),
+                prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens,
             )
 
         if round_num == max_rounds:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.warning(
                 "agent turn hit tool-call budget",
                 extra={
@@ -173,6 +211,7 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
                 ),
                 tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls), budget_exceeded=True,
+                prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens,
             )
 
         for tc in requested_tool_calls:

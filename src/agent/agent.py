@@ -80,6 +80,14 @@ class AgentResponse:
     tools_used: list[str] = field(default_factory=list)
     citations: list[dict] = field(default_factory=list)
     budget_exceeded: bool = False
+    # Real token usage summed across every model round this turn made (a multi-tool
+    # turn calls the model more than once) -- None for providers/paths that don't
+    # report it. Populated from the provider's own real usage field (e.g. Groq's
+    # response.usage), never estimated -- src/evaluation/cost_estimator.py's
+    # estimate_tokens() heuristic is for pre-flight planning before a real call
+    # exists, not for a turn that already has genuine numbers.
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
 
 
 def _default_client():
