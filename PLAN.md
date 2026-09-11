@@ -507,3 +507,44 @@ multi-round summing, graceful handling when usage is absent, real cost
 computation against the configured rate, and unconfigured-model resilience).
 
 Full suite: 194/194.
+
+## Post-v1.0 build session -- LangChain as an additional orchestration path
+`src/agent/langchain_agent.py` + `src/agent/langchain_tools.py` add LangChain as a
+named, working orchestration option (`provider: langchain` in config/agent.yaml or
+`AGENT_PROVIDER=langchain`), additive alongside the existing Anthropic/Groq/Gemini
+providers in `src/agent/providers.py` -- not a replacement.
+
+`langchain_tools.py` wraps this project's EXISTING tools
+(`src/tools/registry.py::ALL_TOOLS`) as `StructuredTool` objects via
+`infer_schema=True`, which builds each tool's argument schema directly from the
+real function's own type hints -- not a hand-converted copy of `TOOL_SCHEMAS`'s
+JSON schema, one less place for the two representations to drift. Every tool call
+made through the LangChain path executes the exact same function every other
+provider calls; there's one source of truth for tool behavior regardless of which
+orchestration layer is calling it.
+
+Uses `ChatGroq.bind_tools()` + a manual round loop, not LangChain's
+`AgentExecutor` or LangGraph -- consistent with this project's stated position
+(FUTURE_IMPROVEMENTS.md) on not adopting a heavier agent framework speculatively.
+Still genuinely exercises LangChain's core abstractions (`ChatModel`, tool
+binding, typed messages: `SystemMessage`/`HumanMessage`/`AIMessage`/`ToolMessage`).
+
+**Real dependency conflict found and resolved**: `langchain-groq` caps
+`groq<1.0.0`, while this project's already-deployed Groq integration used
+`groq>=1.7.0`. Verified the downgrade to 0.37.x doesn't break the existing
+(already-in-production) Groq path with a real live call before committing to the
+pin -- `requirements.txt` now explicitly pins `groq>=0.30,<1.0` rather than
+leaving version resolution to install order.
+
+**Verified for real, live, not just against mocks**: fired a real question
+through the LangChain path -- correctly selected both `get_cycle_time` and
+`search_policy_documents`, real retrieval returned 5 real citations, and it
+degraded honestly (stated the data tool was unavailable rather than fabricating a
+number) exactly as the other providers do, when the companion service wasn't
+reachable from this local test run.
+
+5 new tests (tool-loop logic, budget handling, error handling, dispatcher
+routing) using LangChain's own real `AIMessage` class for fidelity, not a
+SimpleNamespace stand-in.
+
+Full suite: 199/199.

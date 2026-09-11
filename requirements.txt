@@ -5,10 +5,19 @@ python-dotenv>=1.0
 pyyaml>=6.0
 httpx>=0.27
 anthropic>=0.34
-groq>=0.11
+# groq<1.0 pinned explicitly (not just >=0.11) because langchain-groq caps it there --
+# without this, a fresh install could non-deterministically land on either side of
+# that line depending on install order. Verified compatible: a real live call through
+# the existing (non-LangChain) Groq path still works correctly under groq 0.37.x,
+# see PLAN.md.
+groq>=0.30,<1.0
 google-genai>=1.0
 chromadb>=0.5
 rank-bm25>=0.2
+# LangChain orchestration path (src/agent/langchain_agent.py) -- additive alongside
+# the hand-rolled provider loops in src/agent/providers.py, not a replacement.
+langchain-core>=1.0
+langchain-groq>=1.0
 pypdf>=4.2
 pytest>=8.0
 pytest-asyncio>=0.23
