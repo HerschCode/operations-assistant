@@ -18,6 +18,10 @@ via a small set of controlled tools rather than re-implementing that logic.
 Python · FastAPI · PostgreSQL · RAG (ChromaDB + hybrid BM25/semantic retrieval) ·
 LangChain · Groq / Anthropic / Gemini · Docker · Cloud Run · GCP
 
+Containerised; deployable as a Kubernetes `Deployment` behind a `ClusterIP` `Service` — the
+one stateful piece (`data/conversations.db`, SQLite) is the reason a real cluster deployment
+would swap that for a shared store first, noted here rather than glossed over.
+
 ## Agent orchestration
 Four interchangeable providers behind one interface (`config["provider"]`, switchable
 via `AGENT_PROVIDER` without touching code): Anthropic, Groq, Gemini, and
