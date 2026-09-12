@@ -258,7 +258,17 @@ def _default_gemini_client(model: str, history: list[dict] | None):
         system_instruction=SYSTEM_PROMPT,
         tools=[types.Tool(function_declarations=_tool_schemas_to_gemini(TOOL_SCHEMAS)[0]["function_declarations"])],
     )
-    return client.chats.create(model=model, config=config_obj, history=history or [])
+    chat = client.chats.create(model=model, config=config_obj, history=history or [])
+    # google-genai's Client owns the underlying httpx session and closes it in
+    # __del__ -- the chat session returned here only holds a reference to the
+    # client's internal _api_client, not to `client` itself, so without this the
+    # outer Client object is unreferenced the moment this function returns and
+    # gets garbage-collected before the chat's first real request completes,
+    # raising "Cannot send a request, as the client has been closed." on live
+    # calls (never caught by tests, since they always inject a fake client).
+    # Keeping a strong reference on the chat object for its lifetime fixes this.
+    chat._gateway_client_keepalive = client
+    return chat
 
 
 def _gemini_function_response_parts(response_parts: list[dict]):
