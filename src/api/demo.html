@@ -3,97 +3,470 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Operations Assistant — Live Demo</title>
+<title>Northstar Procurement Assistant</title>
 <style>
   :root {
     --bg: #0b0f14; --panel: #131922; --border: #232b36; --text: #e6edf3;
     --muted: #8b98a5; --accent: #4f8cff; --accent-dim: #1f3a66;
     --data-tag: #2f9e6f; --doc-tag: #b98a2f;
+    --step-color: #6b8aad;
+    --input-bg: #0e141b;
+    --assistant-bg: #1a222c;
+    --warn: #f0a500;
+    --divider: #1d2530;
+  }
+  [data-theme="light"] {
+    --bg: #f6f8fa; --panel: #ffffff; --border: #d0d7de; --text: #1f2328;
+    --muted: #636c76; --accent: #0969da; --accent-dim: #dbeafe;
+    --data-tag: #1a7f5a; --doc-tag: #9a6d1a;
+    --step-color: #4c6d8a;
+    --input-bg: #f6f8fa;
+    --assistant-bg: #f0f6ff;
+    --warn: #d4860e;
+    --divider: #e8ecf0;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg); color: var(--text); min-height: 100vh; display: flex;
-    flex-direction: column; align-items: center; padding: 32px 16px;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 0 0 40px;
   }
-  .wrap { width: 100%; max-width: 720px; }
-  h1 { font-size: 1.4rem; margin: 0 0 4px; }
-  .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
-  .subtitle a { color: var(--accent); }
-  .panel {
+
+  /* ── Top bar ── */
+  .topbar {
+    width: 100%; background: var(--panel); border-bottom: 1px solid var(--border);
+    padding: 12px 20px; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 10;
+  }
+  .topbar h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .theme-btn {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 1rem; cursor: pointer; padding: 5px 10px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--text); }
+  .github-link { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+  .github-link:hover { color: var(--accent); }
+
+  /* ── Main wrap ── */
+  .wrap { width: 100%; max-width: 760px; padding: 24px 16px 0; }
+
+  /* ── Guide panel ── */
+  .guide-panel {
+    border: 1px solid var(--border); border-radius: 12px;
+    background: var(--panel); margin-bottom: 16px; overflow: hidden;
+  }
+  .guide-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
+    user-select: none;
+  }
+  .guide-header-left { display: flex; align-items: center; gap: 8px; }
+  .guide-title { font-size: 0.88rem; font-weight: 600; }
+  .guide-subtitle { font-size: 0.78rem; color: var(--muted); }
+  .guide-collapse-btn {
+    background: none; border: none; color: var(--muted); font-size: 0.8rem;
+    cursor: pointer; padding: 2px 6px; font-family: inherit;
+    transition: color 0.15s;
+  }
+  .guide-collapse-btn:hover { color: var(--text); }
+  .guide-body { padding: 16px; }
+  .guide-body.hidden { display: none; }
+  .guide-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .guide-col {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px;
+  }
+  .guide-col-header { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
+  .guide-col-sub { font-size: 0.73rem; color: var(--muted); margin-bottom: 10px; }
+  .guide-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip {
+    font-size: 0.75rem; color: var(--accent); border: 1px solid var(--accent-dim);
+    padding: 4px 10px; border-radius: 999px; cursor: pointer; background: none;
+    font-weight: 400; font-family: inherit; transition: background 0.12s;
+  }
+  .chip:hover { background: var(--accent-dim); }
+  .doc-list { list-style: none; margin: 8px 0 10px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .doc-list li {
+    font-size: 0.77rem; color: var(--muted); padding: 3px 0;
+    border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; gap: 6px;
+  }
+  .doc-list li:last-child { border-bottom: none; }
+  .doc-list li::before { content: "📄"; font-size: 0.7rem; margin-top: 1px; flex-shrink: 0; }
+  .cross-row {
+    margin-top: 14px; padding: 12px 14px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  .cross-label { font-size: 0.78rem; font-weight: 600; margin-bottom: 8px; }
+
+  /* Collapsed guide toggle */
+  .guide-reopen {
+    display: none; margin-bottom: 12px;
+  }
+  .guide-reopen-btn {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    color: var(--muted); font-size: 0.78rem; cursor: pointer; padding: 5px 12px;
+    font-family: inherit; transition: border-color 0.15s, color 0.15s;
+  }
+  .guide-reopen-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .guide-reopen.visible { display: block; }
+
+  /* ── Chat panel ── */
+  .chat-panel {
     background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
     padding: 16px; display: flex; flex-direction: column; gap: 12px;
   }
-  #log { display: flex; flex-direction: column; gap: 14px; min-height: 120px; max-height: 55vh; overflow-y: auto; }
-  .msg { padding: 12px 14px; border-radius: 10px; line-height: 1.5; font-size: 0.92rem; white-space: pre-wrap; }
-  .msg.user { background: var(--accent-dim); align-self: flex-end; max-width: 85%; }
-  .msg.assistant { background: #1a222c; border: 1px solid var(--border); }
+  #log {
+    display: flex; flex-direction: column; gap: 0;
+    min-height: 200px; max-height: 55vh; overflow-y: auto;
+  }
+
+  /* Pair = user bubble + assistant bubble separated by divider */
+  .pair { display: flex; flex-direction: column; }
+  .pair + .pair { border-top: 1px solid var(--divider); padding-top: 12px; margin-top: 4px; }
+
+  .msg { padding: 12px 14px; border-radius: 10px; line-height: 1.6; font-size: 0.92rem; white-space: pre-wrap; }
+  .msg.user { background: var(--accent-dim); align-self: flex-end; max-width: 85%; margin-bottom: 10px; }
+  .msg.assistant { background: var(--assistant-bg); border: 1px solid var(--border); }
   .msg.error { background: #3a1f1f; border: 1px solid #5c2f2f; color: #ffb4b4; }
+
+  /* Empty state */
+  .empty-state {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 140px; text-align: center; color: var(--muted); font-size: 0.88rem;
+    line-height: 1.6; padding: 20px;
+  }
+
+  /* Tags */
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .tag { font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
-  .tag.data { border-color: var(--data-tag); color: var(--data-tag); }
-  .tag.document { border-color: var(--doc-tag); color: var(--doc-tag); }
+  .tag {
+    font-size: 0.74rem; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid; font-weight: 500;
+  }
+  .tag.data { border-color: var(--data-tag); color: var(--data-tag); background: color-mix(in srgb, var(--data-tag) 10%, transparent); }
+  .tag.document { border-color: var(--doc-tag); color: var(--doc-tag); background: color-mix(in srgb, var(--doc-tag) 10%, transparent); }
+
+  /* Reasoning trace */
+  .trace { margin-top: 10px; }
+  .trace-toggle {
+    background: none; border: none; padding: 0; color: var(--step-color);
+    font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    font-family: inherit;
+  }
+  .trace-toggle:hover { color: var(--accent); }
+  .trace-toggle .arrow { transition: transform 0.15s; display: inline-block; }
+  .trace-toggle.open .arrow { transform: rotate(90deg); }
+  .trace-steps { margin-top: 6px; border-left: 2px solid var(--border); padding-left: 10px; display: flex; flex-direction: column; gap: 3px; }
+  .trace-steps.hidden { display: none; }
+  .trace-step { font-size: 0.78rem; color: var(--step-color); }
+  .trace-step::before { content: "→ "; }
+
+  /* Input form */
   form { display: flex; gap: 8px; }
   input[type=text] {
-    flex: 1; background: #0e141b; border: 1px solid var(--border); color: var(--text);
-    padding: 11px 12px; border-radius: 8px; font-size: 0.92rem; outline: none;
+    flex: 1; background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
+    padding: 11px 12px; border-radius: 8px; font-size: 0.92rem; outline: none; min-width: 0;
+    transition: border-color 0.15s;
   }
   input[type=text]:focus { border-color: var(--accent); }
-  button {
+  input[type=text]::placeholder { color: var(--muted); }
+  button[type=submit] {
     background: var(--accent); color: white; border: none; padding: 0 18px;
     border-radius: 8px; font-size: 0.92rem; cursor: pointer; font-weight: 600;
+    white-space: nowrap; transition: opacity 0.15s;
   }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
-  .example {
-    font-size: 0.78rem; color: var(--accent); border: 1px solid var(--accent-dim);
-    padding: 4px 10px; border-radius: 999px; cursor: pointer; background: none;
-    font-weight: 400;
+  button[type=submit]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Rate limit counter */
+  .rate-row {
+    display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+    font-size: 0.78rem; color: var(--muted);
   }
-  .example:hover { background: var(--accent-dim); }
+  .rate-warn { color: var(--warn); font-weight: 600; font-size: 0.8rem; }
+  .rate-dots { display: flex; gap: 4px; align-items: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); transition: background 0.3s; }
+  .dot.used { background: var(--border); }
+
+  /* How it works */
+  .how-section { margin-top: 14px; }
+  .how-toggle {
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; color: var(--muted); font-size: 0.82rem; cursor: pointer;
+    width: 100%; text-align: left; font-family: inherit; display: flex;
+    align-items: center; justify-content: space-between; transition: border-color 0.15s, color 0.15s;
+  }
+  .how-toggle:hover { border-color: var(--accent); color: var(--text); }
+  .how-toggle .arr { transition: transform 0.15s; }
+  .how-toggle.open .arr { transform: rotate(180deg); }
+  .how-body {
+    display: none; border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 8px 8px; background: var(--panel); padding: 14px 16px;
+  }
+  .how-body.visible { display: block; }
+  .how-body ul { margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: 0.84rem; line-height: 1.8; }
+
   footer { color: var(--muted); font-size: 0.78rem; margin-top: 18px; text-align: center; line-height: 1.6; }
   footer a { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .guide-cols { grid-template-columns: 1fr; }
+    .wrap { padding: 16px 10px 0; }
+    .msg.user { max-width: 95%; }
+    button[type=submit] { padding: 0 12px; }
+    .topbar h1 { font-size: 0.95rem; }
+  }
 </style>
 </head>
 <body>
+<!-- Top bar -->
+<div class="topbar">
+  <h1>Northstar Procurement Assistant</h1>
+  <div class="topbar-right">
+    <button class="theme-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">🌙</button>
+    <a class="github-link" href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</div>
+
 <div class="wrap">
-  <h1>Operations Assistant</h1>
-  <p class="subtitle">
-    A RAG + tool-calling agent over a procurement analytics pipeline
-    (<a href="https://github.com/HerschCode/operations-performance" target="_blank">operations-performance</a>)
-    and real policy documents. Ask a question that needs live data, policy, or both —
-    every claim is grounded in a real tool call or document citation, never invented.
-    Rate-limited to 5 questions / 10 min on this free-tier demo.
-  </p>
-  <div class="panel">
-    <div id="log"></div>
-    <div class="examples">
-      <button class="example" type="button">What is the average cycle time?</button>
-      <button class="example" type="button">Who are the worst-performing suppliers?</button>
-      <button class="example" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
-      <button class="example" type="button">What is the company's revenue this quarter?</button>
+
+  <!-- Guide panel -->
+  <div class="guide-panel" id="guidePanel">
+    <div class="guide-header" id="guideHeader">
+      <div class="guide-header-left">
+        <span class="guide-title">What can I ask?</span>
+        <span class="guide-subtitle">Click a question to try it</span>
+      </div>
+      <button class="guide-collapse-btn" id="guideCollapseBtn" aria-label="Collapse guide">▴ Collapse</button>
     </div>
+    <div class="guide-body" id="guideBody">
+      <div class="guide-cols">
+        <!-- Data column -->
+        <div class="guide-col">
+          <div class="guide-col-header">📊 Live Analytics Data</div>
+          <div class="guide-col-sub">Real procurement data from Northstar Manufacturing</div>
+          <div class="guide-chips" id="dataChips">
+            <button class="chip" type="button">What is the average cycle time?</button>
+            <button class="chip" type="button">Which suppliers have the highest SLA breach rate?</button>
+            <button class="chip" type="button">Show me the top 3 bottleneck stages</button>
+            <button class="chip" type="button">How many high-risk orders are there?</button>
+            <button class="chip" type="button">What is the SLA breach rate this period?</button>
+          </div>
+        </div>
+        <!-- Policy column -->
+        <div class="guide-col">
+          <div class="guide-col-header">📄 Policy Documents</div>
+          <div class="guide-col-sub">4 procurement SOPs indexed and searchable</div>
+          <ul class="doc-list">
+            <li>Purchase Order Approval Thresholds — order values, who approves what</li>
+            <li>SLA Cycle Time Targets by Category — expected delivery times</li>
+            <li>Escalation Triggers &amp; Paths — when and how to escalate delays</li>
+            <li>Exception Handling Procedures — emergency purchases, disputes</li>
+          </ul>
+          <div class="guide-chips" id="policyChips">
+            <button class="chip" type="button">What is the approval threshold for high-value orders?</button>
+            <button class="chip" type="button">What are the SLA targets by category?</button>
+            <button class="chip" type="button">What happens when an order is escalated?</button>
+          </div>
+        </div>
+      </div>
+      <!-- Cross-source row -->
+      <div class="cross-row">
+        <div class="cross-label">🔗 Questions that combine data + policy:</div>
+        <div class="guide-chips" id="crossChips">
+          <button class="chip" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
+          <button class="chip" type="button">Which supplier should I escalate first based on our policy?</button>
+          <button class="chip" type="button">Is our current breach rate within the policy's acceptable range?</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Re-open guide button (shown after first question) -->
+  <div class="guide-reopen" id="guideReopen">
+    <button class="guide-reopen-btn" id="guideReopenBtn" type="button">What can I ask? ▾</button>
+  </div>
+
+  <!-- Chat panel -->
+  <div class="chat-panel">
+    <div id="log">
+      <div class="empty-state" id="emptyState">
+        👋 Hi! I can answer questions about Northstar Manufacturing's procurement operations.
+        I have access to live data (cycle times, SLA breach rates, supplier performance) and 4 policy documents.
+        Try one of the examples above, or type your own question.
+      </div>
+    </div>
+
     <form id="form">
-      <input id="question" type="text" placeholder="Ask about cycle time, SLA breaches, suppliers, or procurement policy..." autocomplete="off" />
+      <input id="question" type="text" placeholder="Ask about cycle time, SLA breaches, suppliers, or procurement policy…" autocomplete="off" />
       <button id="send" type="submit">Ask</button>
     </form>
+
+    <div class="rate-row">
+      <span id="rateWarn" class="rate-warn" style="display:none"></span>
+      <span id="rateLabel">5 / 5 questions remaining</span>
+      <div class="rate-dots" id="rateDots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <div class="dot"></div><div class="dot"></div>
+      </div>
+    </div>
   </div>
+
+  <!-- How it works -->
+  <div class="how-section">
+    <button class="how-toggle" id="howToggle" type="button">
+      <span>How it works</span>
+      <span class="arr">▾</span>
+    </button>
+    <div class="how-body" id="howBody">
+      <ul>
+        <li>Hybrid BM25 + semantic retrieval over 4 procurement policy documents (Chroma vector store)</li>
+        <li>Tool calls go to the live operations-performance API for real-time cycle time, SLA, and supplier data (Neon Postgres)</li>
+        <li>LLM: Groq (llama-3.3-70b-versatile) — zero latency inference, swappable via env vars</li>
+        <li>Architecture: LangChain <code>bind_tools</code> → manual tool loop → grounded response; no hallucinated citations</li>
+        <li>Evaluation: RAGAS groundedness + retrieval metrics, adversarial out-of-scope tests</li>
+      </ul>
+    </div>
+  </div>
+
   <footer>
-    Source: <a href="https://github.com/HerschCode/operations-assistant" target="_blank">operations-assistant</a>
+    Source: <a href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">operations-assistant</a>
     · Real Groq LLM, real Neon Postgres data, real Chroma retrieval — nothing scripted.
   </footer>
 </div>
+
 <script>
+// ── Element refs ──
 const log = document.getElementById('log');
 const form = document.getElementById('form');
 const input = document.getElementById('question');
 const sendBtn = document.getElementById('send');
+const rateDots = document.getElementById('rateDots').querySelectorAll('.dot');
+const rateLabel = document.getElementById('rateLabel');
+const rateWarn = document.getElementById('rateWarn');
+const emptyState = document.getElementById('emptyState');
+const guidePanel = document.getElementById('guidePanel');
+const guideBody = document.getElementById('guideBody');
+const guideCollapseBtn = document.getElementById('guideCollapseBtn');
+const guideHeader = document.getElementById('guideHeader');
+const guideReopen = document.getElementById('guideReopen');
+const guideReopenBtn = document.getElementById('guideReopenBtn');
+const themeBtn = document.getElementById('themeBtn');
 
-function addMessage(text, cls) {
+let questionsAsked = 0;
+const MAX_QUESTIONS = 5;
+let guideCollapsedByUser = false;
+
+// ── Theme ──
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
+  localStorage.setItem('theme', theme);
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  applyTheme(saved);
+})();
+
+themeBtn.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// ── Tool labels ──
+const TOOL_LABELS = {
+  get_cycle_time: 'querying cycle time data',
+  get_sla_breach_rate: 'retrieving SLA breach metrics',
+  get_supplier_performance: 'fetching supplier performance data',
+  get_order_volume: 'checking order volume statistics',
+  search_policy_documents: 'searching procurement policy documents',
+  get_high_value_orders: 'retrieving high-value order records',
+  get_process_metrics: 'fetching process metrics',
+};
+function toolLabel(name) {
+  return TOOL_LABELS[name] || name.replace(/_/g, ' ');
+}
+
+// ── Rate counter ──
+function updateRateCounter() {
+  const remaining = Math.max(0, MAX_QUESTIONS - questionsAsked);
+  rateLabel.textContent = `${remaining} / ${MAX_QUESTIONS} questions remaining`;
+  rateDots.forEach((dot, i) => dot.classList.toggle('used', i >= remaining));
+  if (remaining === 0) {
+    rateLabel.style.color = '#ffb4b4';
+    rateWarn.style.display = 'none';
+  } else if (remaining <= 2) {
+    rateWarn.textContent = `⚠️ ${remaining} question${remaining === 1 ? '' : 's'} remaining in this session`;
+    rateWarn.style.display = '';
+  } else {
+    rateWarn.style.display = 'none';
+  }
+}
+
+// ── Guide panel ──
+function collapseGuide(hidePanel) {
+  if (hidePanel) {
+    guidePanel.style.display = 'none';
+    guideReopen.classList.add('visible');
+  } else {
+    guideBody.classList.add('hidden');
+    guideCollapseBtn.textContent = '▾ Expand';
+  }
+}
+
+function expandGuide() {
+  guidePanel.style.display = '';
+  guideBody.classList.remove('hidden');
+  guideCollapseBtn.textContent = '▴ Collapse';
+  guideReopen.classList.remove('visible');
+}
+
+guideHeader.addEventListener('click', (e) => {
+  if (e.target === guideCollapseBtn) return; // handled below
+  toggleGuideBody();
+});
+guideCollapseBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleGuideBody();
+});
+function toggleGuideBody() {
+  const hidden = guideBody.classList.toggle('hidden');
+  guideCollapseBtn.textContent = hidden ? '▾ Expand' : '▴ Collapse';
+  guideCollapsedByUser = hidden;
+}
+
+guideReopenBtn.addEventListener('click', () => {
+  expandGuide();
+  guideCollapsedByUser = false;
+});
+
+// ── Message helpers ──
+function removeEmptyState() {
+  if (emptyState && emptyState.parentNode) emptyState.remove();
+}
+
+function addPair(question) {
+  const pair = document.createElement('div');
+  pair.className = 'pair';
+
+  const userEl = document.createElement('div');
+  userEl.className = 'msg user';
+  userEl.textContent = question;
+  pair.appendChild(userEl);
+
+  log.appendChild(pair);
+  log.scrollTop = log.scrollHeight;
+  return pair;
+}
+
+function addAssistantMsg(pair, text, cls) {
   const el = document.createElement('div');
-  el.className = 'msg ' + cls;
+  el.className = 'msg ' + (cls || 'assistant');
   el.textContent = text;
-  log.appendChild(el);
+  pair.appendChild(el);
   log.scrollTop = log.scrollHeight;
   return el;
 }
@@ -111,11 +484,49 @@ function addCitations(container, citations) {
   container.appendChild(tagsEl);
 }
 
+function addReasoningTrace(container, toolsUsed) {
+  if (!toolsUsed || !toolsUsed.length) return;
+  const trace = document.createElement('div');
+  trace.className = 'trace';
+
+  const toggle = document.createElement('button');
+  toggle.className = 'trace-toggle open';
+  toggle.innerHTML = '<span class="arrow">▶</span> Reasoning trace (' + toolsUsed.length + ' tool call' + (toolsUsed.length > 1 ? 's' : '') + ')';
+  trace.appendChild(toggle);
+
+  const steps = document.createElement('div');
+  steps.className = 'trace-steps'; // visible by default
+  toolsUsed.forEach(name => {
+    const step = document.createElement('div');
+    step.className = 'trace-step';
+    step.textContent = toolLabel(name);
+    steps.appendChild(step);
+  });
+  trace.appendChild(steps);
+
+  toggle.addEventListener('click', () => {
+    const hidden = steps.classList.toggle('hidden');
+    toggle.classList.toggle('open', !hidden);
+  });
+
+  container.appendChild(trace);
+}
+
+// ── Main ask function ──
 async function ask(question) {
-  addMessage(question, 'user');
+  removeEmptyState();
   input.value = '';
   sendBtn.disabled = true;
-  const thinking = addMessage('Thinking...', 'assistant');
+  questionsAsked++;
+  updateRateCounter();
+
+  // Collapse guide after first ask
+  if (questionsAsked === 1 && !guideCollapsedByUser) {
+    collapseGuide(true);
+  }
+
+  const pair = addPair(question);
+  const thinking = addAssistantMsg(pair, 'Thinking…', 'assistant');
 
   try {
     const res = await fetch('/demo/chat', {
@@ -127,28 +538,44 @@ async function ask(question) {
     thinking.remove();
 
     if (!res.ok) {
-      addMessage(data.detail || 'Something went wrong.', 'error');
+      addAssistantMsg(pair, data.detail || 'Something went wrong.', 'error');
       return;
     }
-    const answerEl = addMessage(data.answer, 'assistant');
+
+    const answerEl = addAssistantMsg(pair, data.answer, 'assistant');
+    addReasoningTrace(answerEl, data.tools_used);
     addCitations(answerEl, data.citations);
   } catch (err) {
     thinking.remove();
-    addMessage('Could not reach the assistant. It may be waking up from a free-tier sleep — try again in a moment.', 'error');
+    addAssistantMsg(pair, 'Could not reach the assistant. It may be waking up from a free-tier sleep — try again in a moment.', 'error');
   } finally {
     sendBtn.disabled = false;
+    log.scrollTop = log.scrollHeight;
   }
 }
 
+// ── Form submit ──
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const q = input.value.trim();
   if (q) ask(q);
 });
 
-document.querySelectorAll('.example').forEach(btn => {
-  btn.addEventListener('click', () => ask(btn.textContent));
+// ── Chips (all: data, policy, cross) ──
+document.querySelectorAll('.chip').forEach(btn => {
+  btn.addEventListener('click', () => ask(btn.textContent.trim()));
 });
+
+// ── How it works toggle ──
+const howToggle = document.getElementById('howToggle');
+const howBody = document.getElementById('howBody');
+howToggle.addEventListener('click', () => {
+  const open = howBody.classList.toggle('visible');
+  howToggle.classList.toggle('open', open);
+});
+
+// ── Init ──
+updateRateCounter();
 </script>
 </body>
 </html>
