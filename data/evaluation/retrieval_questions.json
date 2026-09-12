@@ -33,5 +33,20 @@
     "question": "What happens to a Purchase Order's approval if its price changes after release?",
     "expected_document_id": "procurement-policy",
     "expected_section_contains": "Purchase Order Changes"
+  },
+  {
+    "question": "PO Change Approval",
+    "expected_document_id": "procurement-policy",
+    "expected_section_contains": "Purchase Order Changes"
+  },
+  {
+    "question": "Is PO Change Approval time included in cycle time?",
+    "expected_document_id": "sla-policy",
+    "expected_section_contains": "What Counts Toward Cycle Time"
+  },
+  {
+    "question": "How many rounds of PO Change Approval trigger escalation?",
+    "expected_document_id": "escalation-procedure",
+    "expected_section_contains": "When to Escalate"
   }
 ]
