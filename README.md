@@ -176,10 +176,15 @@ result = grounded_answer(question, llm_fn, top_k=5)
 
 **How it works:** `grounded_answer()` runs `reranked_search` → LLM generation → NLI faithfulness scoring. If `faithfulness_score < threshold`, returns `INSUFFICIENT_DATA_MSG` instead of the LLM's answer. This directly addresses the paraphrase 0% finding — paraphrase-intent questions now return "The retrieved documents do not contain sufficient information" rather than a hallucinated answer.
 
-**The precision/coverage tradeoff at each threshold** (`scripts/evaluate_grounded_gate.py`):
-- `t=0.3`: low gate rate, high coverage — most answers pass, including some unfaithful ones
-- `t=0.5` (recommended): gates the paraphrase category completely, coverage stays high for grounded categories (multi_hop 52%, policy_interpretation 50%)
-- `t=0.7`: aggressive gating — high precision on answers that pass, but covers fewer questions
+**The precision/coverage tradeoff at each threshold** — real numbers from `scripts/evaluate_grounded_gate.py` (32 questions, openai/gpt-oss-120b, `data/evaluation/grounded_gate_results.json`):
+
+| Threshold | Gate rate | Coverage | Avg faith (passing) |
+|---|---|---|---|
+| `t=0.3` | 68.8% | 31.2% | 89.7% |
+| `t=0.5` (recommended) | 68.8% | 31.2% | 89.7% |
+| `t=0.7` | 75.0% | 25.0% | 97.5% |
+
+Per-category at `t=0.5`: paraphrase 0% faithfulness → 5/5 gated; numerical 16.7% → 5/6 gated; policy_interpretation 50% → 3/6 gated; multi_hop 36% → 3/5 gated. The high overall gate rate (68.8%) reflects that the LLM's answers frequently paraphrase or extend beyond the retrieved chunks — faithfulness scoring is deliberately strict. Answers that clear the gate average 89.7% faithfulness.
 
 `GROUNDED_GATE_ENABLED=false` disables the gate for A/B comparison or torch-free deploys where NLI isn't available.
 

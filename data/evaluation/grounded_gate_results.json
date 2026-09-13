@@ -1,0 +1,235 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "thresholds_evaluated": [
+    0.3,
+    0.5,
+    0.7
+  ],
+  "recommended_threshold": 0.5,
+  "records": [
+    {
+      "id": 1,
+      "category": "lookup",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 2,
+      "category": "lookup",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 3,
+      "category": "lookup",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 4,
+      "category": "lookup",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 5,
+      "category": "lookup",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 6,
+      "category": "lookup",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 7,
+      "category": "numerical",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 8,
+      "category": "numerical",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 9,
+      "category": "numerical",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 10,
+      "category": "numerical",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 11,
+      "category": "numerical",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 12,
+      "category": "numerical",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 13,
+      "category": "policy_interpretation",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 14,
+      "category": "policy_interpretation",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 15,
+      "category": "policy_interpretation",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 16,
+      "category": "policy_interpretation",
+      "faithfulness_score": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1
+    },
+    {
+      "id": 17,
+      "category": "policy_interpretation",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 18,
+      "category": "policy_interpretation",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 19,
+      "category": "multi_hop",
+      "faithfulness_score": 0.0,
+      "n_sentences": 3,
+      "n_grounded": 0
+    },
+    {
+      "id": 20,
+      "category": "multi_hop",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 21,
+      "category": "multi_hop",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 22,
+      "category": "multi_hop",
+      "faithfulness_score": 0.8,
+      "n_sentences": 5,
+      "n_grounded": 4
+    },
+    {
+      "id": 23,
+      "category": "multi_hop",
+      "faithfulness_score": 1.0,
+      "n_sentences": 5,
+      "n_grounded": 5
+    },
+    {
+      "id": 24,
+      "category": "paraphrase",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 25,
+      "category": "paraphrase",
+      "faithfulness_score": 0.0,
+      "n_sentences": 3,
+      "n_grounded": 0
+    },
+    {
+      "id": 26,
+      "category": "paraphrase",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 27,
+      "category": "paraphrase",
+      "faithfulness_score": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0
+    },
+    {
+      "id": 28,
+      "category": "paraphrase",
+      "faithfulness_score": 0.0,
+      "n_sentences": 3,
+      "n_grounded": 0
+    },
+    {
+      "id": 29,
+      "category": "ambiguous",
+      "faithfulness_score": 0.667,
+      "n_sentences": 3,
+      "n_grounded": 2
+    },
+    {
+      "id": 30,
+      "category": "ambiguous",
+      "faithfulness_score": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "id": 31,
+      "category": "ambiguous",
+      "faithfulness_score": 0.167,
+      "n_sentences": 6,
+      "n_grounded": 1
+    },
+    {
+      "id": 32,
+      "category": "ambiguous",
+      "faithfulness_score": 0.5,
+      "n_sentences": 2,
+      "n_grounded": 1
+    }
+  ]
+}
