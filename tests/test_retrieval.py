@@ -14,6 +14,7 @@ from src.retrieval.search import (
     _distance_to_similarity,
     SearchResult,
     no_relevant_results_response,
+    reranked_search,
 )
 
 
@@ -108,3 +109,81 @@ def test_semantic_search_respects_top_k(mock_get_collection, mock_embed):
     semantic_search("query", top_k=3)
     mock_collection.query.assert_called_once()
     assert mock_collection.query.call_args.kwargs["n_results"] == 3
+
+
+# ── reranker tests ───────────────────────────────────────────────────────────
+
+def _make_results(n: int) -> list[SearchResult]:
+    return [
+        SearchResult(
+            document_id=f"doc{i}", title=f"Doc {i}", section_title=None,
+            text=f"text chunk number {i}", similarity_score=float(n - i) / n,
+        )
+        for i in range(n)
+    ]
+
+
+def test_reranker_none_backend_returns_original_order():
+    """RERANKER_BACKEND=none must preserve the original hybrid order."""
+    import src.retrieval.reranker as rr
+    original = rr.RERANKER_BACKEND
+    rr.RERANKER_BACKEND = "none"
+    try:
+        results = _make_results(5)
+        reranked = rr.rerank("any query", results, top_k=3)
+        assert [r.document_id for r in reranked] == ["doc0", "doc1", "doc2"]
+    finally:
+        rr.RERANKER_BACKEND = original
+
+
+def test_reranker_cross_encoder_reorders_by_score():
+    """With a mocked cross-encoder, results should be re-sorted by CE score."""
+    import src.retrieval.reranker as rr
+    original = rr.RERANKER_BACKEND
+    rr.RERANKER_BACKEND = "cross_encoder"
+    try:
+        results = _make_results(3)  # doc0, doc1, doc2 in that order
+        # mock: CE thinks doc2 is most relevant, then doc0, then doc1
+        with patch("src.retrieval.reranker._load_cross_encoder") as mock_load:
+            mock_model = MagicMock()
+            mock_model.predict.return_value = [0.5, 0.1, 0.9]  # scores for doc0, doc1, doc2
+            mock_load.return_value = mock_model
+            rr._load_cross_encoder.cache_clear()
+            reranked = rr.rerank("query", results, top_k=3)
+        assert reranked[0].document_id == "doc2"  # highest CE score
+        assert reranked[1].document_id == "doc0"
+        assert reranked[2].document_id == "doc1"
+    finally:
+        rr.RERANKER_BACKEND = original
+        rr._load_cross_encoder.cache_clear()
+
+
+def test_reranker_falls_back_on_exception():
+    """If the CE model raises, rerank() returns the original order rather than crashing."""
+    import src.retrieval.reranker as rr
+    original = rr.RERANKER_BACKEND
+    rr.RERANKER_BACKEND = "cross_encoder"
+    try:
+        results = _make_results(3)
+        with patch("src.retrieval.reranker._load_cross_encoder", side_effect=RuntimeError("no torch")):
+            rr._load_cross_encoder.cache_clear()
+            reranked = rr.rerank("query", results)
+        assert [r.document_id for r in reranked] == ["doc0", "doc1", "doc2"]
+    finally:
+        rr.RERANKER_BACKEND = original
+        rr._load_cross_encoder.cache_clear()
+
+
+def test_reranked_search_calls_hybrid_then_rerank():
+    """reranked_search() should call hybrid_search with candidate_k then rerank the candidates."""
+    with patch("src.retrieval.search.hybrid_search") as mock_hybrid, \
+         patch("src.retrieval.reranker.rerank") as mock_rerank:
+        mock_hybrid.return_value = _make_results(5)
+        mock_rerank.return_value = _make_results(3)
+        result = reranked_search("test query", top_k=3, candidate_k=10)
+        mock_hybrid.assert_called_once()
+        # candidate_k goes to hybrid_search's top_k param
+        call_kwargs = mock_hybrid.call_args.kwargs
+        call_args = mock_hybrid.call_args.args
+        assert call_kwargs.get("top_k", call_args[1] if len(call_args) > 1 else None) == 10
+        assert len(result) == 3

@@ -233,6 +233,33 @@ def bm25_search(
     return results
 
 
+def reranked_search(
+    query: str,
+    top_k: int = DEFAULT_TOP_K,
+    min_similarity: float = DEFAULT_MIN_SIMILARITY,
+    collection_name: str = COLLECTION_NAME,
+    candidate_k: int = 20,
+) -> list[SearchResult]:
+    """Full retrieval pipeline: hybrid BM25 + semantic retrieval → cross-encoder reranking.
+
+    candidate_k controls how many chunks the hybrid step fetches before reranking;
+    a larger pool gives the cross-encoder more to work with at the cost of more
+    cross-encoder inference calls. 20 is a good default for this corpus size.
+
+    Falls back gracefully to unranked hybrid results if the reranker is disabled
+    (RERANKER_BACKEND=none) or unavailable (torch not installed).
+    """
+    from src.retrieval.reranker import rerank
+
+    candidates = hybrid_search(
+        query,
+        top_k=candidate_k,
+        min_similarity=min_similarity,
+        collection_name=collection_name,
+    )
+    return rerank(query, candidates, top_k=top_k)
+
+
 def no_relevant_results_response() -> str:
     """What the agent should say when semantic_search returns nothing above
     min_similarity -- a fixed, honest string rather than letting the LLM improvise

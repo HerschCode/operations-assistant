@@ -19,6 +19,10 @@ rank-bm25>=0.2
 langchain-core>=1.0
 langchain-groq>=1.0
 pypdf>=4.2
+# Cross-encoder reranking: ms-marco-MiniLM-L-6-v2 scores (query, chunk) pairs jointly
+# for higher precision than the bi-encoder alone. Brings in torch (~torch footprint);
+# set RERANKER_BACKEND=none in environments without torch (e.g. Render 512MB free tier).
+sentence-transformers>=3.0
 pytest>=8.0
 pytest-asyncio>=0.23
 python-multipart>=0.0.9

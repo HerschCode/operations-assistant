@@ -26,7 +26,7 @@ import json
 import time
 from pathlib import Path
 
-from src.retrieval.search import bm25_search, semantic_search, hybrid_search
+from src.retrieval.search import bm25_search, semantic_search, hybrid_search, reranked_search
 
 EVAL_PATH = Path(__file__).parent.parent / "data/evaluation/eval_dataset.json"
 TOP_K = 5
@@ -90,6 +90,7 @@ def run_benchmark():
         "BM25": lambda q: bm25_search(q, top_k=TOP_K),
         "Semantic": lambda q: semantic_search(q, top_k=TOP_K, min_similarity=SEM_MIN_SIMILARITY),
         "Hybrid": lambda q: hybrid_search(q, top_k=TOP_K, min_similarity=SEM_MIN_SIMILARITY),
+        "Hybrid+Rerank": lambda q: reranked_search(q, top_k=TOP_K, min_similarity=SEM_MIN_SIMILARITY, candidate_k=20),
     }
 
     method_results = {}   # method -> list of result lists (in-scope only)

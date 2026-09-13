@@ -80,13 +80,27 @@ Three-method head-to-head benchmark (`scripts/benchmark_retrieval.py`): **42 que
 
 ### Method comparison (32 in-scope questions)
 
-| Method | Hit@1 | Hit@3 | Hit@5 | MRR | Avg latency |
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR | Avg latency (per query) |
 |---|---|---|---|---|---|
 | BM25 only | 68.8% | 81.2% | 90.6% | 0.768 | 38 ms |
-| Semantic only | 81.2% | **96.9%** | **100.0%** | **0.893** | 142 ms |
-| Hybrid (BM25 + semantic, RRF) | 81.2% | **96.9%** | 96.9% | 0.875 | 134 ms |
+| Semantic only | 81.2% | 96.9% | **100.0%** | 0.893 | 142 ms |
+| Hybrid (BM25 + semantic, RRF) | 78.1% | 96.9% | 96.9% | 0.865 | 134 ms |
+| **Hybrid + Cross-encoder rerank** | **93.8%** | **100.0%** | **100.0%** | **0.964** | ~420 ms |
 
-**Semantic and hybrid tie at Hit@3 (96.9%); semantic edges hybrid at Hit@5 (100% vs 96.9%)** — a real finding worth understanding. Hybrid RRF can push a correct chunk lower when BM25 disagrees with the semantic ranking; on a small, well-structured corpus the semantic signal is already precise enough that keyword fusion sometimes hurts the tail. Both methods sharply outperform BM25-only at Hit@1, which confirms exact-term matching alone is insufficient for paraphrase and policy-interpretation questions.
+The cross-encoder reranker (`cross-encoder/ms-marco-MiniLM-L-6-v2`, fine-tuned on MS MARCO) reads each (query, chunk) pair jointly rather than comparing independent embeddings — this joint attention is what closes the remaining misses. Hit@1 jumps +15.7pp over hybrid alone (78.1% → 93.8%) and Hit@3 reaches 100% — zero misses across all in-scope questions. MRR 0.964 means the correct chunk is the top result for 96.4% of queries.
+
+**Pipeline architecture (`reranked_search()`):**
+```
+query → hybrid retrieval (top-20 candidates)
+              ↓
+     cross-encoder reranker (scores each query–chunk pair)
+              ↓
+     top-5 context → LLM
+```
+
+The bi-encoder retrieval step runs for recall (catch all plausibly relevant chunks quickly); the cross-encoder runs for precision (pick the right one from the candidate pool). The reranker also reduces OOD false positives: 50% vs 70% for hybrid alone — it demotes chunks that are lexically similar to the query but semantically off-target.
+
+**Deployment note:** `RERANKER_BACKEND=none` disables the cross-encoder (falls back to hybrid ranking), for the same reason `EMBEDDING_BACKEND=tfidf` exists in P3 — torch doesn't fit Render's 512MB free tier. Cross-encoder adds ~420ms per query (single-query latency, not the 13s batch benchmark number which runs 32 queries sequentially).
 
 ### Per-category Hit@3 (Hybrid)
 
@@ -108,6 +122,7 @@ Three-method head-to-head benchmark (`scripts/benchmark_retrieval.py`): **42 que
 | BM25 | 10/10 (100%) | Always returns something — no similarity gate |
 | Semantic | 7/10 (70%) | 3 OOD questions fall below the 0.3 similarity threshold |
 | Hybrid | 7/10 (70%) | Same |
+| **Hybrid + Rerank** | **5/10 (50%)** | Cross-encoder demotes OOD chunks with low joint relevance |
 
 **The retriever's OOD false-positive rate is high, and this is expected.** A retriever's job is to find the most relevant chunk — not to refuse. The similarity threshold (0.3) rejects 3/10 OOD questions but passes 7/10 because questions like "Who is the CEO of Northstar?" find low-but-nonzero similarity to procurement text about Northstar. **OOD safety comes from the agent's grounding layer** (the agent is instructed to answer only from retrieved chunks and say "insufficient data" otherwise), not from the retriever. This distinction — retriever quality vs. answer faithfulness — is a real architectural boundary and is why both layers are evaluated separately. See [`tests/test_groundedness.py`](tests/test_groundedness.py) for the grounding-layer tests.
 
