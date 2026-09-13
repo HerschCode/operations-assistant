@@ -199,6 +199,40 @@ def hybrid_search(
     return results
 
 
+def bm25_search(
+    query: str,
+    top_k: int = DEFAULT_TOP_K,
+    collection_name: str = COLLECTION_NAME,
+) -> list[SearchResult]:
+    """BM25-only retrieval over the full chunk corpus. Used by the benchmark script
+    to isolate keyword-search quality from semantic quality, so the two can be
+    compared independently rather than only ever seeing the hybrid result."""
+    if not query or not query.strip():
+        raise ValueError("query must not be empty")
+
+    all_chunks = _fetch_all_chunks(collection_name)
+    if not all_chunks:
+        return []
+
+    tokenized_corpus = [c["text"].lower().split() for c in all_chunks]
+    bm25 = BM25Okapi(tokenized_corpus)
+    scores = bm25.get_scores(query.lower().split())
+    ranked_idx = sorted(range(len(all_chunks)), key=lambda i: scores[i], reverse=True)
+
+    results = []
+    for idx in ranked_idx[:top_k]:
+        chunk = all_chunks[idx]
+        meta = chunk["metadata"]
+        results.append(SearchResult(
+            document_id=meta["document_id"],
+            title=meta["title"],
+            section_title=meta.get("section_title") or None,
+            text=chunk["text"],
+            similarity_score=round(float(scores[idx]), 4),
+        ))
+    return results
+
+
 def no_relevant_results_response() -> str:
     """What the agent should say when semantic_search returns nothing above
     min_similarity -- a fixed, honest string rather than letting the LLM improvise
