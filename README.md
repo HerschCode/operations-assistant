@@ -11,6 +11,18 @@ documents (policies/SOPs), operational data, process analytics, and predictive S
 answer business questions and conduct evidence-based investigations — grounded, cited, and
 willing to say "insufficient data" rather than guess.
 
+**Key numbers at a glance:**
+
+| What | Number | How measured |
+|---|---|---|
+| Hybrid retrieval Hit@1 | **89%** | 91 in-scope questions, section-level match |
+| Hybrid retrieval MRR | **0.931** | same eval set |
+| Faithfulness gate pass rate | **89.7%** (at `t=0.5`) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
+| Agent tool-selection | **5/6 (83%)** | hand-written questions, mechanical evaluation |
+| Provider count | **4** | Anthropic, Groq, Gemini, LangChain — one interface |
+
+The distinguishing piece is the **faithfulness gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, NLI scoring decides whether the LLM's answer is entailed by the retrieved chunks. If not, the gate fires and returns "insufficient information" rather than a hallucinated answer. This directly addresses the paraphrase-question failure mode (0% faithfulness without gating) and is evaluated at multiple thresholds with real numbers.
+
 Consumes the data model and analytics built in [`operations-performance`](../operations-performance)
 via a small set of controlled tools rather than re-implementing that logic.
 
