@@ -16,7 +16,7 @@ def test_demo_page_serves_html_without_auth():
     response = client.get("/")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
-    assert "Operations Assistant" in response.text
+    assert "Northstar Procurement Assistant" in response.text
 
 
 @patch("src.api.routes.run_agent")
