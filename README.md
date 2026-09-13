@@ -161,7 +161,27 @@ Run `python scripts/evaluate_faithfulness.py` (requires `GROQ_API_KEY`).
 
 **Overall faithfulness: 32.1% | Contradiction rate: 54.0%** (32 in-scope questions)
 
-**What the low scores actually mean:** NLI faithfulness scoring with a strict entailment threshold is a deliberately conservative measure. A sentence like "Purchases over $10,000 need secondary approval" scores as contradiction if the chunk says "purchases exceeding ten thousand dollars" — the semantic content is identical but NLI reads surface divergence. The 32.1% score is a lower bound on real faithfulness; it correctly identifies cases where the LLM uses outside knowledge (paraphrase category: 0%), while penalizing legitimate paraphrase. This is the expected trade-off between a cheap, LLM-free faithfulness signal and recall. **The real finding is the paraphrase category at 0%** — those answers consistently drift beyond the retrieved context, which is the failure mode faithfulness evaluation was designed to surface. Source: `data/evaluation/faithfulness_results.json`.
+**What the low scores actually mean:** NLI faithfulness scoring with a strict entailment threshold is a deliberately conservative measure. A sentence like "Purchases over $10,000 need secondary approval" scores as contradiction if the chunk says "purchases exceeding ten thousand dollars" — the semantic content is identical but NLI reads surface divergence. The 32.1% score is a lower bound on real faithfulness; it correctly identifies cases where the LLM uses outside knowledge (paraphrase category: 0%), while penalizing legitimate paraphrase. **The real finding is the paraphrase category at 0%** — those answers consistently drift beyond the retrieved context, which is the failure mode faithfulness evaluation was designed to surface. Source: `data/evaluation/faithfulness_results.json`.
+
+### Grounded answer gate (`src/retrieval/grounded_search.py`)
+
+The faithfulness evaluation finding (paraphrase 0%) drives a concrete fix: a faithfulness gate that refuses to return an unfaithful answer and instead falls back to a structured "insufficient information" response.
+
+```python
+# FAITHFULNESS_GATE_THRESHOLD env var (default 0.5)
+result = grounded_answer(question, llm_fn, top_k=5)
+# result.answer = the real answer if faithful, fallback message if gated
+# result.gated  = True if the gate fired (faithfulness < threshold)
+```
+
+**How it works:** `grounded_answer()` runs `reranked_search` → LLM generation → NLI faithfulness scoring. If `faithfulness_score < threshold`, returns `INSUFFICIENT_DATA_MSG` instead of the LLM's answer. This directly addresses the paraphrase 0% finding — paraphrase-intent questions now return "The retrieved documents do not contain sufficient information" rather than a hallucinated answer.
+
+**The precision/coverage tradeoff at each threshold** (`scripts/evaluate_grounded_gate.py`):
+- `t=0.3`: low gate rate, high coverage — most answers pass, including some unfaithful ones
+- `t=0.5` (recommended): gates the paraphrase category completely, coverage stays high for grounded categories (multi_hop 52%, policy_interpretation 50%)
+- `t=0.7`: aggressive gating — high precision on answers that pass, but covers fewer questions
+
+`GROUNDED_GATE_ENABLED=false` disables the gate for A/B comparison or torch-free deploys where NLI isn't available.
 
 ## Agent evaluation
 
