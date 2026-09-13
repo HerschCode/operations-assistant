@@ -1,0 +1,2362 @@
+{
+  "eval_dataset": "D:\\0_Project\\operations-assistant\\data\\evaluation\\eval_dataset.json",
+  "top_k": 5,
+  "strategies": [
+    "semantic",
+    "hybrid",
+    "bm25"
+  ],
+  "metrics": {
+    "semantic": {
+      "overall": {
+        "hit_at_1": 87.9,
+        "hit_at_3": 95.6,
+        "hit_at_5": 98.9,
+        "mrr": 0.9216,
+        "n": 91
+      },
+      "by_category": {
+        "ambiguous": {
+          "hit_at_1": 87.5,
+          "hit_at_3": 87.5,
+          "hit_at_5": 100.0,
+          "mrr": 0.9,
+          "n": 8
+        },
+        "lookup": {
+          "hit_at_1": 95.7,
+          "hit_at_3": 95.7,
+          "hit_at_5": 100.0,
+          "mrr": 0.9674,
+          "n": 23
+        },
+        "multi_hop": {
+          "hit_at_1": 82.4,
+          "hit_at_3": 94.1,
+          "hit_at_5": 100.0,
+          "mrr": 0.8873,
+          "n": 17
+        },
+        "numerical": {
+          "hit_at_1": 75.0,
+          "hit_at_3": 91.7,
+          "hit_at_5": 91.7,
+          "mrr": 0.8333,
+          "n": 12
+        },
+        "paraphrase": {
+          "hit_at_1": 91.7,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9444,
+          "n": 12
+        },
+        "policy_interpretation": {
+          "hit_at_1": 89.5,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9474,
+          "n": 19
+        }
+      }
+    },
+    "hybrid": {
+      "overall": {
+        "hit_at_1": 89.0,
+        "hit_at_3": 97.8,
+        "hit_at_5": 98.9,
+        "mrr": 0.9308,
+        "n": 91
+      },
+      "by_category": {
+        "ambiguous": {
+          "hit_at_1": 75.0,
+          "hit_at_3": 87.5,
+          "hit_at_5": 87.5,
+          "mrr": 0.7917,
+          "n": 8
+        },
+        "lookup": {
+          "hit_at_1": 95.7,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9783,
+          "n": 23
+        },
+        "multi_hop": {
+          "hit_at_1": 88.2,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9314,
+          "n": 17
+        },
+        "numerical": {
+          "hit_at_1": 91.7,
+          "hit_at_3": 91.7,
+          "hit_at_5": 100.0,
+          "mrr": 0.9333,
+          "n": 12
+        },
+        "paraphrase": {
+          "hit_at_1": 83.3,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9028,
+          "n": 12
+        },
+        "policy_interpretation": {
+          "hit_at_1": 89.5,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9474,
+          "n": 19
+        }
+      }
+    },
+    "bm25": {
+      "overall": {
+        "hit_at_1": 82.4,
+        "hit_at_3": 93.4,
+        "hit_at_5": 97.8,
+        "mrr": 0.878,
+        "n": 91
+      },
+      "by_category": {
+        "ambiguous": {
+          "hit_at_1": 62.5,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.7708,
+          "n": 8
+        },
+        "lookup": {
+          "hit_at_1": 87.0,
+          "hit_at_3": 95.7,
+          "hit_at_5": 95.7,
+          "mrr": 0.8986,
+          "n": 23
+        },
+        "multi_hop": {
+          "hit_at_1": 88.2,
+          "hit_at_3": 100.0,
+          "hit_at_5": 100.0,
+          "mrr": 0.9314,
+          "n": 17
+        },
+        "numerical": {
+          "hit_at_1": 91.7,
+          "hit_at_3": 91.7,
+          "hit_at_5": 100.0,
+          "mrr": 0.9333,
+          "n": 12
+        },
+        "paraphrase": {
+          "hit_at_1": 58.3,
+          "hit_at_3": 75.0,
+          "hit_at_5": 91.7,
+          "mrr": 0.7042,
+          "n": 12
+        },
+        "policy_interpretation": {
+          "hit_at_1": 89.5,
+          "hit_at_3": 94.7,
+          "hit_at_5": 100.0,
+          "mrr": 0.9254,
+          "n": 19
+        }
+      }
+    }
+  },
+  "records": {
+    "semantic": [
+      {
+        "question_id": 1,
+        "category": "lookup",
+        "question": "What is the approval target for standard purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1448.6
+      },
+      {
+        "question_id": 2,
+        "category": "lookup",
+        "question": "What is the SLA target for 3-way match category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 128.7
+      },
+      {
+        "question_id": 3,
+        "category": "lookup",
+        "question": "What is the SLA target for Consignment orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 4,
+        "latency_ms": 137.4
+      },
+      {
+        "question_id": 4,
+        "category": "lookup",
+        "question": "Who performs Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.8
+      },
+      {
+        "question_id": 5,
+        "category": "lookup",
+        "question": "How many business days does each escalation level have to act before the next level takes over?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 131.2
+      },
+      {
+        "question_id": 6,
+        "category": "lookup",
+        "question": "How often are SLA targets reviewed by Operations leadership?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 134.4
+      },
+      {
+        "question_id": 7,
+        "category": "numerical",
+        "question": "What is the dollar threshold above which a purchase order requires secondary approval?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 186.8
+      },
+      {
+        "question_id": 8,
+        "category": "numerical",
+        "question": "How many prior completed orders must a supplier have to avoid automatic Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 131.0
+      },
+      {
+        "question_id": 9,
+        "category": "numerical",
+        "question": "How many business days past an SLA target triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 2,
+        "latency_ms": 171.0
+      },
+      {
+        "question_id": 10,
+        "category": "numerical",
+        "question": "How many rounds of PO Change Approval trigger escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 147.6
+      },
+      {
+        "question_id": 11,
+        "category": "numerical",
+        "question": "How many business days of supplier unresponsiveness during Manual Credit Review triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.3
+      },
+      {
+        "question_id": 12,
+        "category": "numerical",
+        "question": "How many business days does a department have to file a retroactive Purchase Requisition after an emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 136.3
+      },
+      {
+        "question_id": 13,
+        "category": "policy_interpretation",
+        "question": "Does PO Change Approval time count toward cycle time even though it is outside the standard approval SLA?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 139.1
+      },
+      {
+        "question_id": 14,
+        "category": "policy_interpretation",
+        "question": "Can escalation override the secondary approval requirement in the Procurement Policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.6
+      },
+      {
+        "question_id": 15,
+        "category": "policy_interpretation",
+        "question": "Is Manual Credit Review time excluded from SLA cycle time measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 138.1
+      },
+      {
+        "question_id": 16,
+        "category": "policy_interpretation",
+        "question": "What approval is required when a released Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 153.9
+      },
+      {
+        "question_id": 17,
+        "category": "policy_interpretation",
+        "question": "Does a supplier dispute pause the SLA clock?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 161.4
+      },
+      {
+        "question_id": 18,
+        "category": "policy_interpretation",
+        "question": "What is the one documented exception where process time is not counted against SLA?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 142.5
+      },
+      {
+        "question_id": 19,
+        "category": "multi_hop",
+        "question": "Is an emergency purchase from a supplier with no prior orders still subject to Manual Credit Review?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 143.2
+      },
+      {
+        "question_id": 20,
+        "category": "multi_hop",
+        "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 140.1
+      },
+      {
+        "question_id": 21,
+        "category": "multi_hop",
+        "question": "A supplier appears in escalations three times in one quarter. What does the procedure require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 141.6
+      },
+      {
+        "question_id": 22,
+        "category": "multi_hop",
+        "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.7
+      },
+      {
+        "question_id": 23,
+        "category": "multi_hop",
+        "question": "A PO has gone through 3 rounds of Change Approval. What is the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 140.0
+      },
+      {
+        "question_id": 24,
+        "category": "paraphrase",
+        "question": "Which orders need two sign-offs before the supplier receives them?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 157.7
+      },
+      {
+        "question_id": 25,
+        "category": "paraphrase",
+        "question": "When does a vendor's risk profile trigger an additional review step?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 142.8
+      },
+      {
+        "question_id": 26,
+        "category": "paraphrase",
+        "question": "How often does leadership revisit the delivery timing benchmarks?",
+        "expected_document_id": "sla-policy",
+        "rank": 3,
+        "latency_ms": 141.5
+      },
+      {
+        "question_id": 27,
+        "category": "paraphrase",
+        "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 133.9
+      },
+      {
+        "question_id": 28,
+        "category": "paraphrase",
+        "question": "What are the time targets for getting a purchase approved?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 165.5
+      },
+      {
+        "question_id": 29,
+        "category": "ambiguous",
+        "question": "What are the approval requirements?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 142.9
+      },
+      {
+        "question_id": 30,
+        "category": "ambiguous",
+        "question": "When is an SLA breach reported?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 148.3
+      },
+      {
+        "question_id": 31,
+        "category": "ambiguous",
+        "question": "When should I escalate?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 171.1
+      },
+      {
+        "question_id": 32,
+        "category": "ambiguous",
+        "question": "What happens after a Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 128.7
+      },
+      {
+        "question_id": 43,
+        "category": "lookup",
+        "question": "What is the dollar threshold below which a buyer may self-approve a purchase without Procurement review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 130.9
+      },
+      {
+        "question_id": 44,
+        "category": "lookup",
+        "question": "What is the SLA target for Standard category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 126.7
+      },
+      {
+        "question_id": 45,
+        "category": "lookup",
+        "question": "What is the approval SLA target for high-value purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 164.9
+      },
+      {
+        "question_id": 46,
+        "category": "lookup",
+        "question": "Who is the first person a procurement case is escalated to when the department manager cannot resolve it?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 131.6
+      },
+      {
+        "question_id": 47,
+        "category": "lookup",
+        "question": "Who is the final authority in the escalation path for procurement cases?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 120.5
+      },
+      {
+        "question_id": 48,
+        "category": "lookup",
+        "question": "How frequently are SLA breach incidents included in management reports?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 167.9
+      },
+      {
+        "question_id": 49,
+        "category": "lookup",
+        "question": "What type of authorization is acceptable when an emergency purchase must be made immediately?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 127.1
+      },
+      {
+        "question_id": 50,
+        "category": "lookup",
+        "question": "What document must be submitted retroactively after an emergency purchase is made?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 153.7
+      },
+      {
+        "question_id": 51,
+        "category": "lookup",
+        "question": "What happens to a purchase order case when a supplier dispute is formally raised?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 133.7
+      },
+      {
+        "question_id": 52,
+        "category": "lookup",
+        "question": "How many times in a quarter must the same supplier or business unit combination appear in escalations to trigger a formal review?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 142.6
+      },
+      {
+        "question_id": 53,
+        "category": "lookup",
+        "question": "What is the Procurement Team Lead's role in the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 154.4
+      },
+      {
+        "question_id": 54,
+        "category": "lookup",
+        "question": "Can erroneous data records be corrected after the fact in the procurement system?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.1
+      },
+      {
+        "question_id": 55,
+        "category": "numerical",
+        "question": "How many completed prior orders must a supplier have to bypass the Manual Credit Review requirement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.2
+      },
+      {
+        "question_id": 56,
+        "category": "numerical",
+        "question": "How many business days does each level of the escalation path have to act before the next level is engaged?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 135.3
+      },
+      {
+        "question_id": 57,
+        "category": "numerical",
+        "question": "What is the exact dollar amount at which a purchase may be self-approved without Procurement team involvement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 153.8
+      },
+      {
+        "question_id": 58,
+        "category": "numerical",
+        "question": "How many business days does the SLA policy allow for a Consignment order?",
+        "expected_document_id": "sla-policy",
+        "rank": null,
+        "latency_ms": 136.9
+      },
+      {
+        "question_id": 59,
+        "category": "numerical",
+        "question": "After how many rounds of PO Change Approval must a case be escalated?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 138.3
+      },
+      {
+        "question_id": 60,
+        "category": "numerical",
+        "question": "How many business days of supplier non-response during Manual Credit Review triggers the escalation process?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 2,
+        "latency_ms": 150.0
+      },
+      {
+        "question_id": 61,
+        "category": "policy_interpretation",
+        "question": "Does verbal authorization alone satisfy all requirements for an emergency purchase, or is additional documentation required afterward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 129.0
+      },
+      {
+        "question_id": 62,
+        "category": "policy_interpretation",
+        "question": "If a supplier dispute period is excluded from SLA measurement, can the historical cycle time record be retroactively changed to reflect the shorter duration?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 2,
+        "latency_ms": 124.7
+      },
+      {
+        "question_id": 63,
+        "category": "policy_interpretation",
+        "question": "Does the escalation process allow the Operations Director to waive the secondary approval requirement for high-value orders?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 2,
+        "latency_ms": 124.9
+      },
+      {
+        "question_id": 64,
+        "category": "policy_interpretation",
+        "question": "Is the time consumed by a PO Change Approval round included in the cycle time used for SLA compliance measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 147.1
+      },
+      {
+        "question_id": 65,
+        "category": "policy_interpretation",
+        "question": "If a supplier has completed exactly 3 prior orders with Northstar, do they still require Manual Credit Review on the next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 181.1
+      },
+      {
+        "question_id": 66,
+        "category": "policy_interpretation",
+        "question": "Does the SLA breach reporting cadence change for high-value orders that exceed their SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 216.8
+      },
+      {
+        "question_id": 67,
+        "category": "policy_interpretation",
+        "question": "Does Manual Credit Review apply only to new suppliers, or can it also be triggered for established suppliers?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 226.7
+      },
+      {
+        "question_id": 68,
+        "category": "policy_interpretation",
+        "question": "Can a business unit bypass the PO change re-approval chain if the modification is considered minor?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 137.2
+      },
+      {
+        "question_id": 69,
+        "category": "multi_hop",
+        "question": "A new supplier submits a quote for a $12,000 purchase order. What are all required review steps before the PO is released?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 152.1
+      },
+      {
+        "question_id": 70,
+        "category": "multi_hop",
+        "question": "A 3-way match order enters a supplier dispute on day 8. The dispute lasts 3 days. What is the effective cycle time counted against the SLA target?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 2,
+        "latency_ms": 136.4
+      },
+      {
+        "question_id": 71,
+        "category": "multi_hop",
+        "question": "A PO has been through 3 rounds of Change Approval and the department manager has not acted in 2 days. Who takes over next according to policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.4
+      },
+      {
+        "question_id": 72,
+        "category": "multi_hop",
+        "question": "An emergency purchase is made from a supplier with zero prior completed orders. In what order must the required processes be completed?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 133.1
+      },
+      {
+        "question_id": 73,
+        "category": "multi_hop",
+        "question": "The same supplier has appeared in escalations twice with Business Unit A and once with Business Unit B this quarter. Does the recurring pattern review threshold apply?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 138.5
+      },
+      {
+        "question_id": 74,
+        "category": "multi_hop",
+        "question": "For a $600 standard purchase order from an established supplier, what is the maximum cycle time allowed under the SLA policy?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 136.1
+      },
+      {
+        "question_id": 75,
+        "category": "multi_hop",
+        "question": "A supplier dispute is raised on a case already 3 days past its SLA target. Does the dispute hold pause the SLA clock from that point forward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 145.8
+      },
+      {
+        "question_id": 76,
+        "category": "paraphrase",
+        "question": "What spending limit allows a buyer to sign off on a purchase without involving the procurement team?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 136.4
+      },
+      {
+        "question_id": 77,
+        "category": "paraphrase",
+        "question": "How long is the company willing to wait before treating a standard PO approval as overdue?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 135.7
+      },
+      {
+        "question_id": 78,
+        "category": "paraphrase",
+        "question": "At what escalation level does a procurement case reach the company's most senior authority?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 161.4
+      },
+      {
+        "question_id": 79,
+        "category": "paraphrase",
+        "question": "What circumstance makes a purchase urgent enough to bypass the standard pre-approval paperwork?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 132.8
+      },
+      {
+        "question_id": 80,
+        "category": "paraphrase",
+        "question": "How often does leadership formally reassess whether the cycle time benchmarks are still appropriate?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 131.3
+      },
+      {
+        "question_id": 81,
+        "category": "paraphrase",
+        "question": "What triggers a formal review of a supplier's creditworthiness when a new purchase order is submitted?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 125.3
+      },
+      {
+        "question_id": 82,
+        "category": "paraphrase",
+        "question": "What is the correct procedure for fixing an incorrect entry in the procurement records?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 126.5
+      },
+      {
+        "question_id": 83,
+        "category": "ambiguous",
+        "question": "What is the exception to the normal process?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 127.9
+      },
+      {
+        "question_id": 84,
+        "category": "ambiguous",
+        "question": "How long does the process take?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 137.3
+      },
+      {
+        "question_id": 85,
+        "category": "ambiguous",
+        "question": "What happens if the supplier doesn't respond?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 5,
+        "latency_ms": 133.8
+      },
+      {
+        "question_id": 86,
+        "category": "ambiguous",
+        "question": "What is the threshold for requiring additional review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 138.6
+      },
+      {
+        "question_id": 101,
+        "category": "lookup",
+        "question": "What is the maximum number of business days the policy allows for approving a high-value purchase order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 133.2
+      },
+      {
+        "question_id": 102,
+        "category": "lookup",
+        "question": "Which escalation level directly precedes involvement of the Operations Director?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 132.8
+      },
+      {
+        "question_id": 103,
+        "category": "lookup",
+        "question": "What specific review does the policy trigger when the same supplier and business unit combination appears in escalations more than twice in one quarter?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 135.6
+      },
+      {
+        "question_id": 104,
+        "category": "lookup",
+        "question": "What specific document must be filed within 2 business days following a verbally authorized emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 124.8
+      },
+      {
+        "question_id": 105,
+        "category": "lookup",
+        "question": "Under the SLA policy, what two categories of time are explicitly counted toward the cycle time calculation?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 153.9
+      },
+      {
+        "question_id": 106,
+        "category": "policy_interpretation",
+        "question": "If a PO goes through exactly 2 rounds of Change Approval without resolution, has the escalation threshold been met?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 138.5
+      },
+      {
+        "question_id": 107,
+        "category": "policy_interpretation",
+        "question": "Once a supplier dispute is resolved, can the dispute period be permanently removed from the cycle time record via a data correction?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 178.2
+      },
+      {
+        "question_id": 108,
+        "category": "policy_interpretation",
+        "question": "Does the $500 self-approval threshold apply at the purchase requisition stage or the purchase order stage of the process?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 133.6
+      },
+      {
+        "question_id": 109,
+        "category": "policy_interpretation",
+        "question": "A supplier has exactly 3 prior completed orders with Northstar Manufacturing. Are they classified as a new supplier subject to MCR on their next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 154.7
+      },
+      {
+        "question_id": 110,
+        "category": "policy_interpretation",
+        "question": "Does the quarterly SLA target review mandated by the SLA policy apply to all order categories or only to a specific subset?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 137.7
+      },
+      {
+        "question_id": 111,
+        "category": "multi_hop",
+        "question": "A $8,000 PO submitted for a supplier with 2 prior orders has gone through 3 rounds of PO Change Approval without resolution. What must happen next under policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 3,
+        "latency_ms": 157.8
+      },
+      {
+        "question_id": 112,
+        "category": "multi_hop",
+        "question": "An emergency purchase totaling $15,000 from a brand-new supplier receives verbal authorization. What three distinct policy requirements must be fulfilled?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 133.5
+      },
+      {
+        "question_id": 113,
+        "category": "multi_hop",
+        "question": "A Consignment order enters a supplier dispute on day 12 of processing. The dispute lasts 2 days and is then resolved. Does the order breach its SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 4,
+        "latency_ms": 131.9
+      },
+      {
+        "question_id": 114,
+        "category": "multi_hop",
+        "question": "The same supplier appears in escalations twice with Business Unit A and twice with Business Unit B during a single quarter. What does the recurring pattern policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 174.1
+      },
+      {
+        "question_id": 115,
+        "category": "multi_hop",
+        "question": "A Manual Credit Review process runs for 6 days during a standard category order. Does the MCR time count toward the SLA cycle time, and if so, does that mean the order has breached its target?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 205.5
+      }
+    ],
+    "hybrid": [
+      {
+        "question_id": 1,
+        "category": "lookup",
+        "question": "What is the approval target for standard purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 145.8
+      },
+      {
+        "question_id": 2,
+        "category": "lookup",
+        "question": "What is the SLA target for 3-way match category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 133.7
+      },
+      {
+        "question_id": 3,
+        "category": "lookup",
+        "question": "What is the SLA target for Consignment orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 138.1
+      },
+      {
+        "question_id": 4,
+        "category": "lookup",
+        "question": "Who performs Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.3
+      },
+      {
+        "question_id": 5,
+        "category": "lookup",
+        "question": "How many business days does each escalation level have to act before the next level takes over?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 133.2
+      },
+      {
+        "question_id": 6,
+        "category": "lookup",
+        "question": "How often are SLA targets reviewed by Operations leadership?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 184.4
+      },
+      {
+        "question_id": 7,
+        "category": "numerical",
+        "question": "What is the dollar threshold above which a purchase order requires secondary approval?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 172.7
+      },
+      {
+        "question_id": 8,
+        "category": "numerical",
+        "question": "How many prior completed orders must a supplier have to avoid automatic Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 141.5
+      },
+      {
+        "question_id": 9,
+        "category": "numerical",
+        "question": "How many business days past an SLA target triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 165.6
+      },
+      {
+        "question_id": 10,
+        "category": "numerical",
+        "question": "How many rounds of PO Change Approval trigger escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 139.7
+      },
+      {
+        "question_id": 11,
+        "category": "numerical",
+        "question": "How many business days of supplier unresponsiveness during Manual Credit Review triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 164.0
+      },
+      {
+        "question_id": 12,
+        "category": "numerical",
+        "question": "How many business days does a department have to file a retroactive Purchase Requisition after an emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.4
+      },
+      {
+        "question_id": 13,
+        "category": "policy_interpretation",
+        "question": "Does PO Change Approval time count toward cycle time even though it is outside the standard approval SLA?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 150.5
+      },
+      {
+        "question_id": 14,
+        "category": "policy_interpretation",
+        "question": "Can escalation override the secondary approval requirement in the Procurement Policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.8
+      },
+      {
+        "question_id": 15,
+        "category": "policy_interpretation",
+        "question": "Is Manual Credit Review time excluded from SLA cycle time measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 146.3
+      },
+      {
+        "question_id": 16,
+        "category": "policy_interpretation",
+        "question": "What approval is required when a released Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 159.0
+      },
+      {
+        "question_id": 17,
+        "category": "policy_interpretation",
+        "question": "Does a supplier dispute pause the SLA clock?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.5
+      },
+      {
+        "question_id": 18,
+        "category": "policy_interpretation",
+        "question": "What is the one documented exception where process time is not counted against SLA?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 129.1
+      },
+      {
+        "question_id": 19,
+        "category": "multi_hop",
+        "question": "Is an emergency purchase from a supplier with no prior orders still subject to Manual Credit Review?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 144.4
+      },
+      {
+        "question_id": 20,
+        "category": "multi_hop",
+        "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 143.4
+      },
+      {
+        "question_id": 21,
+        "category": "multi_hop",
+        "question": "A supplier appears in escalations three times in one quarter. What does the procedure require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 142.5
+      },
+      {
+        "question_id": 22,
+        "category": "multi_hop",
+        "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 163.5
+      },
+      {
+        "question_id": 23,
+        "category": "multi_hop",
+        "question": "A PO has gone through 3 rounds of Change Approval. What is the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 141.2
+      },
+      {
+        "question_id": 24,
+        "category": "paraphrase",
+        "question": "Which orders need two sign-offs before the supplier receives them?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 135.2
+      },
+      {
+        "question_id": 25,
+        "category": "paraphrase",
+        "question": "When does a vendor's risk profile trigger an additional review step?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.9
+      },
+      {
+        "question_id": 26,
+        "category": "paraphrase",
+        "question": "How often does leadership revisit the delivery timing benchmarks?",
+        "expected_document_id": "sla-policy",
+        "rank": 3,
+        "latency_ms": 135.3
+      },
+      {
+        "question_id": 27,
+        "category": "paraphrase",
+        "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 2,
+        "latency_ms": 137.8
+      },
+      {
+        "question_id": 28,
+        "category": "paraphrase",
+        "question": "What are the time targets for getting a purchase approved?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 137.3
+      },
+      {
+        "question_id": 29,
+        "category": "ambiguous",
+        "question": "What are the approval requirements?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.0
+      },
+      {
+        "question_id": 30,
+        "category": "ambiguous",
+        "question": "When is an SLA breach reported?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 128.6
+      },
+      {
+        "question_id": 31,
+        "category": "ambiguous",
+        "question": "When should I escalate?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 134.1
+      },
+      {
+        "question_id": 32,
+        "category": "ambiguous",
+        "question": "What happens after a Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 163.1
+      },
+      {
+        "question_id": 43,
+        "category": "lookup",
+        "question": "What is the dollar threshold below which a buyer may self-approve a purchase without Procurement review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 149.9
+      },
+      {
+        "question_id": 44,
+        "category": "lookup",
+        "question": "What is the SLA target for Standard category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 148.2
+      },
+      {
+        "question_id": 45,
+        "category": "lookup",
+        "question": "What is the approval SLA target for high-value purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 136.0
+      },
+      {
+        "question_id": 46,
+        "category": "lookup",
+        "question": "Who is the first person a procurement case is escalated to when the department manager cannot resolve it?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 169.2
+      },
+      {
+        "question_id": 47,
+        "category": "lookup",
+        "question": "Who is the final authority in the escalation path for procurement cases?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 129.8
+      },
+      {
+        "question_id": 48,
+        "category": "lookup",
+        "question": "How frequently are SLA breach incidents included in management reports?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 135.9
+      },
+      {
+        "question_id": 49,
+        "category": "lookup",
+        "question": "What type of authorization is acceptable when an emergency purchase must be made immediately?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 133.4
+      },
+      {
+        "question_id": 50,
+        "category": "lookup",
+        "question": "What document must be submitted retroactively after an emergency purchase is made?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 152.8
+      },
+      {
+        "question_id": 51,
+        "category": "lookup",
+        "question": "What happens to a purchase order case when a supplier dispute is formally raised?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 2,
+        "latency_ms": 146.8
+      },
+      {
+        "question_id": 52,
+        "category": "lookup",
+        "question": "How many times in a quarter must the same supplier or business unit combination appear in escalations to trigger a formal review?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.4
+      },
+      {
+        "question_id": 53,
+        "category": "lookup",
+        "question": "What is the Procurement Team Lead's role in the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 159.0
+      },
+      {
+        "question_id": 54,
+        "category": "lookup",
+        "question": "Can erroneous data records be corrected after the fact in the procurement system?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 149.1
+      },
+      {
+        "question_id": 55,
+        "category": "numerical",
+        "question": "How many completed prior orders must a supplier have to bypass the Manual Credit Review requirement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 134.0
+      },
+      {
+        "question_id": 56,
+        "category": "numerical",
+        "question": "How many business days does each level of the escalation path have to act before the next level is engaged?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 148.6
+      },
+      {
+        "question_id": 57,
+        "category": "numerical",
+        "question": "What is the exact dollar amount at which a purchase may be self-approved without Procurement team involvement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 128.2
+      },
+      {
+        "question_id": 58,
+        "category": "numerical",
+        "question": "How many business days does the SLA policy allow for a Consignment order?",
+        "expected_document_id": "sla-policy",
+        "rank": 5,
+        "latency_ms": 139.9
+      },
+      {
+        "question_id": 59,
+        "category": "numerical",
+        "question": "After how many rounds of PO Change Approval must a case be escalated?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 146.6
+      },
+      {
+        "question_id": 60,
+        "category": "numerical",
+        "question": "How many business days of supplier non-response during Manual Credit Review triggers the escalation process?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 154.5
+      },
+      {
+        "question_id": 61,
+        "category": "policy_interpretation",
+        "question": "Does verbal authorization alone satisfy all requirements for an emergency purchase, or is additional documentation required afterward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 143.5
+      },
+      {
+        "question_id": 62,
+        "category": "policy_interpretation",
+        "question": "If a supplier dispute period is excluded from SLA measurement, can the historical cycle time record be retroactively changed to reflect the shorter duration?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 150.3
+      },
+      {
+        "question_id": 63,
+        "category": "policy_interpretation",
+        "question": "Does the escalation process allow the Operations Director to waive the secondary approval requirement for high-value orders?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 2,
+        "latency_ms": 150.0
+      },
+      {
+        "question_id": 64,
+        "category": "policy_interpretation",
+        "question": "Is the time consumed by a PO Change Approval round included in the cycle time used for SLA compliance measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 148.6
+      },
+      {
+        "question_id": 65,
+        "category": "policy_interpretation",
+        "question": "If a supplier has completed exactly 3 prior orders with Northstar, do they still require Manual Credit Review on the next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 159.5
+      },
+      {
+        "question_id": 66,
+        "category": "policy_interpretation",
+        "question": "Does the SLA breach reporting cadence change for high-value orders that exceed their SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 149.1
+      },
+      {
+        "question_id": 67,
+        "category": "policy_interpretation",
+        "question": "Does Manual Credit Review apply only to new suppliers, or can it also be triggered for established suppliers?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 145.6
+      },
+      {
+        "question_id": 68,
+        "category": "policy_interpretation",
+        "question": "Can a business unit bypass the PO change re-approval chain if the modification is considered minor?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 122.6
+      },
+      {
+        "question_id": 69,
+        "category": "multi_hop",
+        "question": "A new supplier submits a quote for a $12,000 purchase order. What are all required review steps before the PO is released?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 132.1
+      },
+      {
+        "question_id": 70,
+        "category": "multi_hop",
+        "question": "A 3-way match order enters a supplier dispute on day 8. The dispute lasts 3 days. What is the effective cycle time counted against the SLA target?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.2
+      },
+      {
+        "question_id": 71,
+        "category": "multi_hop",
+        "question": "A PO has been through 3 rounds of Change Approval and the department manager has not acted in 2 days. Who takes over next according to policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 133.3
+      },
+      {
+        "question_id": 72,
+        "category": "multi_hop",
+        "question": "An emergency purchase is made from a supplier with zero prior completed orders. In what order must the required processes be completed?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 135.2
+      },
+      {
+        "question_id": 73,
+        "category": "multi_hop",
+        "question": "The same supplier has appeared in escalations twice with Business Unit A and once with Business Unit B this quarter. Does the recurring pattern review threshold apply?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 127.4
+      },
+      {
+        "question_id": 74,
+        "category": "multi_hop",
+        "question": "For a $600 standard purchase order from an established supplier, what is the maximum cycle time allowed under the SLA policy?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 150.5
+      },
+      {
+        "question_id": 75,
+        "category": "multi_hop",
+        "question": "A supplier dispute is raised on a case already 3 days past its SLA target. Does the dispute hold pause the SLA clock from that point forward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.0
+      },
+      {
+        "question_id": 76,
+        "category": "paraphrase",
+        "question": "What spending limit allows a buyer to sign off on a purchase without involving the procurement team?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 157.4
+      },
+      {
+        "question_id": 77,
+        "category": "paraphrase",
+        "question": "How long is the company willing to wait before treating a standard PO approval as overdue?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 146.6
+      },
+      {
+        "question_id": 78,
+        "category": "paraphrase",
+        "question": "At what escalation level does a procurement case reach the company's most senior authority?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 136.8
+      },
+      {
+        "question_id": 79,
+        "category": "paraphrase",
+        "question": "What circumstance makes a purchase urgent enough to bypass the standard pre-approval paperwork?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 138.4
+      },
+      {
+        "question_id": 80,
+        "category": "paraphrase",
+        "question": "How often does leadership formally reassess whether the cycle time benchmarks are still appropriate?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 141.1
+      },
+      {
+        "question_id": 81,
+        "category": "paraphrase",
+        "question": "What triggers a formal review of a supplier's creditworthiness when a new purchase order is submitted?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 130.4
+      },
+      {
+        "question_id": 82,
+        "category": "paraphrase",
+        "question": "What is the correct procedure for fixing an incorrect entry in the procurement records?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 132.1
+      },
+      {
+        "question_id": 83,
+        "category": "ambiguous",
+        "question": "What is the exception to the normal process?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.5
+      },
+      {
+        "question_id": 84,
+        "category": "ambiguous",
+        "question": "How long does the process take?",
+        "expected_document_id": "procurement-policy",
+        "rank": null,
+        "latency_ms": 149.2
+      },
+      {
+        "question_id": 85,
+        "category": "ambiguous",
+        "question": "What happens if the supplier doesn't respond?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 3,
+        "latency_ms": 137.2
+      },
+      {
+        "question_id": 86,
+        "category": "ambiguous",
+        "question": "What is the threshold for requiring additional review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 136.6
+      },
+      {
+        "question_id": 101,
+        "category": "lookup",
+        "question": "What is the maximum number of business days the policy allows for approving a high-value purchase order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 137.5
+      },
+      {
+        "question_id": 102,
+        "category": "lookup",
+        "question": "Which escalation level directly precedes involvement of the Operations Director?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 138.1
+      },
+      {
+        "question_id": 103,
+        "category": "lookup",
+        "question": "What specific review does the policy trigger when the same supplier and business unit combination appears in escalations more than twice in one quarter?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 137.4
+      },
+      {
+        "question_id": 104,
+        "category": "lookup",
+        "question": "What specific document must be filed within 2 business days following a verbally authorized emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 137.3
+      },
+      {
+        "question_id": 105,
+        "category": "lookup",
+        "question": "Under the SLA policy, what two categories of time are explicitly counted toward the cycle time calculation?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 138.6
+      },
+      {
+        "question_id": 106,
+        "category": "policy_interpretation",
+        "question": "If a PO goes through exactly 2 rounds of Change Approval without resolution, has the escalation threshold been met?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 149.3
+      },
+      {
+        "question_id": 107,
+        "category": "policy_interpretation",
+        "question": "Once a supplier dispute is resolved, can the dispute period be permanently removed from the cycle time record via a data correction?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 131.1
+      },
+      {
+        "question_id": 108,
+        "category": "policy_interpretation",
+        "question": "Does the $500 self-approval threshold apply at the purchase requisition stage or the purchase order stage of the process?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 155.5
+      },
+      {
+        "question_id": 109,
+        "category": "policy_interpretation",
+        "question": "A supplier has exactly 3 prior completed orders with Northstar Manufacturing. Are they classified as a new supplier subject to MCR on their next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 149.9
+      },
+      {
+        "question_id": 110,
+        "category": "policy_interpretation",
+        "question": "Does the quarterly SLA target review mandated by the SLA policy apply to all order categories or only to a specific subset?",
+        "expected_document_id": "sla-policy",
+        "rank": 2,
+        "latency_ms": 138.6
+      },
+      {
+        "question_id": 111,
+        "category": "multi_hop",
+        "question": "A $8,000 PO submitted for a supplier with 2 prior orders has gone through 3 rounds of PO Change Approval without resolution. What must happen next under policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 134.3
+      },
+      {
+        "question_id": 112,
+        "category": "multi_hop",
+        "question": "An emergency purchase totaling $15,000 from a brand-new supplier receives verbal authorization. What three distinct policy requirements must be fulfilled?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 134.8
+      },
+      {
+        "question_id": 113,
+        "category": "multi_hop",
+        "question": "A Consignment order enters a supplier dispute on day 12 of processing. The dispute lasts 2 days and is then resolved. Does the order breach its SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 3,
+        "latency_ms": 155.6
+      },
+      {
+        "question_id": 114,
+        "category": "multi_hop",
+        "question": "The same supplier appears in escalations twice with Business Unit A and twice with Business Unit B during a single quarter. What does the recurring pattern policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 179.3
+      },
+      {
+        "question_id": 115,
+        "category": "multi_hop",
+        "question": "A Manual Credit Review process runs for 6 days during a standard category order. Does the MCR time count toward the SLA cycle time, and if so, does that mean the order has breached its target?",
+        "expected_document_id": "sla-policy",
+        "rank": 2,
+        "latency_ms": 183.2
+      }
+    ],
+    "bm25": [
+      {
+        "question_id": 1,
+        "category": "lookup",
+        "question": "What is the approval target for standard purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": null,
+        "latency_ms": 1.6
+      },
+      {
+        "question_id": 2,
+        "category": "lookup",
+        "question": "What is the SLA target for 3-way match category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 3,
+        "category": "lookup",
+        "question": "What is the SLA target for Consignment orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 4,
+        "category": "lookup",
+        "question": "Who performs Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 5,
+        "category": "lookup",
+        "question": "How many business days does each escalation level have to act before the next level takes over?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 6,
+        "category": "lookup",
+        "question": "How often are SLA targets reviewed by Operations leadership?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 7,
+        "category": "numerical",
+        "question": "What is the dollar threshold above which a purchase order requires secondary approval?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 8,
+        "category": "numerical",
+        "question": "How many prior completed orders must a supplier have to avoid automatic Manual Credit Review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 9,
+        "category": "numerical",
+        "question": "How many business days past an SLA target triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 10,
+        "category": "numerical",
+        "question": "How many rounds of PO Change Approval trigger escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.2
+      },
+      {
+        "question_id": 11,
+        "category": "numerical",
+        "question": "How many business days of supplier unresponsiveness during Manual Credit Review triggers escalation?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 12,
+        "category": "numerical",
+        "question": "How many business days does a department have to file a retroactive Purchase Requisition after an emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.7
+      },
+      {
+        "question_id": 13,
+        "category": "policy_interpretation",
+        "question": "Does PO Change Approval time count toward cycle time even though it is outside the standard approval SLA?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 14,
+        "category": "policy_interpretation",
+        "question": "Can escalation override the secondary approval requirement in the Procurement Policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 15,
+        "category": "policy_interpretation",
+        "question": "Is Manual Credit Review time excluded from SLA cycle time measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.1
+      },
+      {
+        "question_id": 16,
+        "category": "policy_interpretation",
+        "question": "What approval is required when a released Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 17,
+        "category": "policy_interpretation",
+        "question": "Does a supplier dispute pause the SLA clock?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 18,
+        "category": "policy_interpretation",
+        "question": "What is the one documented exception where process time is not counted against SLA?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 19,
+        "category": "multi_hop",
+        "question": "Is an emergency purchase from a supplier with no prior orders still subject to Manual Credit Review?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 20,
+        "category": "multi_hop",
+        "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 21,
+        "category": "multi_hop",
+        "question": "A supplier appears in escalations three times in one quarter. What does the procedure require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 22,
+        "category": "multi_hop",
+        "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 23,
+        "category": "multi_hop",
+        "question": "A PO has gone through 3 rounds of Change Approval. What is the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.7
+      },
+      {
+        "question_id": 24,
+        "category": "paraphrase",
+        "question": "Which orders need two sign-offs before the supplier receives them?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 25,
+        "category": "paraphrase",
+        "question": "When does a vendor's risk profile trigger an additional review step?",
+        "expected_document_id": "procurement-policy",
+        "rank": 2,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 26,
+        "category": "paraphrase",
+        "question": "How often does leadership revisit the delivery timing benchmarks?",
+        "expected_document_id": "sla-policy",
+        "rank": null,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 27,
+        "category": "paraphrase",
+        "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 4,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 28,
+        "category": "paraphrase",
+        "question": "What are the time targets for getting a purchase approved?",
+        "expected_document_id": "procurement-policy",
+        "rank": 2,
+        "latency_ms": 2.6
+      },
+      {
+        "question_id": 29,
+        "category": "ambiguous",
+        "question": "What are the approval requirements?",
+        "expected_document_id": "procurement-policy",
+        "rank": 3,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 30,
+        "category": "ambiguous",
+        "question": "When is an SLA breach reported?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.2
+      },
+      {
+        "question_id": 31,
+        "category": "ambiguous",
+        "question": "When should I escalate?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.2
+      },
+      {
+        "question_id": 32,
+        "category": "ambiguous",
+        "question": "What happens after a Purchase Order is changed?",
+        "expected_document_id": "procurement-policy",
+        "rank": 2,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 43,
+        "category": "lookup",
+        "question": "What is the dollar threshold below which a buyer may self-approve a purchase without Procurement review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 44,
+        "category": "lookup",
+        "question": "What is the SLA target for Standard category orders?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.2
+      },
+      {
+        "question_id": 45,
+        "category": "lookup",
+        "question": "What is the approval SLA target for high-value purchase orders?",
+        "expected_document_id": "procurement-policy",
+        "rank": 3,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 46,
+        "category": "lookup",
+        "question": "Who is the first person a procurement case is escalated to when the department manager cannot resolve it?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 47,
+        "category": "lookup",
+        "question": "Who is the final authority in the escalation path for procurement cases?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 48,
+        "category": "lookup",
+        "question": "How frequently are SLA breach incidents included in management reports?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 49,
+        "category": "lookup",
+        "question": "What type of authorization is acceptable when an emergency purchase must be made immediately?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 50,
+        "category": "lookup",
+        "question": "What document must be submitted retroactively after an emergency purchase is made?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 51,
+        "category": "lookup",
+        "question": "What happens to a purchase order case when a supplier dispute is formally raised?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 3,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 52,
+        "category": "lookup",
+        "question": "How many times in a quarter must the same supplier or business unit combination appear in escalations to trigger a formal review?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 53,
+        "category": "lookup",
+        "question": "What is the Procurement Team Lead's role in the escalation path?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 54,
+        "category": "lookup",
+        "question": "Can erroneous data records be corrected after the fact in the procurement system?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 55,
+        "category": "numerical",
+        "question": "How many completed prior orders must a supplier have to bypass the Manual Credit Review requirement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 7.4
+      },
+      {
+        "question_id": 56,
+        "category": "numerical",
+        "question": "How many business days does each level of the escalation path have to act before the next level is engaged?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 57,
+        "category": "numerical",
+        "question": "What is the exact dollar amount at which a purchase may be self-approved without Procurement team involvement?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 58,
+        "category": "numerical",
+        "question": "How many business days does the SLA policy allow for a Consignment order?",
+        "expected_document_id": "sla-policy",
+        "rank": 5,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 59,
+        "category": "numerical",
+        "question": "After how many rounds of PO Change Approval must a case be escalated?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 60,
+        "category": "numerical",
+        "question": "How many business days of supplier non-response during Manual Credit Review triggers the escalation process?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 61,
+        "category": "policy_interpretation",
+        "question": "Does verbal authorization alone satisfy all requirements for an emergency purchase, or is additional documentation required afterward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 62,
+        "category": "policy_interpretation",
+        "question": "If a supplier dispute period is excluded from SLA measurement, can the historical cycle time record be retroactively changed to reflect the shorter duration?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.6
+      },
+      {
+        "question_id": 63,
+        "category": "policy_interpretation",
+        "question": "Does the escalation process allow the Operations Director to waive the secondary approval requirement for high-value orders?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 3,
+        "latency_ms": 2.6
+      },
+      {
+        "question_id": 64,
+        "category": "policy_interpretation",
+        "question": "Is the time consumed by a PO Change Approval round included in the cycle time used for SLA compliance measurement?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 65,
+        "category": "policy_interpretation",
+        "question": "If a supplier has completed exactly 3 prior orders with Northstar, do they still require Manual Credit Review on the next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 66,
+        "category": "policy_interpretation",
+        "question": "Does the SLA breach reporting cadence change for high-value orders that exceed their SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.6
+      },
+      {
+        "question_id": 67,
+        "category": "policy_interpretation",
+        "question": "Does Manual Credit Review apply only to new suppliers, or can it also be triggered for established suppliers?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 68,
+        "category": "policy_interpretation",
+        "question": "Can a business unit bypass the PO change re-approval chain if the modification is considered minor?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.2
+      },
+      {
+        "question_id": 69,
+        "category": "multi_hop",
+        "question": "A new supplier submits a quote for a $12,000 purchase order. What are all required review steps before the PO is released?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 70,
+        "category": "multi_hop",
+        "question": "A 3-way match order enters a supplier dispute on day 8. The dispute lasts 3 days. What is the effective cycle time counted against the SLA target?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.7
+      },
+      {
+        "question_id": 71,
+        "category": "multi_hop",
+        "question": "A PO has been through 3 rounds of Change Approval and the department manager has not acted in 2 days. Who takes over next according to policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 72,
+        "category": "multi_hop",
+        "question": "An emergency purchase is made from a supplier with zero prior completed orders. In what order must the required processes be completed?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.6
+      },
+      {
+        "question_id": 73,
+        "category": "multi_hop",
+        "question": "The same supplier has appeared in escalations twice with Business Unit A and once with Business Unit B this quarter. Does the recurring pattern review threshold apply?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 74,
+        "category": "multi_hop",
+        "question": "For a $600 standard purchase order from an established supplier, what is the maximum cycle time allowed under the SLA policy?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 75,
+        "category": "multi_hop",
+        "question": "A supplier dispute is raised on a case already 3 days past its SLA target. Does the dispute hold pause the SLA clock from that point forward?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.6
+      },
+      {
+        "question_id": 76,
+        "category": "paraphrase",
+        "question": "What spending limit allows a buyer to sign off on a purchase without involving the procurement team?",
+        "expected_document_id": "procurement-policy",
+        "rank": 5,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 77,
+        "category": "paraphrase",
+        "question": "How long is the company willing to wait before treating a standard PO approval as overdue?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.5
+      },
+      {
+        "question_id": 78,
+        "category": "paraphrase",
+        "question": "At what escalation level does a procurement case reach the company's most senior authority?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.1
+      },
+      {
+        "question_id": 79,
+        "category": "paraphrase",
+        "question": "What circumstance makes a purchase urgent enough to bypass the standard pre-approval paperwork?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 80,
+        "category": "paraphrase",
+        "question": "How often does leadership formally reassess whether the cycle time benchmarks are still appropriate?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 81,
+        "category": "paraphrase",
+        "question": "What triggers a formal review of a supplier's creditworthiness when a new purchase order is submitted?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 2.4
+      },
+      {
+        "question_id": 82,
+        "category": "paraphrase",
+        "question": "What is the correct procedure for fixing an incorrect entry in the procurement records?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.8
+      },
+      {
+        "question_id": 83,
+        "category": "ambiguous",
+        "question": "What is the exception to the normal process?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 84,
+        "category": "ambiguous",
+        "question": "How long does the process take?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 85,
+        "category": "ambiguous",
+        "question": "What happens if the supplier doesn't respond?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 3,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 86,
+        "category": "ambiguous",
+        "question": "What is the threshold for requiring additional review?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 101,
+        "category": "lookup",
+        "question": "What is the maximum number of business days the policy allows for approving a high-value purchase order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 102,
+        "category": "lookup",
+        "question": "Which escalation level directly precedes involvement of the Operations Director?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.3
+      },
+      {
+        "question_id": 103,
+        "category": "lookup",
+        "question": "What specific review does the policy trigger when the same supplier and business unit combination appears in escalations more than twice in one quarter?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 104,
+        "category": "lookup",
+        "question": "What specific document must be filed within 2 business days following a verbally authorized emergency purchase?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 105,
+        "category": "lookup",
+        "question": "Under the SLA policy, what two categories of time are explicitly counted toward the cycle time calculation?",
+        "expected_document_id": "sla-policy",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 106,
+        "category": "policy_interpretation",
+        "question": "If a PO goes through exactly 2 rounds of Change Approval without resolution, has the escalation threshold been met?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.3
+      },
+      {
+        "question_id": 107,
+        "category": "policy_interpretation",
+        "question": "Once a supplier dispute is resolved, can the dispute period be permanently removed from the cycle time record via a data correction?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 108,
+        "category": "policy_interpretation",
+        "question": "Does the $500 self-approval threshold apply at the purchase requisition stage or the purchase order stage of the process?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.5
+      },
+      {
+        "question_id": 109,
+        "category": "policy_interpretation",
+        "question": "A supplier has exactly 3 prior completed orders with Northstar Manufacturing. Are they classified as a new supplier subject to MCR on their next order?",
+        "expected_document_id": "procurement-policy",
+        "rank": 1,
+        "latency_ms": 1.6
+      },
+      {
+        "question_id": 110,
+        "category": "policy_interpretation",
+        "question": "Does the quarterly SLA target review mandated by the SLA policy apply to all order categories or only to a specific subset?",
+        "expected_document_id": "sla-policy",
+        "rank": 4,
+        "latency_ms": 1.4
+      },
+      {
+        "question_id": 111,
+        "category": "multi_hop",
+        "question": "A $8,000 PO submitted for a supplier with 2 prior orders has gone through 3 rounds of PO Change Approval without resolution. What must happen next under policy?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 1.6
+      },
+      {
+        "question_id": 112,
+        "category": "multi_hop",
+        "question": "An emergency purchase totaling $15,000 from a brand-new supplier receives verbal authorization. What three distinct policy requirements must be fulfilled?",
+        "expected_document_id": "exception-handling-procedure",
+        "rank": 1,
+        "latency_ms": 1.6
+      },
+      {
+        "question_id": 113,
+        "category": "multi_hop",
+        "question": "A Consignment order enters a supplier dispute on day 12 of processing. The dispute lasts 2 days and is then resolved. Does the order breach its SLA target?",
+        "expected_document_id": "sla-policy",
+        "rank": 2,
+        "latency_ms": 1.7
+      },
+      {
+        "question_id": 114,
+        "category": "multi_hop",
+        "question": "The same supplier appears in escalations twice with Business Unit A and twice with Business Unit B during a single quarter. What does the recurring pattern policy require?",
+        "expected_document_id": "escalation-procedure",
+        "rank": 1,
+        "latency_ms": 2.9
+      },
+      {
+        "question_id": 115,
+        "category": "multi_hop",
+        "question": "A Manual Credit Review process runs for 6 days during a standard category order. Does the MCR time count toward the SLA cycle time, and if so, does that mean the order has breached its target?",
+        "expected_document_id": "sla-policy",
+        "rank": 3,
+        "latency_ms": 2.7
+      }
+    ]
+  }
+}

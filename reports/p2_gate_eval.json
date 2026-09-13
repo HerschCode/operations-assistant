@@ -18,5 +18,31 @@
       "coverage_pct": 25.0,
       "avg_faithfulness_passing": 0.975
     }
+  },
+  "retrieval_metrics": {
+    "top_k": 5,
+    "strategies": {
+      "semantic": {
+        "hit_at_1": 87.9,
+        "hit_at_3": 95.6,
+        "hit_at_5": 98.9,
+        "mrr": 0.9216,
+        "n": 91
+      },
+      "hybrid": {
+        "hit_at_1": 89.0,
+        "hit_at_3": 97.8,
+        "hit_at_5": 98.9,
+        "mrr": 0.9308,
+        "n": 91
+      },
+      "bm25": {
+        "hit_at_1": 82.4,
+        "hit_at_3": 93.4,
+        "hit_at_5": 97.8,
+        "mrr": 0.878,
+        "n": 91
+      }
+    }
   }
 }
