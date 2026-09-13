@@ -32,7 +32,7 @@ from src.retrieval.search import reranked_search
 from src.evaluation.faithfulness import score_faithfulness
 
 EVAL_PATH = REPO_ROOT / "data/evaluation/eval_dataset.json"
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 CONTEXT_TEMPLATE = """\
 Answer the question using ONLY the provided context. If the context does not \
 contain enough information to answer, say so — do not guess or use outside knowledge.
