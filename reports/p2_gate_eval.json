@@ -1,0 +1,22 @@
+{
+  "model": "openai/gpt-oss-120b",
+  "total_questions": 32,
+  "recommended_threshold": 0.5,
+  "thresholds": {
+    "0.3": {
+      "gate_rate_pct": 68.8,
+      "coverage_pct": 31.2,
+      "avg_faithfulness_passing": 0.897
+    },
+    "0.5": {
+      "gate_rate_pct": 68.8,
+      "coverage_pct": 31.2,
+      "avg_faithfulness_passing": 0.897
+    },
+    "0.7": {
+      "gate_rate_pct": 75.0,
+      "coverage_pct": 25.0,
+      "avg_faithfulness_passing": 0.975
+    }
+  }
+}
