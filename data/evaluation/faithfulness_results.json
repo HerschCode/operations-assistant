@@ -1,0 +1,843 @@
+{
+  "overall_faithfulness": 0.32084375,
+  "overall_contradiction_rate": 0.5395625,
+  "model": "openai/gpt-oss-120b",
+  "results": [
+    {
+      "id": 1,
+      "category": "lookup",
+      "question": "What is the approval target for standard purchase orders?",
+      "answer": "The approval target for standard purchase orders is **within\u202f5 business days of requisition submission**.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "The approval target for standard purchase orders is **within\u202f5 business days of requisition submission**.",
+          "max_entailment": 0.513,
+          "max_contradiction": 0.024,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "category": "lookup",
+      "question": "What is the SLA target for 3-way match category orders?",
+      "answer": "The SLA target for 3\u2011way match category orders is **10 business days**.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "The SLA target for 3\u2011way match category orders is **10 business days**.",
+          "max_entailment": 0.008,
+          "max_contradiction": 0.961,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "category": "lookup",
+      "question": "What is the SLA target for Consignment orders?",
+      "answer": "The SLA target for Consignment orders is **14 business days**.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "The SLA target for Consignment orders is **14 business days**.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.007,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "category": "lookup",
+      "question": "Who performs Manual Credit Review?",
+      "answer": "Manual Credit Review is performed by the Vendor Risk team.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "Manual Credit Review is performed by the Vendor Risk team.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.456,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "category": "lookup",
+      "question": "How many business days does each escalation level have to act before the next level takes over?",
+      "answer": "Each escalation level has **2 business days** to act before the case is automatically escalated to the next level.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "Each escalation level has **2 business days** to act before the case is automatically escalated to the next level.",
+          "max_entailment": 0.526,
+          "max_contradiction": 0.999,
+          "grounded": true,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "category": "lookup",
+      "question": "How often are SLA targets reviewed by Operations leadership?",
+      "answer": "SLA targets are reviewed **quarterly** by Operations leadership.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "SLA targets are reviewed **quarterly** by Operations leadership.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.849,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "category": "numerical",
+      "question": "What is the dollar threshold above which a purchase order requires secondary approval?",
+      "answer": "A purchase order requires secondary approval when its value exceeds **$10,000**.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "A purchase order requires secondary approval when its value exceeds **$10,000**.",
+          "max_entailment": 0.059,
+          "max_contradiction": 0.98,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "category": "numerical",
+      "question": "How many prior completed orders must a supplier have to avoid automatic Manual Credit Review?",
+      "answer": "A supplier must have **at least three prior completed orders** to avoid being automatically routed to Manual Credit Review.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "A supplier must have **at least three prior completed orders** to avoid being automatically routed to Manual Credit Review.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.989,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "category": "numerical",
+      "question": "How many business days past an SLA target triggers escalation?",
+      "answer": "Escalation is triggered when a case breaches its SLA target by **more than\u202f5\u202fbusiness days**.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "Escalation is triggered when a case breaches its SLA target by **more than\u202f5\u202fbusiness days**.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.99,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "category": "numerical",
+      "question": "How many rounds of PO Change Approval trigger escalation?",
+      "answer": "Escalation is triggered when a case has undergone **more than\u202f2 rounds of PO Change Approval**.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "Escalation is triggered when a case has undergone **more than\u202f2 rounds of PO Change Approval**.",
+          "max_entailment": 0.959,
+          "max_contradiction": 0.981,
+          "grounded": true,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "category": "numerical",
+      "question": "How many business days of supplier unresponsiveness during Manual Credit Review triggers escalation?",
+      "answer": "Escalation is triggered when a supplier is unresponsive for **more than\u202f3\u202fbusiness days** during the Manual Credit Review.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Escalation is triggered when a supplier is unresponsive for **more than\u202f3\u202fbusiness days** during the Manual Credit Review.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.13,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "category": "numerical",
+      "question": "How many business days does a department have to file a retroactive Purchase Requisition after an emergency purchase?",
+      "answer": "A department must file the retroactive Purchase Requisition within **2 business days** after an emergency purchase.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "A department must file the retroactive Purchase Requisition within **2 business days** after an emergency purchase.",
+          "max_entailment": 0.012,
+          "max_contradiction": 0.007,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "category": "policy_interpretation",
+      "question": "Does PO Change Approval time count toward cycle time even though it is outside the standard approval SLA?",
+      "answer": "Yes. PO Change Approval time is included in the cycle\u2011time calculation, even though it falls outside the standard approval SLA.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "PO Change Approval time is included in the cycle\u2011time calculation, even though it falls outside the standard approval SLA.",
+          "max_entailment": 0.894,
+          "max_contradiction": 0.291,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "category": "policy_interpretation",
+      "question": "Can escalation override the secondary approval requirement in the Procurement Policy?",
+      "answer": "No. Escalation does not override any approval requirements in the Procurement Policy, including the secondary approval needed for high\u2011value or high\u2011risk purchase orders. It only speeds up attention to a stalled case and does not skip required approval steps.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Escalation does not override any approval requirements in the Procurement Policy, including the secondary approval needed for high\u2011value or high\u2011risk purchase orders.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.044,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "It only speeds up attention to a stalled case and does not skip required approval steps.",
+          "max_entailment": 0.012,
+          "max_contradiction": 0.006,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "category": "policy_interpretation",
+      "question": "Is Manual Credit Review time excluded from SLA cycle time measurement?",
+      "answer": "No.\u202fManual Credit Review time is **included** in the cycle\u2011time measurement; it is not paused or excluded even though it falls outside the standard approval SLA.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Manual Credit Review time is **included** in the cycle\u2011time measurement; it is not paused or excluded even though it falls outside the standard approval SLA.",
+          "max_entailment": 0.931,
+          "max_contradiction": 0.058,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "category": "policy_interpretation",
+      "question": "What approval is required when a released Purchase Order is changed?",
+      "answer": "When a released Purchase Order is changed, the **entire original approval chain must be re\u2011run**\u2014the changed PO does not keep any of its prior approvals.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "When a released Purchase Order is changed, the **entire original approval chain must be re\u2011run**\u2014the changed PO does not keep any of its prior approvals.",
+          "max_entailment": 0.997,
+          "max_contradiction": 0.984,
+          "grounded": true,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "category": "policy_interpretation",
+      "question": "Does a supplier dispute pause the SLA clock?",
+      "answer": "Yes. When a supplier disputes an order\u2019s terms after the PO is released, the case is placed on hold and that time **does not count toward SLA breach metrics**. This is the sole documented exception to the rule that all process time normally counts toward the SLA.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 2,
+      "n_grounded": 0,
+      "n_contradicted": 2,
+      "sentence_scores": [
+        {
+          "sentence": "When a supplier disputes an order\u2019s terms after the PO is released, the case is placed on hold and that time **does not count toward SLA breach metrics**.",
+          "max_entailment": 0.021,
+          "max_contradiction": 0.948,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "This is the sole documented exception to the rule that all process time normally counts toward the SLA.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.999,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "category": "policy_interpretation",
+      "question": "What is the one documented exception where process time is not counted against SLA?",
+      "answer": "The only documented exception is when a supplier disputes an order\u2019s terms after the purchase\u2011order (PO) has been released. In that situation the case is placed on hold (not cancelled) pending resolution, and the time the case spends on hold does **not** count toward SLA breach metrics.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.5,
+      "n_sentences": 2,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "The only documented exception is when a supplier disputes an order\u2019s terms after the purchase\u2011order (PO) has been released.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.957,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "In that situation the case is placed on hold (not cancelled) pending resolution, and the time the case spends on hold does **not** count toward SLA breach metrics.",
+          "max_entailment": 0.008,
+          "max_contradiction": 0.011,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "category": "multi_hop",
+      "question": "Is an emergency purchase from a supplier with no prior orders still subject to Manual Credit Review?",
+      "answer": "Yes.\u202fEven though an emergency purchase can bypass the normal requisition approval, Section\u202f2 states that \u201cEmergency purchases are still subject to Manual Credit Review if the supplier meets the criteria in Procurement Policy Section\u202f5.\u201d\u202fSection\u202f5 defines the Manual Credit Review trigger as \u201cOrders from a new supplier (fewer than\u202f3\u202fprior completed orders)\u2026 automatically route to Manual Credit Review.\u201d\u202fA supplier with no prior orders is a new supplier, so the emergency purchase would still go through Manual Credit Review.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Even though an emergency purchase can bypass the normal requisition approval, Section\u202f2 states that \u201cEmergency purchases are still subject to Manual Credit Review if the supplier meets the criteria in Procurement Policy Section\u202f5.\u201d\u202fSection\u202f5 defines the Manual Credit Review trigger as \u201cOrders from a new supplier (fewer than\u202f3\u202fprior completed orders)\u2026 automatically route to Manual Credit Review.\u201d\u202fA supplier with no prior orders is a new supplier, so the emergency purchase would still go through Manual Credit Review.",
+          "max_entailment": 0.026,
+          "max_contradiction": 0.069,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "category": "multi_hop",
+      "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+      "answer": "The policy says that any case that has breached its SLA target by **more than\u202f5\u202fbusiness days** must be escalated. Since the breach is 6\u202fbusiness days, the case must be **escalated to Operations leadership**.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 2,
+      "n_grounded": 0,
+      "n_contradicted": 2,
+      "sentence_scores": [
+        {
+          "sentence": "The policy says that any case that has breached its SLA target by **more than\u202f5\u202fbusiness days** must be escalated.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.995,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "Since the breach is 6\u202fbusiness days, the case must be **escalated to Operations leadership**.",
+          "max_entailment": 0.011,
+          "max_contradiction": 0.99,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "category": "multi_hop",
+      "question": "A supplier appears in escalations three times in one quarter. What does the procedure require?",
+      "answer": "The procedure calls for Operations leadership to conduct a specific review of that supplier\u2019s process handling\u2014rather than treating each escalation as an isolated incident\u2014because the supplier has appeared in escalations more than twice in the quarter.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 1,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "The procedure calls for Operations leadership to conduct a specific review of that supplier\u2019s process handling\u2014rather than treating each escalation as an isolated incident\u2014because the supplier has appeared in escalations more than twice in the quarter.",
+          "max_entailment": 0.988,
+          "max_contradiction": 0.982,
+          "grounded": true,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "category": "multi_hop",
+      "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+      "answer": "The $15,000 purchase order must go through the following steps:\n\n1. **Approved Purchase Requisition** \u2013 Because the requisition is above $500, it must be reviewed and approved by Procurement before a PO can be issued.  \n2. **Standard approval** \u2013 The PO first receives single\u2011level approval from the requesting department\u2019s budget owner (the normal approval for any PO).  \n3. **Secondary approval** \u2013 Since the PO exceeds $10,000, it then requires a second approval from Procurement leadership before the order can be released to the supplier.  \n\nNo other approval steps are",
+      "faithfulness_score": 0.6,
+      "contradiction_rate": 0.6,
+      "n_sentences": 5,
+      "n_grounded": 3,
+      "n_contradicted": 3,
+      "sentence_scores": [
+        {
+          "sentence": "The $15,000 purchase order must go through the following steps:\n\n1.",
+          "max_entailment": 0.278,
+          "max_contradiction": 0.969,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "**Approved Purchase Requisition** \u2013 Because the requisition is above $500, it must be reviewed and approved by Procurement before a PO can be issued.",
+          "max_entailment": 0.171,
+          "max_contradiction": 0.048,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "**Standard approval** \u2013 The PO first receives single\u2011level approval from the requesting department\u2019s budget owner (the normal approval for any PO).",
+          "max_entailment": 0.975,
+          "max_contradiction": 0.013,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "**Secondary approval** \u2013 Since the PO exceeds $10,000, it then requires a second approval from Procurement leadership before the order can be released to the supplier.",
+          "max_entailment": 0.982,
+          "max_contradiction": 0.785,
+          "grounded": true,
+          "contradicted": true
+        },
+        {
+          "sentence": "No other approval steps are",
+          "max_entailment": 0.719,
+          "max_contradiction": 0.612,
+          "grounded": true,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "category": "multi_hop",
+      "question": "A PO has gone through 3 rounds of Change Approval. What is the escalation path?",
+      "answer": "Since the PO has exceeded the \u201cmore\u202fthan\u202f2 rounds of PO Change Approval\u201d threshold, it must be escalated.  \nThe escalation path is:\n\n1. **Requesting department manager** \u2013 has 2 business days to act.  \n2. If not resolved, it automatically escalates to the **Procurement Team Lead** \u2013 also 2 business days to act.  \n3. If still unresolved, it escalates to the **Operations Director**.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 5,
+      "n_grounded": 5,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Since the PO has exceeded the \u201cmore\u202fthan\u202f2 rounds of PO Change Approval\u201d threshold, it must be escalated.",
+          "max_entailment": 0.984,
+          "max_contradiction": 0.002,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "The escalation path is:\n\n1.",
+          "max_entailment": 0.723,
+          "max_contradiction": 0.034,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "**Requesting department manager** \u2013 has 2 business days to act.",
+          "max_entailment": 0.701,
+          "max_contradiction": 0.011,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "If not resolved, it automatically escalates to the **Procurement Team Lead** \u2013 also 2 business days to act.",
+          "max_entailment": 0.771,
+          "max_contradiction": 0.026,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "If still unresolved, it escalates to the **Operations Director**.",
+          "max_entailment": 0.529,
+          "max_contradiction": 0.016,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "category": "paraphrase",
+      "question": "Which orders need two sign-offs before the supplier receives them?",
+      "answer": "Orders that must receive two sign\u2011offs (a primary approval plus a secondary approval from Procurement leadership) before they are released to the supplier are:\n\n* **Purchase Orders over\u202f$10,000**, and  \n* **Any order that is flagged as high\u2011risk by the credit/vendor\u2011risk screening**.  \n\nThese orders require the additional, second approval prior to the supplier receiving the PO.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 2,
+      "n_grounded": 0,
+      "n_contradicted": 2,
+      "sentence_scores": [
+        {
+          "sentence": "Orders that must receive two sign\u2011offs (a primary approval plus a secondary approval from Procurement leadership) before they are released to the supplier are:\n\n* **Purchase Orders over\u202f$10,000**, and  \n* **Any order that is flagged as high\u2011risk by the credit/vendor\u2011risk screening**.",
+          "max_entailment": 0.006,
+          "max_contradiction": 0.994,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "These orders require the additional, second approval prior to the supplier receiving the PO.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.947,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "category": "paraphrase",
+      "question": "When does a vendor's risk profile trigger an additional review step?",
+      "answer": "A vendor\u2019s risk profile adds an extra review step in two situations:\n\n1. **Manual Credit Review** \u2013 If the supplier is new (fewer than\u202f3 completed orders) **or** its vendor\u2011risk score falls below the defined threshold, the order is automatically routed to Manual Credit Review, no matter how large the order is.\n\n2. **Secondary Approval** \u2013 If the credit/vendor\u2011risk screening flags the order as **high\u2011risk**, the purchase order must receive a second approval from Procurement leadership before it can be released to the supplier.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.333,
+      "n_sentences": 3,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "A vendor\u2019s risk profile adds an extra review step in two situations:\n\n1.",
+          "max_entailment": 0.015,
+          "max_contradiction": 0.125,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "**Manual Credit Review** \u2013 If the supplier is new (fewer than\u202f3 completed orders) **or** its vendor\u2011risk score falls below the defined threshold, the order is automatically routed to Manual Credit Review, no matter how large the order is.",
+          "max_entailment": 0.006,
+          "max_contradiction": 0.01,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "**Secondary Approval** \u2013 If the credit/vendor\u2011risk screening flags the order as **high\u2011risk**, the purchase order must receive a second approval from Procurement leadership before it can be released to the supplier.",
+          "max_entailment": 0.011,
+          "max_contradiction": 0.974,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "category": "paraphrase",
+      "question": "How often does leadership revisit the delivery timing benchmarks?",
+      "answer": "Leadership revisits the delivery timing benchmarks (SLA targets) on a **quarterly** basis.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "Leadership revisits the delivery timing benchmarks (SLA targets) on a **quarterly** basis.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.007,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "category": "paraphrase",
+      "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+      "answer": "A case is protected from being counted as an SLA breach when the supplier disputes the order\u2019s terms after the PO has been released. In that situation the case is placed on **hold** (not cancelled) while the dispute is resolved, and the time it spends on hold is excluded from the SLA\u2011breach metrics. This is the sole documented exception to the rule that all process time normally counts toward SLA breaches.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.667,
+      "n_sentences": 3,
+      "n_grounded": 0,
+      "n_contradicted": 2,
+      "sentence_scores": [
+        {
+          "sentence": "A case is protected from being counted as an SLA breach when the supplier disputes the order\u2019s terms after the PO has been released.",
+          "max_entailment": 0.004,
+          "max_contradiction": 0.023,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "In that situation the case is placed on **hold** (not cancelled) while the dispute is resolved, and the time it spends on hold is excluded from the SLA\u2011breach metrics.",
+          "max_entailment": 0.008,
+          "max_contradiction": 0.978,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "This is the sole documented exception to the rule that all process time normally counts toward SLA breaches.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.999,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "category": "paraphrase",
+      "question": "What are the time targets for getting a purchase approved?",
+      "answer": "The policy sets the following approval\u2011time targets:\n\n- **Standard purchase orders:** approval is targeted within **5 business days** of the requisition being submitted.  \n- **High\u2011value orders that need secondary approval:** approval is targeted within **10 business days** of the requisition being submitted.  \n\nThese are business\u2011goal targets, not contractual guarantees. (Emergency purchases have a separate requirement to file a retroactive requisition within 2 business days, but the standard approval targets are the 5\u2011day and 10\u2011day limits above.)",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 0.0,
+      "n_sentences": 4,
+      "n_grounded": 0,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "The policy sets the following approval\u2011time targets:\n\n- **Standard purchase orders:** approval is targeted within **5 business days** of the requisition being submitted.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.011,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "- **High\u2011value orders that need secondary approval:** approval is targeted within **10 business days** of the requisition being submitted.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.031,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "These are business\u2011goal targets, not contractual guarantees.",
+          "max_entailment": 0.004,
+          "max_contradiction": 0.016,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "(Emergency purchases have a separate requirement to file a retroactive requisition within 2 business days, but the standard approval targets are the 5\u2011day and 10\u2011day limits above.)",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.005,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "category": "ambiguous",
+      "question": "What are the approval requirements?",
+      "answer": "The approval requirements are:\n\n* **Standard approval (Section\u202f4.1)** \u2013 Purchase Orders of **$10,000 or less** need a **single\u2011level approval** from the **budget owner of the requesting department**.\n\n* **Secondary approval (Section\u202f4.2)** \u2013 Purchase Orders **over $10,000**, or any order flagged as **high\u2011risk** by credit/vendor\u2011risk screening, must receive a **second approval** from **Procurement leadership** before the order can be released to the supplier.\n\n* **Escalation (Section\u202f3)** \u2013 Escalating a case does **not bypass** these approval steps; it only speeds up attention to a stalled case.",
+      "faithfulness_score": 1.0,
+      "contradiction_rate": 0.333,
+      "n_sentences": 3,
+      "n_grounded": 3,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "The approval requirements are:\n\n* **Standard approval (Section\u202f4.1)** \u2013 Purchase Orders of **$10,000 or less** need a **single\u2011level approval** from the **budget owner of the requesting department**.",
+          "max_entailment": 0.994,
+          "max_contradiction": 0.006,
+          "grounded": true,
+          "contradicted": false
+        },
+        {
+          "sentence": "* **Secondary approval (Section\u202f4.2)** \u2013 Purchase Orders **over $10,000**, or any order flagged as **high\u2011risk** by credit/vendor\u2011risk screening, must receive a **second approval** from **Procurement leadership** before the order can be released to the supplier.",
+          "max_entailment": 0.831,
+          "max_contradiction": 0.888,
+          "grounded": true,
+          "contradicted": true
+        },
+        {
+          "sentence": "* **Escalation (Section\u202f3)** \u2013 Escalating a case does **not bypass** these approval steps; it only speeds up attention to a stalled case.",
+          "max_entailment": 0.997,
+          "max_contradiction": 0.135,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "category": "ambiguous",
+      "question": "When is an SLA breach reported?",
+      "answer": "An SLA breach is reported when a case\u2019s cycle time exceeds the target for its category; such breaches are included in the weekly operations\u2011management report.",
+      "faithfulness_score": 0.0,
+      "contradiction_rate": 1.0,
+      "n_sentences": 1,
+      "n_grounded": 0,
+      "n_contradicted": 1,
+      "sentence_scores": [
+        {
+          "sentence": "An SLA breach is reported when a case\u2019s cycle time exceeds the target for its category; such breaches are included in the weekly operations\u2011management report.",
+          "max_entailment": 0.003,
+          "max_contradiction": 0.926,
+          "grounded": false,
+          "contradicted": true
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "category": "ambiguous",
+      "question": "When should I escalate?",
+      "answer": "You should escalate a case whenever **any** of the following triggers occur:\n\n1. **SLA breach** \u2013 the case has exceeded its SLA target by **more than\u202f5 business days**.  \n2. **Repeated PO\u2011change approvals** \u2013 the case has gone through **more than\u202f2 rounds** of PO Change Approval.  \n3. **Supplier non\u2011response** \u2013 during a Manual Credit Review the supplier has been **unresponsive for more than\u202f3 business days**.\n\nWhen one of those conditions is met, follow the escalation path:\n\n- **Step\u202f1:** Requesting department manager (has 2 business days to act)  \n- **Step\u202f2:** If no action, automatically move to the Procurement Team Lead (2 business days)  \n- **Step\u202f3:** If still no action, automatically move to the Operations Director.\n\nA single SLA breach alone does **not** trigger automatic escalation; only the specific triggers listed above require escalation.",
+      "faithfulness_score": 0.167,
+      "contradiction_rate": 0.833,
+      "n_sentences": 6,
+      "n_grounded": 1,
+      "n_contradicted": 5,
+      "sentence_scores": [
+        {
+          "sentence": "You should escalate a case whenever **any** of the following triggers occur:\n\n1.",
+          "max_entailment": 0.015,
+          "max_contradiction": 0.997,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "**SLA breach** \u2013 the case has exceeded its SLA target by **more than\u202f5 business days**.",
+          "max_entailment": 0.001,
+          "max_contradiction": 0.943,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "**Repeated PO\u2011change approvals** \u2013 the case has gone through **more than\u202f2 rounds** of PO Change Approval.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.973,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "**Supplier non\u2011response** \u2013 during a Manual Credit Review the supplier has been **unresponsive for more than\u202f3 business days**.",
+          "max_entailment": 0.056,
+          "max_contradiction": 0.831,
+          "grounded": false,
+          "contradicted": true
+        },
+        {
+          "sentence": "When one of those conditions is met, follow the escalation path:\n\n- **Step\u202f1:** Requesting department manager (has 2 business days to act)  \n- **Step\u202f2:** If no action, automatically move to the Procurement Team Lead (2 business days)  \n- **Step\u202f3:** If still no action, automatically move to the Operations Director.",
+          "max_entailment": 0.968,
+          "max_contradiction": 0.999,
+          "grounded": true,
+          "contradicted": true
+        },
+        {
+          "sentence": "A single SLA breach alone does **not** trigger automatic escalation; only the specific triggers listed above require escalation.",
+          "max_entailment": 0.002,
+          "max_contradiction": 0.005,
+          "grounded": false,
+          "contradicted": false
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "category": "ambiguous",
+      "question": "What happens after a Purchase Order is changed?",
+      "answer": "When a released Purchase Order is changed\u2014whether the quantity, price, or delivery date is altered\u2014the original approval chain must be run again. The changed PO does not keep the approvals it had before the change.",
+      "faithfulness_score": 0.5,
+      "contradiction_rate": 0.0,
+      "n_sentences": 2,
+      "n_grounded": 1,
+      "n_contradicted": 0,
+      "sentence_scores": [
+        {
+          "sentence": "When a released Purchase Order is changed\u2014whether the quantity, price, or delivery date is altered\u2014the original approval chain must be run again.",
+          "max_entailment": 0.043,
+          "max_contradiction": 0.006,
+          "grounded": false,
+          "contradicted": false
+        },
+        {
+          "sentence": "The changed PO does not keep the approvals it had before the change.",
+          "max_entailment": 0.998,
+          "max_contradiction": 0.005,
+          "grounded": true,
+          "contradicted": false
+        }
+      ]
+    }
+  ]
+}
