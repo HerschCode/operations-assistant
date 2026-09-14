@@ -51,8 +51,11 @@
   .github-link { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
   .github-link:hover { color: var(--accent); }
 
-  /* ── Main wrap ── */
-  .wrap { width: 100%; max-width: 760px; padding: 24px 16px 0; }
+  /* ── Layout ── */
+  .outer { width: 100%; max-width: 1160px; padding: 24px 16px 0; }
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+  .col-left { min-width: 0; }
+  .col-right { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 
   /* ── Guide panel ── */
   .guide-panel {
@@ -121,7 +124,7 @@
   }
   #log {
     display: flex; flex-direction: column; gap: 0;
-    min-height: 200px; max-height: 55vh; overflow-y: auto;
+    min-height: 200px; max-height: 65vh; overflow-y: auto;
   }
 
   /* Pair = user bubble + assistant bubble separated by divider */
@@ -211,9 +214,12 @@
   footer { color: var(--muted); font-size: 0.78rem; margin-top: 18px; text-align: center; line-height: 1.6; }
   footer a { color: var(--accent); }
 
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
   @media (max-width: 600px) {
     .guide-cols { grid-template-columns: 1fr; }
-    .wrap { padding: 16px 10px 0; }
+    .outer { padding: 16px 10px 0; }
     .msg.user { max-width: 95%; }
     button[type=submit] { padding: 0 12px; }
     .topbar h1 { font-size: 0.95rem; }
@@ -230,7 +236,9 @@
   </div>
 </div>
 
-<div class="wrap">
+<div class="outer">
+  <div class="layout">
+  <div class="col-left">
 
   <!-- Guide panel -->
   <div class="guide-panel" id="guidePanel">
@@ -294,10 +302,13 @@
     </div>
   </div>
 
-  <!-- Re-open guide button (shown after first question) -->
+  <!-- Re-open guide button (shown on mobile after collapsing) -->
   <div class="guide-reopen" id="guideReopen">
     <button class="guide-reopen-btn" id="guideReopenBtn" type="button">What can I ask? ▾</button>
   </div>
+
+  </div><!-- /col-left -->
+  <div class="col-right">
 
   <!-- Chat panel -->
   <div class="chat-panel">
@@ -345,7 +356,10 @@
     Source: <a href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">operations-assistant</a>
     · Real Groq LLM, real Neon Postgres data, real Chroma retrieval — nothing scripted.
   </footer>
-</div>
+
+  </div><!-- /col-right -->
+  </div><!-- /layout -->
+</div><!-- /outer -->
 
 <script>
 // ── Element refs ──
@@ -530,8 +544,8 @@ async function ask(question) {
   questionsAsked++;
   updateRateCounter();
 
-  // Collapse guide after first ask
-  if (questionsAsked === 1 && !guideCollapsedByUser) {
+  // On mobile, collapse guide after first ask to give chat more room
+  if (window.innerWidth < 900 && questionsAsked === 1 && !guideCollapsedByUser) {
     collapseGuide(true);
   }
 
