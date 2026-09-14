@@ -1,11 +1,11 @@
 """
 Head-to-head retrieval benchmark: BM25-only vs semantic-only vs hybrid.
 
-Runs all three methods against the 42-question eval dataset
+Runs all methods against the 120-question eval dataset
 (data/evaluation/eval_dataset.json) and reports:
 
-  - Hit@1, Hit@3, Hit@5, MRR   — for the 32 in-scope questions
-  - False-positive rate          — for the 10 OOD/adversarial questions
+  - Hit@1, Hit@3, Hit@5, MRR   — for the 91 in-scope questions
+  - False-positive rate          — for the 29 OOD/adversarial questions
   - Per-category Hit@3 breakdown (hybrid method)
   - Per-method latency
 
