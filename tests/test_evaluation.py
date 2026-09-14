@@ -6,7 +6,7 @@ from src.agent.agent import AgentResponse
 
 def test_load_questions_reads_real_file():
     questions = load_questions()
-    assert len(questions) == 6
+    assert len(questions) == 25
     categories = {q["category"] for q in questions}
     assert categories == {"data", "document", "combined", "multi_step", "unanswerable", "adversarial"}
 
@@ -34,5 +34,5 @@ def test_run_evaluation_scores_all_questions(mock_run_agent):
         answer="test answer", tool_calls=[], tools_used=["get_cycle_time"], citations=[],
     )
     summary = run_evaluation()
-    assert summary["total"] == 6
-    assert mock_run_agent.call_count == 6
+    assert summary["total"] == 25
+    assert mock_run_agent.call_count == 25
