@@ -9,9 +9,11 @@ for line in env_file.read_text(encoding="utf-8").splitlines():
         k, v = line.split("=", 1)
         os.environ.setdefault(k.strip(), v.strip())
 
-# gpt-oss-20b: token usage per question fits under 8000 TPM limit now that
-# get_supplier_performance returns only top 15 results (~375 tokens, not 5754)
-os.environ["AGENT_MODEL"] = "openai/gpt-oss-20b"
+# gpt-oss-120b: stronger tool-selection than 20b; also avoids the 20b daily
+# token quota that exhausts under repeated eval runs. Both models share the same
+# Groq account and both are used in this project's benchmark (see README §Provider
+# comparison). Higher latency (~3.3s/turn) is acceptable in evaluation.
+os.environ["AGENT_MODEL"] = "openai/gpt-oss-120b"
 
 from src.evaluation.evaluate_agent import run_evaluation
 # 30s between questions: Groq's rate-limit window is ~60s, each question
