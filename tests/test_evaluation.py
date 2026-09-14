@@ -33,6 +33,6 @@ def test_run_evaluation_scores_all_questions(mock_run_agent):
     mock_run_agent.return_value = AgentResponse(
         answer="test answer", tool_calls=[], tools_used=["get_cycle_time"], citations=[],
     )
-    summary = run_evaluation()
+    summary = run_evaluation(inter_question_delay=0.0)
     assert summary["total"] == 25
     assert mock_run_agent.call_count == 25
