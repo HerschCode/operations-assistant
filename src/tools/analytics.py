@@ -9,12 +9,23 @@ from src.tools.validation import clamp_int
 
 GET_CYCLE_TIME_SCHEMA = {
     "name": "get_cycle_time",
-    "description": "Get overall procurement cycle time statistics (mean, median, p90, p99) across all cases.",
-    "input_schema": {"type": "object", "properties": {}, "required": []},
+    "description": "Get procurement cycle time statistics (mean, median, p90). Omit segment for the overall rate; pass segment='category' for a per-procurement-category breakdown.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "segment": {
+                "type": "string",
+                "description": "Optional column to segment by. Use 'category' for a per-category breakdown. Omit for overall stats.",
+            }
+        },
+        "required": [],
+    },
 }
 
 
-def get_cycle_time() -> dict:
+def get_cycle_time(segment: str | None = None) -> dict | list:
+    if segment:
+        return get("/metrics/cycle-time", params={"segment": segment})
     return get("/metrics/cycle-time")
 
 
@@ -62,20 +73,24 @@ def get_sla_metrics(segment: str | None = None) -> list:
 
 GET_SUPPLIER_PERFORMANCE_SCHEMA = {
     "name": "get_supplier_performance",
-    "description": "Get the supplier performance scorecard (cycle time, SLA breach rate, order count) for suppliers with enough order volume to rank reliably.",
+    "description": "Get the supplier performance scorecard (cycle time, SLA breach rate, order count) for suppliers with enough order volume to rank reliably. Returns the top suppliers by SLA breach rate.",
     "input_schema": {
         "type": "object",
         "properties": {
-            "min_volume": {"type": "integer", "description": "Minimum order count to include a supplier, default 5.", "default": 5}
+            "min_volume": {"type": "integer", "description": "Minimum order count to include a supplier, default 5.", "default": 5},
+            "top_n": {"type": "integer", "description": "Return only the top N suppliers by SLA breach rate, default 15, max 50.", "default": 15},
         },
         "required": [],
     },
 }
 
 
-def get_supplier_performance(min_volume: int = 5) -> list:
+def get_supplier_performance(min_volume: int = 5, top_n: int = 15) -> list:
     min_volume = clamp_int(min_volume, max_value=1000, min_value=1)
-    return get("/suppliers/performance", params={"min_volume": min_volume})
+    top_n = clamp_int(top_n, max_value=50, min_value=1)
+    rows: list = get("/suppliers/performance", params={"min_volume": min_volume})
+    rows.sort(key=lambda r: r.get("sla_breach_rate") or 0.0, reverse=True)
+    return rows[:top_n]
 
 
 GET_MANAGEMENT_REPORT_SCHEMA = {

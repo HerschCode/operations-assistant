@@ -47,12 +47,35 @@ def _tool_selection_correct(expected: list[str], actual: list[str], category: st
     return set(expected).issubset(set(actual))
 
 
-def run_evaluation(path: str = "data/evaluation/agent_questions.json") -> dict:
+def run_evaluation(path: str = "data/evaluation/agent_questions.json", inter_question_delay: float = 10.0) -> dict:
+    import time
+    from groq import RateLimitError, APITimeoutError, APIConnectionError
     questions = load_questions(path)
     results = []
 
-    for q in questions:
-        response = run_agent(q["question"])
+    for i, q in enumerate(questions):
+        if i > 0:
+            time.sleep(inter_question_delay)
+        error_kind = "unknown"
+        for attempt in range(4):
+            try:
+                response = run_agent(q["question"])
+                break
+            except RateLimitError:
+                error_kind = "rate limit"
+                wait = 15 * (attempt + 1)
+                print(f"  [rate limit] sleeping {wait}s before attempt {attempt+2}/4...")
+                time.sleep(wait)
+            except (APITimeoutError, APIConnectionError) as exc:
+                error_kind = "timeout/connection"
+                wait = 10 * (attempt + 1)
+                print(f"  [transient {type(exc).__name__}] sleeping {wait}s before attempt {attempt+2}/4...")
+                time.sleep(wait)
+        else:
+            # All retries exhausted — record a blank result so one question
+            # doesn't abort the entire evaluation run.
+            from src.agent.agent import AgentResponse
+            response = AgentResponse(answer=f"[eval error: {error_kind}]")
         results.append(AgentEvalResult(
             question=q["question"],
             category=q["category"],

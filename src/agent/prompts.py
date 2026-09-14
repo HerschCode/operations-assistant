@@ -14,6 +14,9 @@ performance, a specific case's risk) need the analytics/prediction tools.
 - Questions about rules, approval requirements, or procedures need search_policy_documents.
 - Questions combining both ("why are high-value orders breaching SLA, and does policy explain \
 the extra step?") need both -- call the data tool AND the document tool, then synthesize.
+- Questions that ask whether metrics are MEETING targets (e.g. "are we meeting SLA targets?", \
+"are breach rates within policy limits?") need BOTH: the data tool (current metric) AND \
+search_policy_documents (the target value itself -- SLA targets live in policy, not in the data).
 - If you're not sure a tool is needed, prefer calling it over guessing.
 
 Grounding rules:
