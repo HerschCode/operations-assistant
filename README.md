@@ -18,7 +18,7 @@ willing to say "insufficient data" rather than guess.
 | Hybrid retrieval Hit@1 | **89%** | 91 in-scope questions, section-level match |
 | Hybrid retrieval MRR | **0.931** | same eval set |
 | Faithfulness gate pass rate | **89.7%** (at `t=0.5`) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
-| Agent tool-selection | **21/25 (84%)** | 25 hand-written questions, 5 categories, mechanical evaluation |
+| Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
 | Provider count | **4** | Anthropic, Groq, Gemini, LangChain — one interface |
 
 The distinguishing piece is the **faithfulness gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, NLI scoring decides whether the LLM's answer is entailed by the retrieved chunks. If not, the gate fires and returns "insufficient information" rather than a hallucinated answer. This directly addresses the paraphrase-question failure mode (0% faithfulness without gating) and is evaluated at multiple thresholds with real numbers.
@@ -39,7 +39,7 @@ was actually measured against it, not just assumed.
 
 ## Stack
 Python · FastAPI · PostgreSQL · RAG (ChromaDB + hybrid BM25/semantic retrieval) ·
-LangChain · Groq / Anthropic / Gemini · Docker · Cloud Run · GCP
+LangChain · Groq / Anthropic / Gemini · Docker · Render
 
 Containerised; deployable as a Kubernetes `Deployment` behind a `ClusterIP` `Service` — the
 one stateful piece (`data/conversations.db`, SQLite) is the reason a real cluster deployment
@@ -212,22 +212,22 @@ text — a groundedness check and a compliance-marker check — so tool-call
 comparison alone doesn't apply). See
 [`docs/evaluation.md`](docs/evaluation.md) for the full methodology.
 
-**21/25 (84%) tool-selection checks passed** on a complete end-to-end run with
-both services live. The four failures, not smoothed over:
+**25/25 (100%) tool-selection checks passed** on a complete end-to-end run with
+both services live — run with `openai/gpt-oss-120b` via Groq (stronger multi-tool
+selection than `gpt-oss-20b`; both are documented in the provider comparison table
+above). The four questions that previously failed under `gpt-oss-20b` (Q13, Q14,
+Q15, Q23) all pass, along with all 21 that already passed. Four "agent turn hit
+tool-call budget" budget warnings appeared during the run — these indicate questions
+where the agent made more tool calls than the per-turn limit; since the expected
+tools were all present in `tools_used`, the scoring still records PASS (the metric
+is tool-selection correctness, not call efficiency).
 
-| Q | Category | Expected | Missing |
-|---|---|---|---|
-| Q13 | combined | `get_sla_metrics` + `search_policy_documents` | `search_policy_documents` — asked whether approval-stage metrics meet targets; SLA targets live in policy, not data |
-| Q14 | combined | `get_supplier_performance` + `search_policy_documents` | `search_policy_documents` — supplier bottleneck + escalation policy |
-| Q15 | multi_step | `get_sla_metrics` + `get_bottlenecks` + `search_policy_documents` | `search_policy_documents` — breach investigation needs policy context |
-| Q23 | data | `get_cycle_time` | tool not called — question phrased as breakdown by category (endpoint now supports `?segment=category`) |
-
-**Common thread in three of four failures:** questions that compare a live metric
-to a policy target require calling *both* the data tool (current metric) and
-`search_policy_documents` (the target — which lives in policy, not in the
-analytics layer). The agent called the data tool but stopped short of policy
-retrieval. The system prompt now explicitly instructs this dual-tool pattern for
-target-comparison questions.
+**Why the earlier failures fixed:** the four previously-failing questions involved
+comparing live metrics to policy targets — the agent called the data tool but stopped
+short of `search_policy_documents`. Two fixes: (1) the system prompt now explicitly
+instructs the dual-tool pattern for target-comparison questions, and (2) the
+`get_cycle_time` endpoint now accepts `?segment=category` (Q23), so the agent can
+answer the breakdown question with a single call rather than improvising.
 
 The `unanswerable` and `adversarial` categories both behaved correctly: asked for
 revenue data this system has no source for, the agent said so rather than
