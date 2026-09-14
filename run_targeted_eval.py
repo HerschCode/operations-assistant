@@ -9,7 +9,7 @@ for line in env_file.read_text(encoding="utf-8").splitlines():
         k, v = line.split("=", 1)
         os.environ.setdefault(k.strip(), v.strip())
 
-os.environ["AGENT_MODEL"] = "openai/gpt-oss-20b"
+os.environ["AGENT_MODEL"] = "openai/gpt-oss-120b"
 
 import time
 from src.agent.agent import run_agent, load_agent_config
