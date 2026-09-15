@@ -662,11 +662,16 @@ function addRespMeta(container, data, elapsed_ms) {
     ? (data.latency_ms / 1000).toFixed(1) + 's'
     : (elapsed_ms / 1000).toFixed(1) + 's';
 
+  const costLabel = data.cost_usd != null
+    ? (data.cost_usd < 0.001 ? '<$0.001' : '$' + data.cost_usd.toFixed(4))
+    : null;
+
   const items = [
     { icon: '⏱', label: latencyVal + ' server' },
     data.model ? { icon: '🤖', label: data.model } : null,
     data.tools_used && data.tools_used.length ? { icon: '🔧', label: data.tools_used.length + ' tool' + (data.tools_used.length > 1 ? 's' : '') } : null,
     data.citations && data.citations.length ? { icon: '📎', label: data.citations.length + ' source' + (data.citations.length > 1 ? 's' : '') } : null,
+    costLabel ? { icon: '💰', label: costLabel } : null,
   ].filter(Boolean);
 
   items.forEach((item, i) => {

@@ -85,6 +85,15 @@ def eval_recent(n: int = 100):
         "avg_tools_per_query": round(sum(t.get("num_tools", 0) for t in traces) / total, 2),
         "avg_citations_per_query": round(sum(t.get("num_citations", 0) for t in traces) / total, 2),
         "top_tools": [{"tool": t, "count": c} for t, c in tool_counter.most_common(10)],
+        "cost_usd": {
+            "total": round(sum(t["cost_usd"] for t in traces if t.get("cost_usd")), 6),
+            "avg_per_query": round(
+                sum(t["cost_usd"] for t in traces if t.get("cost_usd"))
+                / max(1, sum(1 for t in traces if t.get("cost_usd"))),
+                6,
+            ) if any(t.get("cost_usd") for t in traces) else None,
+            "queries_with_cost": sum(1 for t in traces if t.get("cost_usd")),
+        },
     }
 
 
@@ -124,9 +133,23 @@ def demo_chat(request: ChatRequest, http_request: Request):
     latency_ms = round((time.monotonic() - t0) * 1000, 1)
 
     from src.agent.agent import load_agent_config
+    from src.evaluation.cost_estimator import calculate_cost
     cfg = load_agent_config()
     raw_model = cfg.get("model", "")
     model_display = raw_model.split("/")[-1] if "/" in raw_model else raw_model
+
+    cost_usd: float | None = None
+    if result.prompt_tokens and result.completion_tokens:
+        try:
+            est = calculate_cost(
+                input_tokens=result.prompt_tokens,
+                output_tokens=result.completion_tokens,
+                model=model_display or None,
+                is_estimated_token_count=False,
+            )
+            cost_usd = est.total_cost_usd
+        except Exception:
+            pass
 
     response = ChatResponse(
         answer=result.answer,
@@ -135,6 +158,9 @@ def demo_chat(request: ChatRequest, http_request: Request):
         conversation_id="demo",
         latency_ms=latency_ms,
         model=model_display or None,
+        input_tokens=result.prompt_tokens,
+        output_tokens=result.completion_tokens,
+        cost_usd=cost_usd,
     )
     log_trace(
         tools_used=result.tools_used,
@@ -142,6 +168,7 @@ def demo_chat(request: ChatRequest, http_request: Request):
         latency_ms=latency_ms,
         answered=bool(result.answer),
         model=model_display or None,
+        cost_usd=cost_usd,
     )
     return response
 

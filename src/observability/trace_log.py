@@ -19,6 +19,7 @@ def log_trace(
     latency_ms: float,
     answered: bool,
     model: str | None,
+    cost_usd: float | None = None,
 ) -> None:
     _LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     entry = {
@@ -29,6 +30,7 @@ def log_trace(
         "latency_ms": latency_ms,
         "answered": answered,
         "model": model,
+        "cost_usd": cost_usd,
     }
     try:
         with _LOG_PATH.open("a", encoding="utf-8") as fh:

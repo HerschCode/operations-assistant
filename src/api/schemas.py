@@ -27,6 +27,9 @@ class ChatResponse(BaseModel):
     conversation_id: str
     latency_ms: float | None = None
     model: str | None = None
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    cost_usd: float | None = None
 
 
 class InvestigateRequest(BaseModel):
