@@ -155,6 +155,9 @@ def run_agent(
     if provider == "langchain":
         from src.agent.langchain_agent import run_agent_langchain
         return run_agent_langchain(question, config, client=client, history=history)
+    if provider == "langgraph":
+        from src.agent.langgraph_agent import run_agent_langgraph
+        return run_agent_langgraph(question, config, client=client, history=history)
     return _run_agent_anthropic(question, config, client=client, history=history)
 
 

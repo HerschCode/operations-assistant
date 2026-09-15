@@ -14,10 +14,13 @@ groq>=0.30,<1.0
 google-genai>=1.0
 chromadb>=0.5
 rank-bm25>=0.2
-# LangChain orchestration path (src/agent/langchain_agent.py) -- additive alongside
-# the hand-rolled provider loops in src/agent/providers.py, not a replacement.
+# LangChain/LangGraph orchestration paths -- additive alongside the hand-rolled
+# provider loops in src/agent/providers.py, not a replacement.
+# langchain_agent.py: manual bind_tools loop via ChatGroq
+# langgraph_agent.py: StateGraph with explicit nodes/edges (set provider: langgraph)
 langchain-core>=1.0
 langchain-groq>=1.0
+langgraph>=0.3
 pypdf>=4.2
 # Cross-encoder reranking: ms-marco-MiniLM-L-6-v2 scores (query, chunk) pairs jointly
 # for higher precision than the bi-encoder alone. Brings in torch (~torch footprint);
