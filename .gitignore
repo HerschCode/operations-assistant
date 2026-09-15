@@ -7,3 +7,4 @@ __pycache__/
 data/documents/*.pdf
 data/chroma/
 data/conversations.db
+logs/*.jsonl

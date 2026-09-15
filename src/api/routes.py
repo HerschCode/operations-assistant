@@ -4,6 +4,7 @@ import time
 import uuid
 import tempfile
 from pathlib import Path
+from collections import Counter
 
 from src.api.schemas import (
     HealthResponse, DocumentUploadResponse, DocumentListItem,
@@ -20,6 +21,7 @@ from src.ingestion.index_documents import index_document, list_indexed_documents
 from src.agent.agent import run_agent
 from src.agent.investigation import run_investigation
 from src.agent.conversation_store import get_history, append_turn
+from src.observability.trace_log import log_trace, read_recent
 
 router = APIRouter()
 
@@ -38,6 +40,52 @@ def health():
         ops_performance_api_reachable=check_ops_performance_reachable(),
         vector_store_reachable=check_vector_store_reachable(),
     )
+
+
+@health_router.get("/eval/recent")
+def eval_recent(n: int = 100):
+    """Online production eval stats computed from the last N demo traces logged
+    to logs/agent_traces.jsonl. Returns latency percentiles, tool-call
+    distribution, answered rate, and citation rate — a lightweight signal that
+    the agent is working as expected in production without needing a test harness
+    to run."""
+    traces = read_recent(n)
+    if not traces:
+        return {"sample_size": 0, "message": "No traces logged yet"}
+
+    latencies = [t["latency_ms"] for t in traces if t.get("latency_ms") is not None]
+    latencies_sorted = sorted(latencies)
+
+    def pct(data, p):
+        if not data:
+            return None
+        idx = int(len(data) * p / 100)
+        return round(data[min(idx, len(data) - 1)], 1)
+
+    tool_counter: Counter = Counter()
+    for t in traces:
+        for tool in t.get("tools_used", []):
+            tool_counter[tool] += 1
+
+    answered = sum(1 for t in traces if t.get("answered"))
+    cited = sum(1 for t in traces if t.get("num_citations", 0) > 0)
+    total = len(traces)
+
+    return {
+        "sample_size": total,
+        "window": f"last {n} requests",
+        "latency_ms": {
+            "p50": pct(latencies_sorted, 50),
+            "p90": pct(latencies_sorted, 90),
+            "p95": pct(latencies_sorted, 95),
+            "mean": round(sum(latencies) / len(latencies), 1) if latencies else None,
+        },
+        "answered_rate_pct": round(100 * answered / total, 1),
+        "citation_rate_pct": round(100 * cited / total, 1),
+        "avg_tools_per_query": round(sum(t.get("num_tools", 0) for t in traces) / total, 2),
+        "avg_citations_per_query": round(sum(t.get("num_citations", 0) for t in traces) / total, 2),
+        "top_tools": [{"tool": t, "count": c} for t, c in tool_counter.most_common(10)],
+    }
 
 
 @health_router.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -80,7 +128,7 @@ def demo_chat(request: ChatRequest, http_request: Request):
     raw_model = cfg.get("model", "")
     model_display = raw_model.split("/")[-1] if "/" in raw_model else raw_model
 
-    return ChatResponse(
+    response = ChatResponse(
         answer=result.answer,
         tools_used=result.tools_used,
         citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in result.citations],
@@ -88,6 +136,14 @@ def demo_chat(request: ChatRequest, http_request: Request):
         latency_ms=latency_ms,
         model=model_display or None,
     )
+    log_trace(
+        tools_used=result.tools_used,
+        num_citations=len(result.citations),
+        latency_ms=latency_ms,
+        answered=bool(result.answer),
+        model=model_display or None,
+    )
+    return response
 
 
 def _agent_error_response(exc: Exception) -> HTTPException:
