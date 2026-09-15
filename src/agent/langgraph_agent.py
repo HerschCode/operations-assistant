@@ -10,11 +10,12 @@ Key architectural difference from langchain_agent.py's manual loop:
     edge (`_should_continue`) — inspectable, composable, not buried in a loop body
   - The graph is compiled once and reused, not rebuilt per request
 
-This is the foundation for:
-  - Human-in-the-loop approval (add an interrupt_before on run_tools)
-  - Parallel tool execution (a Fan-Out → Fan-In sub-graph replacing run_tools)
-  - Persistent checkpointing / durable execution (inject a LangGraph Checkpointer)
-None of those are built here — stated as known next steps, not silently absent.
+Concurrent tool execution: run_tools uses ThreadPoolExecutor so all pending tool
+calls in one turn execute in parallel. LangGraph's Send API (native fan-out with
+Add reducers + a dedicated fan-in node) is the next evolution — it would make
+per-tool retries and HITL interrupts composable without touching the graph shape
+here. Persistent checkpointing via a LangGraph Checkpointer is the other known
+next step.
 
 Uses ChatGroq (already in requirements) so no new cloud credential is required
 beyond what the other Groq paths already use.
@@ -60,32 +61,45 @@ def _call_model(state: AgentState) -> dict:
 
 
 def _run_tools(state: AgentState) -> dict:
+    """Execute all pending tool calls concurrently via ThreadPoolExecutor.
+
+    Tool calls within one turn are independent, so they can be parallelised
+    without coordination overhead. Results are collected in the original
+    tool_calls order so ToolMessage IDs align with the model's request.
+    """
+    import concurrent.futures
+
     last_msg = state["messages"][-1]
     pending = (last_msg.tool_calls or [])[: state["budget_remaining"]]
-    new_messages: list = []
-    new_tool_calls = state["tool_calls"][:]
     event_cb = state.get("event_cb")
 
-    for tc in pending:
+    def _run_one(tc: dict) -> tuple:
         t0 = time.monotonic()
         if event_cb:
             event_cb({"type": "tool_start", "tool": tc["name"]})
         try:
             result = call_tool(tc["name"], **tc["args"])
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
-            new_tool_calls.append(ToolCallRecord(name=tc["name"], input=tc["args"], result=result))
-            new_messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+            record = ToolCallRecord(name=tc["name"], input=tc["args"], result=result)
+            msg = ToolMessage(content=str(result), tool_call_id=tc["id"])
             if event_cb:
                 event_cb({"type": "tool_done", "tool": tc["name"], "ok": True})
             logger.info("tool ok", extra={"tool": tc["name"], "ms": duration_ms})
         except (OpsPerformanceUnavailable, Exception) as exc:
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
-            new_tool_calls.append(ToolCallRecord(name=tc["name"], input=tc["args"], error=str(exc)))
-            new_messages.append(ToolMessage(content=f"Error: {exc}", tool_call_id=tc["id"]))
+            record = ToolCallRecord(name=tc["name"], input=tc["args"], error=str(exc))
+            msg = ToolMessage(content=f"Error: {exc}", tool_call_id=tc["id"])
             if event_cb:
                 event_cb({"type": "tool_done", "tool": tc["name"], "ok": False, "error": str(exc)})
             logger.warning("tool fail", extra={"tool": tc["name"], "ms": duration_ms, "err": str(exc)})
+        return msg, record
 
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(len(pending), 1)) as pool:
+        futures = [pool.submit(_run_one, tc) for tc in pending]
+        pairs = [f.result() for f in futures]  # preserves submission order
+
+    new_messages = [msg for msg, _ in pairs]
+    new_tool_calls = state["tool_calls"][:] + [rec for _, rec in pairs]
     remaining = max(0, state["budget_remaining"] - len(pending))
     return {"messages": new_messages, "tool_calls": new_tool_calls, "budget_remaining": remaining}
 
