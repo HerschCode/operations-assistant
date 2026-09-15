@@ -25,6 +25,8 @@ class ChatResponse(BaseModel):
     tools_used: list[str]
     citations: list[SourceCitation]
     conversation_id: str
+    latency_ms: float | None = None
+    model: str | None = None
 
 
 class InvestigateRequest(BaseModel):

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
 from fastapi.responses import HTMLResponse
+import time
 import uuid
 import tempfile
 from pathlib import Path
@@ -67,16 +68,25 @@ def demo_chat(request: ChatRequest, http_request: Request):
             detail="Demo rate limit reached (5 questions per 10 minutes) -- please try again shortly.",
         )
 
+    t0 = time.monotonic()
     try:
         result = run_agent(request.question)
     except Exception as exc:
         raise _agent_error_response(exc)
+    latency_ms = round((time.monotonic() - t0) * 1000, 1)
+
+    from src.agent.agent import load_agent_config
+    cfg = load_agent_config()
+    raw_model = cfg.get("model", "")
+    model_display = raw_model.split("/")[-1] if "/" in raw_model else raw_model
 
     return ChatResponse(
         answer=result.answer,
         tools_used=result.tools_used,
         citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in result.citations],
         conversation_id="demo",
+        latency_ms=latency_ms,
+        model=model_display or None,
     )
 
 

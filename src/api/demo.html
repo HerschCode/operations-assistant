@@ -6,317 +6,422 @@
 <title>Northstar Procurement Assistant</title>
 <style>
   :root {
-    --bg: #0b0f14; --panel: #131922; --border: #232b36; --text: #e6edf3;
-    --muted: #8b98a5; --accent: #4f8cff; --accent-dim: #1f3a66;
-    --data-tag: #2f9e6f; --doc-tag: #b98a2f;
-    --step-color: #6b8aad;
-    --input-bg: #0e141b;
-    --assistant-bg: #1a222c;
-    --warn: #f0a500;
-    --divider: #1d2530;
+    --bg: #0b0f14; --panel: #131922; --surface: #1a222c; --border: #232b36;
+    --text: #e6edf3; --muted: #8b98a5; --accent: #4f8cff; --accent-dim: #1f3a66;
+    --data-tag: #2f9e6f; --doc-tag: #b98a2f; --step-color: #6b8aad;
+    --input-bg: #0e141b; --assistant-bg: #151e28; --warn: #f0a500;
+    --good: #2ea043; --bad: #c0392b; --divider: #1d2530;
+    --shadow: 0 2px 8px rgba(0,0,0,0.4);
   }
   [data-theme="light"] {
-    --bg: #f6f8fa; --panel: #ffffff; --border: #d0d7de; --text: #1f2328;
-    --muted: #636c76; --accent: #0969da; --accent-dim: #dbeafe;
-    --data-tag: #1a7f5a; --doc-tag: #9a6d1a;
-    --step-color: #4c6d8a;
-    --input-bg: #f6f8fa;
-    --assistant-bg: #f0f6ff;
-    --warn: #d4860e;
-    --divider: #e8ecf0;
+    --bg: #f0f2f5; --panel: #ffffff; --surface: #f6f8fa; --border: #d0d7de;
+    --text: #1f2328; --muted: #636c76; --accent: #0969da; --accent-dim: #dbeafe;
+    --data-tag: #1a7f5a; --doc-tag: #9a6d1a; --step-color: #4c6d8a;
+    --input-bg: #f6f8fa; --assistant-bg: #f0f6ff; --warn: #d4860e;
+    --good: #1a7f37; --bad: #b91c1c; --divider: #e2e8f0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--text); min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 0 0 40px;
+    display: flex; flex-direction: column; align-items: center; padding: 0 0 48px;
   }
 
   /* ── Top bar ── */
   .topbar {
     width: 100%; background: var(--panel); border-bottom: 1px solid var(--border);
-    padding: 12px 20px; display: flex; align-items: center;
+    padding: 10px 20px; display: flex; align-items: center;
     justify-content: space-between; position: sticky; top: 0; z-index: 10;
   }
-  .topbar h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-brand { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo { font-size: 0.95rem; font-weight: 700; }
+  .topbar-sub { font-size: 0.75rem; color: var(--muted); border-left: 1px solid var(--border); padding-left: 10px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .status-pill {
+    display: flex; align-items: center; gap: 5px; font-size: 0.72rem;
+    color: var(--muted); background: var(--surface); border: 1px solid var(--border);
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0;
+  }
+  .status-dot.ok { background: var(--good); }
+  .status-dot.err { background: var(--bad); }
   .theme-btn {
     background: none; border: 1px solid var(--border); border-radius: 8px;
-    color: var(--muted); font-size: 1rem; cursor: pointer; padding: 5px 10px;
+    color: var(--muted); font-size: 0.9rem; cursor: pointer; padding: 4px 9px;
     transition: border-color 0.15s, color 0.15s;
   }
   .theme-btn:hover { border-color: var(--accent); color: var(--text); }
-  .github-link { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+  .github-link { font-size: 0.75rem; color: var(--muted); text-decoration: none; }
   .github-link:hover { color: var(--accent); }
 
   /* ── Layout ── */
-  .outer { width: 100%; max-width: 1160px; padding: 24px 16px 0; }
-  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
-  .col-left { min-width: 0; }
+  .outer { width: 100%; max-width: 1200px; padding: 20px 16px 0; }
+  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
+  .col-left { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
   .col-right { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 
-  /* ── Guide panel ── */
-  .guide-panel {
+  /* ── Shared card style ── */
+  .panel-card {
     border: 1px solid var(--border); border-radius: 12px;
-    background: var(--panel); margin-bottom: 16px; overflow: hidden;
+    background: var(--panel); overflow: hidden; box-shadow: var(--shadow);
   }
-  .guide-header {
+  .card-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer;
-    user-select: none;
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
   }
-  .guide-header-left { display: flex; align-items: center; gap: 8px; }
-  .guide-title { font-size: 0.88rem; font-weight: 600; }
-  .guide-subtitle { font-size: 0.78rem; color: var(--muted); }
-  .guide-collapse-btn {
-    background: none; border: none; color: var(--muted); font-size: 0.8rem;
-    cursor: pointer; padding: 2px 6px; font-family: inherit;
-    transition: color 0.15s;
+  .card-header-left { display: flex; align-items: center; gap: 8px; }
+  .card-title { font-size: 0.85rem; font-weight: 600; }
+  .card-sub { font-size: 0.73rem; color: var(--muted); }
+  .collapse-btn {
+    background: none; border: none; color: var(--muted); font-size: 0.75rem;
+    cursor: pointer; padding: 2px 6px; font-family: inherit; transition: color 0.15s;
   }
-  .guide-collapse-btn:hover { color: var(--text); }
-  .guide-body { padding: 16px; }
-  .guide-body.hidden { display: none; }
-  .guide-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .guide-col {
-    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-    padding: 14px;
-  }
-  .guide-col-header { font-size: 0.82rem; font-weight: 700; margin-bottom: 2px; }
-  .guide-col-sub { font-size: 0.73rem; color: var(--muted); margin-bottom: 10px; }
-  .guide-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .chip {
-    font-size: 0.75rem; color: var(--accent); border: 1px solid var(--accent-dim);
-    padding: 4px 10px; border-radius: 999px; cursor: pointer; background: none;
-    font-weight: 400; font-family: inherit; transition: background 0.12s;
-  }
-  .chip:hover { background: var(--accent-dim); }
-  .doc-list { list-style: none; margin: 8px 0 10px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-  .doc-list li {
-    font-size: 0.77rem; color: var(--muted); padding: 3px 0;
-    border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; gap: 6px;
-  }
-  .doc-list li:last-child { border-bottom: none; }
-  .doc-list li::before { content: "📄"; font-size: 0.7rem; margin-top: 1px; flex-shrink: 0; }
-  .cross-row {
-    margin-top: 14px; padding: 12px 14px; background: var(--bg);
-    border: 1px solid var(--border); border-radius: 10px;
-  }
-  .cross-label { font-size: 0.78rem; font-weight: 600; margin-bottom: 8px; }
+  .collapse-btn:hover { color: var(--text); }
+  .card-body { padding: 14px; }
+  .card-body.hidden { display: none; }
 
-  /* Collapsed guide toggle */
-  .guide-reopen {
-    display: none; margin-bottom: 12px;
+  /* ── Guide: sections ── */
+  .guide-section { margin-bottom: 12px; }
+  .guide-section:last-child { margin-bottom: 0; }
+  .guide-section-header {
+    font-size: 0.72rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+    display: flex; align-items: center; gap: 6px;
   }
+  .guide-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip {
+    font-size: 0.73rem; color: var(--accent); border: 1px solid var(--accent-dim);
+    padding: 3px 9px; border-radius: 999px; cursor: pointer; background: none;
+    font-weight: 400; font-family: inherit; transition: background 0.12s, border-color 0.12s;
+    line-height: 1.4;
+  }
+  .chip:hover { background: var(--accent-dim); border-color: var(--accent); }
+  .guide-docs { list-style: none; margin: 6px 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  .guide-docs li {
+    font-size: 0.73rem; color: var(--muted); padding: 3px 0;
+    border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; gap: 5px;
+  }
+  .guide-docs li:last-child { border-bottom: none; }
+  .guide-divider { border: none; border-top: 1px solid var(--divider); margin: 10px 0; }
+
+  /* Collapsed-guide re-open button */
+  .guide-reopen { display: none; }
   .guide-reopen-btn {
     background: none; border: 1px solid var(--border); border-radius: 8px;
-    color: var(--muted); font-size: 0.78rem; cursor: pointer; padding: 5px 12px;
-    font-family: inherit; transition: border-color 0.15s, color 0.15s;
+    color: var(--muted); font-size: 0.75rem; cursor: pointer; padding: 5px 12px;
+    font-family: inherit; transition: border-color 0.15s, color 0.15s; width: 100%;
   }
   .guide-reopen-btn:hover { border-color: var(--accent); color: var(--accent); }
   .guide-reopen.visible { display: block; }
 
+  /* ── Architecture card ── */
+  .arch-section { margin-bottom: 12px; }
+  .arch-section:last-child { margin-bottom: 0; }
+  .arch-section-label {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+  }
+  .arch-rows { display: flex; flex-direction: column; gap: 4px; }
+  .arch-row { display: flex; align-items: baseline; gap: 7px; font-size: 0.75rem; line-height: 1.5; }
+  .arch-row-icon { color: var(--step-color); flex-shrink: 0; font-size: 0.65rem; }
+  .arch-row-text { color: var(--muted); }
+  .arch-row-text strong { color: var(--text); font-weight: 500; }
+  .arch-tag {
+    display: inline-flex; align-items: center; font-size: 0.68rem;
+    padding: 1px 7px; border-radius: 999px; border: 1px solid; font-weight: 500; margin: 1px;
+  }
+  .arch-tag.retrieval { border-color: var(--accent-dim); color: var(--accent); }
+  .arch-tag.eval { border-color: rgba(47,158,111,0.4); color: var(--data-tag); }
+  .arch-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+
   /* ── Chat panel ── */
   .chat-panel {
     background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+    padding: 14px; display: flex; flex-direction: column; gap: 12px;
+    box-shadow: var(--shadow);
   }
   #log {
     display: flex; flex-direction: column; gap: 0;
-    min-height: 200px; max-height: 65vh; overflow-y: auto;
+    min-height: 200px; max-height: 62vh; overflow-y: auto;
   }
-
-  /* Pair = user bubble + assistant bubble separated by divider */
   .pair { display: flex; flex-direction: column; }
   .pair + .pair { border-top: 1px solid var(--divider); padding-top: 12px; margin-top: 4px; }
-
-  .msg { padding: 12px 14px; border-radius: 10px; line-height: 1.6; font-size: 0.92rem; white-space: pre-wrap; }
+  .msg {
+    padding: 10px 13px; border-radius: 10px; line-height: 1.65; font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
   .msg.user { background: var(--accent-dim); align-self: flex-end; max-width: 85%; margin-bottom: 10px; }
   .msg.assistant { background: var(--assistant-bg); border: 1px solid var(--border); }
   .msg.error { background: #3a1f1f; border: 1px solid #5c2f2f; color: #ffb4b4; }
-
-  /* Empty state */
   .empty-state {
     display: flex; align-items: center; justify-content: center;
-    min-height: 140px; text-align: center; color: var(--muted); font-size: 0.88rem;
-    line-height: 1.6; padding: 20px;
+    min-height: 140px; text-align: center; color: var(--muted); font-size: 0.86rem;
+    line-height: 1.7; padding: 20px;
   }
 
-  /* Tags */
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .tag {
-    font-size: 0.74rem; padding: 3px 9px; border-radius: 999px;
-    border: 1px solid; font-weight: 500;
+  /* Citations */
+  .citations { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .cite-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.71rem; padding: 3px 9px; border-radius: 999px;
+    border: 1px solid; font-weight: 500; max-width: 240px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
   }
-  .tag.data { border-color: var(--data-tag); color: var(--data-tag); background: color-mix(in srgb, var(--data-tag) 10%, transparent); }
-  .tag.document { border-color: var(--doc-tag); color: var(--doc-tag); background: color-mix(in srgb, var(--doc-tag) 10%, transparent); }
+  .cite-tag.data {
+    border-color: rgba(47,158,111,0.4); color: var(--data-tag);
+    background: color-mix(in srgb, var(--data-tag) 8%, transparent);
+  }
+  .cite-tag.document {
+    border-color: rgba(185,138,47,0.4); color: var(--doc-tag);
+    background: color-mix(in srgb, var(--doc-tag) 8%, transparent);
+  }
+  .cite-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .cite-tag.data .cite-dot { background: var(--data-tag); }
+  .cite-tag.document .cite-dot { background: var(--doc-tag); }
 
   /* Reasoning trace */
-  .trace { margin-top: 10px; }
+  .trace { margin-top: 8px; }
   .trace-toggle {
     background: none; border: none; padding: 0; color: var(--step-color);
-    font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    font-size: 0.73rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
     font-family: inherit;
   }
   .trace-toggle:hover { color: var(--accent); }
   .trace-toggle .arrow { transition: transform 0.15s; display: inline-block; }
   .trace-toggle.open .arrow { transform: rotate(90deg); }
-  .trace-steps { margin-top: 6px; border-left: 2px solid var(--border); padding-left: 10px; display: flex; flex-direction: column; gap: 3px; }
+  .trace-steps {
+    margin-top: 6px; border-left: 2px solid var(--border); padding-left: 10px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
   .trace-steps.hidden { display: none; }
-  .trace-step { font-size: 0.78rem; color: var(--step-color); }
+  .trace-step { font-size: 0.75rem; color: var(--step-color); line-height: 1.5; }
   .trace-step::before { content: "→ "; }
+
+  /* Response metadata row */
+  .resp-meta {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px;
+    padding-top: 8px; border-top: 1px solid var(--divider);
+    flex-wrap: wrap;
+  }
+  .resp-meta-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 0.7rem; color: var(--muted);
+  }
+  .resp-meta-icon { opacity: 0.7; }
 
   /* Input form */
   form { display: flex; gap: 8px; }
   input[type=text] {
     flex: 1; background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
-    padding: 11px 12px; border-radius: 8px; font-size: 0.92rem; outline: none; min-width: 0;
+    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; outline: none; min-width: 0;
     transition: border-color 0.15s;
   }
   input[type=text]:focus { border-color: var(--accent); }
   input[type=text]::placeholder { color: var(--muted); }
   button[type=submit] {
-    background: var(--accent); color: white; border: none; padding: 0 18px;
-    border-radius: 8px; font-size: 0.92rem; cursor: pointer; font-weight: 600;
+    background: var(--accent); color: white; border: none; padding: 0 16px;
+    border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 600;
     white-space: nowrap; transition: opacity 0.15s;
   }
-  button[type=submit]:disabled { opacity: 0.5; cursor: not-allowed; }
+  button[type=submit]:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Rate limit counter */
+  /* Rate counter */
   .rate-row {
     display: flex; justify-content: flex-end; align-items: center; gap: 8px;
-    font-size: 0.78rem; color: var(--muted);
+    font-size: 0.74rem; color: var(--muted);
   }
-  .rate-warn { color: var(--warn); font-weight: 600; font-size: 0.8rem; }
+  .rate-warn { color: var(--warn); font-weight: 600; font-size: 0.76rem; }
   .rate-dots { display: flex; gap: 4px; align-items: center; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); transition: background 0.3s; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transition: background 0.3s; }
   .dot.used { background: var(--border); }
 
-  /* How it works */
-  .how-section { margin-top: 14px; }
-  .how-toggle {
-    background: none; border: 1px solid var(--border); border-radius: 8px;
-    padding: 8px 14px; color: var(--muted); font-size: 0.82rem; cursor: pointer;
-    width: 100%; text-align: left; font-family: inherit; display: flex;
-    align-items: center; justify-content: space-between; transition: border-color 0.15s, color 0.15s;
+  footer {
+    color: var(--muted); font-size: 0.74rem; text-align: center; line-height: 1.7;
+    padding-top: 2px;
   }
-  .how-toggle:hover { border-color: var(--accent); color: var(--text); }
-  .how-toggle .arr { transition: transform 0.15s; }
-  .how-toggle.open .arr { transform: rotate(180deg); }
-  .how-body {
-    display: none; border: 1px solid var(--border); border-top: none;
-    border-radius: 0 0 8px 8px; background: var(--panel); padding: 14px 16px;
-  }
-  .how-body.visible { display: block; }
-  .how-body ul { margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: 0.84rem; line-height: 1.8; }
-
-  footer { color: var(--muted); font-size: 0.78rem; margin-top: 18px; text-align: center; line-height: 1.6; }
   footer a { color: var(--accent); }
 
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
+    .topbar-sub { display: none; }
   }
   @media (max-width: 600px) {
-    .guide-cols { grid-template-columns: 1fr; }
-    .outer { padding: 16px 10px 0; }
-    .msg.user { max-width: 95%; }
+    .outer { padding: 12px 10px 0; }
+    .msg.user { max-width: 96%; }
     button[type=submit] { padding: 0 12px; }
-    .topbar h1 { font-size: 0.95rem; }
+    .topbar-logo { font-size: 0.85rem; }
   }
 </style>
 </head>
 <body>
+
 <!-- Top bar -->
 <div class="topbar">
-  <h1>Northstar Procurement Assistant</h1>
+  <div class="topbar-brand">
+    <span class="topbar-logo">Northstar Procurement Assistant</span>
+    <span class="topbar-sub">RAG · LangChain · Groq</span>
+  </div>
   <div class="topbar-right">
-    <button class="theme-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">🌙</button>
+    <div class="status-pill">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusLabel">checking…</span>
+    </div>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
     <a class="github-link" href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
 </div>
 
 <div class="outer">
   <div class="layout">
+
+  <!-- ── Left column ── -->
   <div class="col-left">
 
   <!-- Guide panel -->
-  <div class="guide-panel" id="guidePanel">
-    <div class="guide-header" id="guideHeader">
-      <div class="guide-header-left">
-        <span class="guide-title">What can I ask?</span>
-        <span class="guide-subtitle">Click a question to try it</span>
+  <div class="panel-card" id="guidePanel">
+    <div class="card-header" id="guideHeader">
+      <div class="card-header-left">
+        <span class="card-title">What can I ask?</span>
+        <span class="card-sub">click a question to try it</span>
       </div>
-      <button class="guide-collapse-btn" id="guideCollapseBtn" aria-label="Collapse guide">▴ Collapse</button>
+      <button class="collapse-btn" id="guideCollapseBtn" aria-label="Collapse guide">▴ Collapse</button>
     </div>
-    <div class="guide-body" id="guideBody">
-      <div class="guide-cols">
-        <!-- Data column -->
-        <div class="guide-col">
-          <div class="guide-col-header">📊 Live Analytics Data</div>
-          <div class="guide-col-sub">Real procurement data from Northstar Manufacturing</div>
-          <div class="guide-chips" id="dataChips">
-            <button class="chip" type="button">What is the average cycle time?</button>
-            <button class="chip" type="button">What is the median vs P90 cycle time?</button>
-            <button class="chip" type="button">What is the SLA breach rate?</button>
-            <button class="chip" type="button">Which suppliers have the highest breach rate?</button>
-            <button class="chip" type="button">Show me the top 5 bottleneck stages</button>
-            <button class="chip" type="button">How many orders are HIGH risk right now?</button>
-            <button class="chip" type="button">What is the process conformance rate?</button>
-            <button class="chip" type="button">Which supplier has the fastest cycle time?</button>
-          </div>
-        </div>
-        <!-- Policy column -->
-        <div class="guide-col">
-          <div class="guide-col-header">📄 Policy Documents</div>
-          <div class="guide-col-sub">4 procurement SOPs indexed and searchable</div>
-          <ul class="doc-list">
-            <li>Purchase Order Approval Thresholds — order values, who approves what</li>
-            <li>SLA Cycle Time Targets by Category — expected delivery times</li>
-            <li>Escalation Triggers &amp; Paths — when and how to escalate delays</li>
-            <li>Exception Handling Procedures — emergency purchases, disputes</li>
-          </ul>
-          <div class="guide-chips" id="policyChips">
-            <button class="chip" type="button">What is the approval threshold for high-value orders?</button>
-            <button class="chip" type="button">Who has authority to approve orders over $50,000?</button>
-            <button class="chip" type="button">What are the SLA targets by order category?</button>
-            <button class="chip" type="button">When should a delayed order be escalated?</button>
-            <button class="chip" type="button">What is the process for an emergency purchase?</button>
-            <button class="chip" type="button">How are supplier disputes handled under policy?</button>
-            <button class="chip" type="button">What triggers a secondary approval requirement?</button>
-          </div>
+    <div class="card-body" id="guideBody">
+
+      <div class="guide-section">
+        <div class="guide-section-header">📊 Analytics · live data</div>
+        <div class="guide-chips">
+          <button class="chip" type="button">What is the average cycle time?</button>
+          <button class="chip" type="button">What is the median vs P90 cycle time?</button>
+          <button class="chip" type="button">What is the SLA breach rate?</button>
+          <button class="chip" type="button">Show me the top 5 bottleneck stages</button>
+          <button class="chip" type="button">Which suppliers have the highest breach rate?</button>
+          <button class="chip" type="button">How many orders are HIGH risk right now?</button>
+          <button class="chip" type="button">What is the process conformance rate?</button>
+          <button class="chip" type="button">Which supplier has the fastest cycle time?</button>
         </div>
       </div>
-      <!-- Cross-source row -->
-      <div class="cross-row">
-        <div class="cross-label">🔗 Questions that combine data + policy:</div>
-        <div class="guide-chips" id="crossChips">
+
+      <hr class="guide-divider">
+
+      <div class="guide-section">
+        <div class="guide-section-header">📄 Policy · 4 SOPs indexed</div>
+        <ul class="guide-docs">
+          <li>📄 Purchase Order Approval Thresholds</li>
+          <li>📄 SLA Cycle Time Targets by Category</li>
+          <li>📄 Escalation Triggers &amp; Paths</li>
+          <li>📄 Exception Handling Procedures</li>
+        </ul>
+        <div class="guide-chips">
+          <button class="chip" type="button">What is the approval threshold for high-value orders?</button>
+          <button class="chip" type="button">Who approves orders over $50,000?</button>
+          <button class="chip" type="button">When should a delayed order be escalated?</button>
+          <button class="chip" type="button">What is the process for an emergency purchase?</button>
+          <button class="chip" type="button">How are supplier disputes handled under policy?</button>
+        </div>
+      </div>
+
+      <hr class="guide-divider">
+
+      <div class="guide-section">
+        <div class="guide-section-header">🔗 Combined · data + policy</div>
+        <div class="guide-chips">
           <button class="chip" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
           <button class="chip" type="button">Which supplier should I escalate first based on our policy?</button>
           <button class="chip" type="button">Is our current breach rate within the policy's acceptable range?</button>
-          <button class="chip" type="button">Do our top bottleneck stages violate any SLA policy rules?</button>
           <button class="chip" type="button">Which HIGH risk orders also require dual approval under policy?</button>
-          <button class="chip" type="button">What does policy say about the supplier with the worst cycle time?</button>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Re-open guide button (shown on mobile after collapsing) -->
+    </div><!-- /card-body -->
+  </div><!-- /guide-panel -->
+
+  <!-- Re-open guide (mobile) -->
   <div class="guide-reopen" id="guideReopen">
     <button class="guide-reopen-btn" id="guideReopenBtn" type="button">What can I ask? ▾</button>
   </div>
 
+  <!-- Architecture card -->
+  <div class="panel-card" id="archPanel">
+    <div class="card-header" id="archHeader">
+      <div class="card-header-left">
+        <span class="card-title">🏗 System Architecture</span>
+      </div>
+      <button class="collapse-btn" id="archCollapseBtn">▴ Collapse</button>
+    </div>
+    <div class="card-body" id="archBody">
+
+      <div class="arch-section">
+        <div class="arch-section-label">Retrieval</div>
+        <div class="arch-rows">
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Hybrid BM25 + embedding</strong> (RRF fusion, top-5)</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">Cross-encoder <strong>reranker</strong> re-scores top candidates</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Chroma</strong> vector store · 4 policy documents indexed</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">Grounded: citations only from documents the model actually retrieved</span></div>
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag retrieval">BM25</span>
+          <span class="arch-tag retrieval">sentence-transformers</span>
+          <span class="arch-tag retrieval">cross-encoder</span>
+          <span class="arch-tag retrieval">Chroma</span>
+        </div>
+      </div>
+
+      <hr class="guide-divider">
+
+      <div class="arch-section">
+        <div class="arch-section-label">Agent</div>
+        <div class="arch-rows">
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">LangChain <strong>bind_tools</strong> · 9-tool belt · max 6 calls/turn</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">Tools: <em>get_cycle_time, get_sla_metrics, get_bottlenecks, get_supplier_performance, predict_sla_risk, get_management_report, get_pipeline_status, get_conformance, search_policy_documents</em></span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">Provider-swappable: Groq · Anthropic · Gemini via env vars</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text">Reads live data from the <strong>operations-performance</strong> API</span></div>
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag retrieval">LangChain</span>
+          <span class="arch-tag retrieval">Groq llama-3.3-70b</span>
+          <span class="arch-tag retrieval">FastAPI</span>
+        </div>
+      </div>
+
+      <hr class="guide-divider">
+
+      <div class="arch-section">
+        <div class="arch-section-label">Evaluation pipeline</div>
+        <div class="arch-rows">
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Retrieval eval:</strong> hit-rate@K and MRR on 20 labelled questions; hybrid vs. semantic-only comparison</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Tool selection:</strong> expected-tool-set accuracy across 25 categorised agent questions</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Faithfulness:</strong> NLI sentence-level grounding score; detects ungrounded numeric claims</span></div>
+          <div class="arch-row"><span class="arch-row-icon">▸</span><span class="arch-row-text"><strong>Adversarial:</strong> prompt-injection resistance + system-prompt-leakage checks</span></div>
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag eval">hit-rate@K</span>
+          <span class="arch-tag eval">MRR</span>
+          <span class="arch-tag eval">faithfulness</span>
+          <span class="arch-tag eval">adversarial</span>
+        </div>
+      </div>
+
+    </div><!-- /arch-body -->
+  </div><!-- /arch-panel -->
+
   </div><!-- /col-left -->
+
+  <!-- ── Right column ── -->
   <div class="col-right">
 
   <!-- Chat panel -->
   <div class="chat-panel">
     <div id="log">
       <div class="empty-state" id="emptyState">
-        👋 Hi! I can answer questions about Northstar Manufacturing's procurement operations.
-        I have access to live data (cycle times, SLA breach rates, supplier performance) and 4 policy documents.
-        Try one of the examples above, or type your own question.
+        Ask about Northstar Manufacturing's procurement operations.<br>
+        I have live analytics data (cycle time, SLA, suppliers) and 4 indexed policy documents.<br>
+        Try one of the examples on the left, or type your own question.
       </div>
     </div>
 
@@ -335,26 +440,10 @@
     </div>
   </div>
 
-  <!-- How it works -->
-  <div class="how-section">
-    <button class="how-toggle" id="howToggle" type="button">
-      <span>How it works</span>
-      <span class="arr">▾</span>
-    </button>
-    <div class="how-body" id="howBody">
-      <ul>
-        <li>Hybrid BM25 + semantic retrieval over 4 procurement policy documents (Chroma vector store)</li>
-        <li>Tool calls go to the live operations-performance API for real-time cycle time, SLA, and supplier data (Neon Postgres)</li>
-        <li>LLM: Groq (llama-3.3-70b-versatile) — zero latency inference, swappable via env vars</li>
-        <li>Architecture: LangChain <code>bind_tools</code> → manual tool loop → grounded response; no hallucinated citations</li>
-        <li>Evaluation: RAGAS groundedness + retrieval metrics, adversarial out-of-scope tests</li>
-      </ul>
-    </div>
-  </div>
-
   <footer>
-    Source: <a href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">operations-assistant</a>
-    · Real Groq LLM, real Neon Postgres data, real Chroma retrieval — nothing scripted.
+    <a href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">operations-assistant</a>
+    · Real Groq LLM · Real Neon Postgres · Real Chroma retrieval — nothing scripted.
+    · <a href="https://operations-performance.onrender.com/dashboard" target="_blank" rel="noopener">View operations dashboard →</a>
   </footer>
 
   </div><!-- /col-right -->
@@ -363,21 +452,26 @@
 
 <script>
 // ── Element refs ──
-const log = document.getElementById('log');
-const form = document.getElementById('form');
-const input = document.getElementById('question');
-const sendBtn = document.getElementById('send');
+const log      = document.getElementById('log');
+const form     = document.getElementById('form');
+const input    = document.getElementById('question');
+const sendBtn  = document.getElementById('send');
 const rateDots = document.getElementById('rateDots').querySelectorAll('.dot');
 const rateLabel = document.getElementById('rateLabel');
-const rateWarn = document.getElementById('rateWarn');
+const rateWarn  = document.getElementById('rateWarn');
 const emptyState = document.getElementById('emptyState');
 const guidePanel = document.getElementById('guidePanel');
-const guideBody = document.getElementById('guideBody');
+const guideBody  = document.getElementById('guideBody');
 const guideCollapseBtn = document.getElementById('guideCollapseBtn');
-const guideHeader = document.getElementById('guideHeader');
-const guideReopen = document.getElementById('guideReopen');
-const guideReopenBtn = document.getElementById('guideReopenBtn');
-const themeBtn = document.getElementById('themeBtn');
+const guideHeader      = document.getElementById('guideHeader');
+const guideReopen      = document.getElementById('guideReopen');
+const guideReopenBtn   = document.getElementById('guideReopenBtn');
+const archBody         = document.getElementById('archBody');
+const archCollapseBtn  = document.getElementById('archCollapseBtn');
+const archHeader       = document.getElementById('archHeader');
+const themeBtn  = document.getElementById('themeBtn');
+const statusDot = document.getElementById('statusDot');
+const statusLabel = document.getElementById('statusLabel');
 
 let questionsAsked = 0;
 const MAX_QUESTIONS = 5;
@@ -387,85 +481,84 @@ let guideCollapsedByUser = false;
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   themeBtn.textContent = theme === 'light' ? '☀️' : '🌙';
-  localStorage.setItem('theme', theme);
+  localStorage.setItem('oa-theme', theme);
 }
-
-(function initTheme() {
-  const saved = localStorage.getItem('theme') || 'dark';
-  applyTheme(saved);
-})();
-
+(function initTheme() { applyTheme(localStorage.getItem('oa-theme') || 'dark'); })();
 themeBtn.addEventListener('click', () => {
-  const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  applyTheme(current === 'dark' ? 'light' : 'dark');
+  applyTheme((document.documentElement.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark');
 });
+
+// ── System health check ──
+(async function checkHealth() {
+  try {
+    const r = await fetch('/health');
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const allOk = d.ops_performance_api_reachable && d.vector_store_reachable;
+    statusDot.className = 'status-dot ' + (allOk ? 'ok' : 'err');
+    statusLabel.textContent = allOk ? 'all systems up' : 'partial outage';
+  } catch {
+    statusDot.className = 'status-dot err';
+    statusLabel.textContent = 'unreachable';
+  }
+})();
 
 // ── Tool labels ──
 const TOOL_LABELS = {
-  get_cycle_time: 'querying cycle time data',
-  get_sla_breach_rate: 'retrieving SLA breach metrics',
-  get_supplier_performance: 'fetching supplier performance data',
-  get_order_volume: 'checking order volume statistics',
-  search_policy_documents: 'searching procurement policy documents',
-  get_high_value_orders: 'retrieving high-value order records',
-  get_process_metrics: 'fetching process metrics',
+  get_cycle_time:           'queried cycle-time percentiles',
+  get_bottlenecks:          'ranked bottleneck stages',
+  get_sla_metrics:          'retrieved SLA breach metrics',
+  get_supplier_performance: 'fetched supplier scorecard',
+  predict_sla_risk:         'ran SLA-risk prediction',
+  get_management_report:    'pulled management report',
+  get_pipeline_status:      'checked pipeline run history',
+  get_conformance:          'assessed process conformance',
+  search_policy_documents:  'searched policy documents',
 };
-function toolLabel(name) {
-  return TOOL_LABELS[name] || name.replace(/_/g, ' ');
-}
+function toolLabel(name) { return TOOL_LABELS[name] || name.replace(/_/g, ' '); }
 
 // ── Rate counter ──
 function updateRateCounter() {
-  const remaining = Math.max(0, MAX_QUESTIONS - questionsAsked);
-  rateLabel.textContent = `${remaining} / ${MAX_QUESTIONS} questions remaining`;
-  rateDots.forEach((dot, i) => dot.classList.toggle('used', i >= remaining));
-  if (remaining === 0) {
+  const rem = Math.max(0, MAX_QUESTIONS - questionsAsked);
+  rateLabel.textContent = `${rem} / ${MAX_QUESTIONS} questions remaining`;
+  rateDots.forEach((dot, i) => dot.classList.toggle('used', i >= rem));
+  if (rem === 0) {
     rateLabel.style.color = '#ffb4b4';
     rateWarn.style.display = 'none';
-  } else if (remaining <= 2) {
-    rateWarn.textContent = `⚠️ ${remaining} question${remaining === 1 ? '' : 's'} remaining in this session`;
+  } else if (rem <= 2) {
+    rateWarn.textContent = `⚠️ ${rem} question${rem === 1 ? '' : 's'} remaining`;
     rateWarn.style.display = '';
   } else {
     rateWarn.style.display = 'none';
   }
 }
 
-// ── Guide panel ──
-function collapseGuide(hidePanel) {
-  if (hidePanel) {
-    guidePanel.style.display = 'none';
-    guideReopen.classList.add('visible');
-  } else {
-    guideBody.classList.add('hidden');
-    guideCollapseBtn.textContent = '▾ Expand';
-  }
-}
-
-function expandGuide() {
-  guidePanel.style.display = '';
-  guideBody.classList.remove('hidden');
-  guideCollapseBtn.textContent = '▴ Collapse';
-  guideReopen.classList.remove('visible');
-}
-
-guideHeader.addEventListener('click', (e) => {
-  if (e.target === guideCollapseBtn) return; // handled below
-  toggleGuideBody();
-});
-guideCollapseBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  toggleGuideBody();
-});
+// ── Guide panel collapse ──
 function toggleGuideBody() {
   const hidden = guideBody.classList.toggle('hidden');
   guideCollapseBtn.textContent = hidden ? '▾ Expand' : '▴ Collapse';
   guideCollapsedByUser = hidden;
 }
-
+guideHeader.addEventListener('click', e => { if (e.target !== guideCollapseBtn) toggleGuideBody(); });
+guideCollapseBtn.addEventListener('click', e => { e.stopPropagation(); toggleGuideBody(); });
 guideReopenBtn.addEventListener('click', () => {
-  expandGuide();
+  guidePanel.style.display = '';
+  guideBody.classList.remove('hidden');
+  guideCollapseBtn.textContent = '▴ Collapse';
+  guideReopen.classList.remove('visible');
   guideCollapsedByUser = false;
 });
+
+// ── Architecture card collapse ──
+archHeader.addEventListener('click', e => {
+  if (e.target === archCollapseBtn) return;
+  toggleArch();
+});
+archCollapseBtn.addEventListener('click', e => { e.stopPropagation(); toggleArch(); });
+function toggleArch() {
+  const hidden = archBody.classList.toggle('hidden');
+  archCollapseBtn.textContent = hidden ? '▾ Expand' : '▴ Collapse';
+}
 
 // ── Message helpers ──
 function removeEmptyState() {
@@ -475,12 +568,10 @@ function removeEmptyState() {
 function addPair(question) {
   const pair = document.createElement('div');
   pair.className = 'pair';
-
   const userEl = document.createElement('div');
   userEl.className = 'msg user';
   userEl.textContent = question;
   pair.appendChild(userEl);
-
   log.appendChild(pair);
   log.scrollTop = log.scrollHeight;
   return pair;
@@ -497,29 +588,32 @@ function addAssistantMsg(pair, text, cls) {
 
 function addCitations(container, citations) {
   if (!citations || !citations.length) return;
-  const tagsEl = document.createElement('div');
-  tagsEl.className = 'tags';
+  const wrap = document.createElement('div');
+  wrap.className = 'citations';
   citations.forEach(c => {
     const tag = document.createElement('span');
-    tag.className = 'tag ' + c.kind;
-    tag.textContent = (c.kind === 'data' ? 'data: ' : 'policy: ') + c.reference;
-    tagsEl.appendChild(tag);
+    tag.className = 'cite-tag ' + c.kind;
+    const dot = document.createElement('span');
+    dot.className = 'cite-dot';
+    const label = document.createTextNode((c.kind === 'data' ? 'data: ' : 'policy: ') + c.reference);
+    tag.appendChild(dot);
+    tag.appendChild(label);
+    tag.title = c.reference;
+    wrap.appendChild(tag);
   });
-  container.appendChild(tagsEl);
+  container.appendChild(wrap);
 }
 
 function addReasoningTrace(container, toolsUsed) {
   if (!toolsUsed || !toolsUsed.length) return;
   const trace = document.createElement('div');
   trace.className = 'trace';
-
   const toggle = document.createElement('button');
   toggle.className = 'trace-toggle open';
-  toggle.innerHTML = '<span class="arrow">▶</span> Reasoning trace (' + toolsUsed.length + ' tool call' + (toolsUsed.length > 1 ? 's' : '') + ')';
+  toggle.innerHTML = '<span class="arrow">▶</span> ' + toolsUsed.length + ' tool call' + (toolsUsed.length > 1 ? 's' : '');
   trace.appendChild(toggle);
-
   const steps = document.createElement('div');
-  steps.className = 'trace-steps'; // visible by default
+  steps.className = 'trace-steps';
   toolsUsed.forEach(name => {
     const step = document.createElement('div');
     step.className = 'trace-step';
@@ -527,16 +621,45 @@ function addReasoningTrace(container, toolsUsed) {
     steps.appendChild(step);
   });
   trace.appendChild(steps);
-
   toggle.addEventListener('click', () => {
     const hidden = steps.classList.toggle('hidden');
     toggle.classList.toggle('open', !hidden);
   });
-
   container.appendChild(trace);
 }
 
-// ── Main ask function ──
+function addRespMeta(container, data, elapsed_ms) {
+  const bar = document.createElement('div');
+  bar.className = 'resp-meta';
+
+  const latencyVal = data.latency_ms != null
+    ? (data.latency_ms / 1000).toFixed(1) + 's'
+    : (elapsed_ms / 1000).toFixed(1) + 's';
+
+  const items = [
+    { icon: '⏱', label: latencyVal + ' server' },
+    data.model ? { icon: '🤖', label: data.model } : null,
+    data.tools_used && data.tools_used.length ? { icon: '🔧', label: data.tools_used.length + ' tool' + (data.tools_used.length > 1 ? 's' : '') } : null,
+    data.citations && data.citations.length ? { icon: '📎', label: data.citations.length + ' source' + (data.citations.length > 1 ? 's' : '') } : null,
+  ].filter(Boolean);
+
+  items.forEach((item, i) => {
+    if (i > 0) {
+      const sep = document.createElement('span');
+      sep.style.cssText = 'color:var(--divider);font-size:0.75rem';
+      sep.textContent = '·';
+      bar.appendChild(sep);
+    }
+    const el = document.createElement('span');
+    el.className = 'resp-meta-item';
+    el.innerHTML = `<span class="resp-meta-icon">${item.icon}</span>${item.label}`;
+    bar.appendChild(el);
+  });
+
+  container.appendChild(bar);
+}
+
+// ── Main ask ──
 async function ask(question) {
   removeEmptyState();
   input.value = '';
@@ -544,13 +667,14 @@ async function ask(question) {
   questionsAsked++;
   updateRateCounter();
 
-  // On mobile, collapse guide after first ask to give chat more room
   if (window.innerWidth < 900 && questionsAsked === 1 && !guideCollapsedByUser) {
-    collapseGuide(true);
+    guidePanel.style.display = 'none';
+    guideReopen.classList.add('visible');
   }
 
   const pair = addPair(question);
   const thinking = addAssistantMsg(pair, 'Thinking…', 'assistant');
+  const t0 = Date.now();
 
   try {
     const res = await fetch('/demo/chat', {
@@ -559,6 +683,7 @@ async function ask(question) {
       body: JSON.stringify({ question })
     });
     const data = await res.json();
+    const elapsed = Date.now() - t0;
     thinking.remove();
 
     if (!res.ok) {
@@ -569,9 +694,10 @@ async function ask(question) {
     const answerEl = addAssistantMsg(pair, data.answer, 'assistant');
     addReasoningTrace(answerEl, data.tools_used);
     addCitations(answerEl, data.citations);
-  } catch (err) {
+    addRespMeta(answerEl, data, elapsed);
+  } catch {
     thinking.remove();
-    addAssistantMsg(pair, 'Could not reach the assistant. It may be waking up from a free-tier sleep — try again in a moment.', 'error');
+    addAssistantMsg(pair, 'Could not reach the assistant — it may be waking from a free-tier sleep. Try again in a moment.', 'error');
   } finally {
     sendBtn.disabled = false;
     log.scrollTop = log.scrollHeight;
@@ -579,23 +705,15 @@ async function ask(question) {
 }
 
 // ── Form submit ──
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', e => {
   e.preventDefault();
   const q = input.value.trim();
   if (q) ask(q);
 });
 
-// ── Chips (all: data, policy, cross) ──
+// ── Chips ──
 document.querySelectorAll('.chip').forEach(btn => {
   btn.addEventListener('click', () => ask(btn.textContent.trim()));
-});
-
-// ── How it works toggle ──
-const howToggle = document.getElementById('howToggle');
-const howBody = document.getElementById('howBody');
-howToggle.addEventListener('click', () => {
-  const open = howBody.classList.toggle('visible');
-  howToggle.classList.toggle('open', open);
 });
 
 // ── Init ──
