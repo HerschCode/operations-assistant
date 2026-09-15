@@ -352,9 +352,9 @@
       <div class="card-header-left">
         <span class="card-title">🏗 System Architecture</span>
       </div>
-      <button class="collapse-btn" id="archCollapseBtn">▴ Collapse</button>
+      <button class="collapse-btn" id="archCollapseBtn">▾ Expand</button>
     </div>
-    <div class="card-body" id="archBody">
+    <div class="card-body hidden" id="archBody">
 
       <div class="arch-section">
         <div class="arch-section-label">Retrieval</div>
@@ -489,19 +489,22 @@ themeBtn.addEventListener('click', () => {
 });
 
 // ── System health check ──
-(async function checkHealth() {
+// Delay 2s so the page renders before the health request fires (the ops-performance
+// service runs on Render free tier and may be asleep; we don't want the topbar to
+// show "partial outage" before the user has even read the page).
+setTimeout(async function checkHealth() {
   try {
     const r = await fetch('/health');
     if (!r.ok) throw new Error();
     const d = await r.json();
     const allOk = d.ops_performance_api_reachable && d.vector_store_reachable;
     statusDot.className = 'status-dot ' + (allOk ? 'ok' : 'err');
-    statusLabel.textContent = allOk ? 'all systems up' : 'partial outage';
+    statusLabel.textContent = allOk ? 'all systems up' : (d.vector_store_reachable ? 'data API warming up' : 'degraded');
   } catch {
     statusDot.className = 'status-dot err';
     statusLabel.textContent = 'unreachable';
   }
-})();
+}, 2000);
 
 // ── Tool labels ──
 const TOOL_LABELS = {
