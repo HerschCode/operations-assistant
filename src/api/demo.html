@@ -312,9 +312,9 @@
         <span class="card-title">What can I ask?</span>
         <span class="card-sub">click a question to try it</span>
       </div>
-      <button class="collapse-btn" id="guideCollapseBtn" aria-label="Collapse guide">▴ Collapse</button>
+      <button class="collapse-btn" id="guideCollapseBtn" aria-label="Collapse guide">▾ Expand</button>
     </div>
-    <div class="card-body" id="guideBody">
+    <div class="card-body hidden" id="guideBody">
 
       <div class="guide-section">
         <div class="guide-section-header">📊 Analytics · live data</div>
@@ -498,7 +498,7 @@ const statusLabel = document.getElementById('statusLabel');
 
 let questionsAsked = 0;
 const MAX_QUESTIONS = 5;
-let guideCollapsedByUser = false;
+let guideCollapsedByUser = true;
 
 // ── Theme ──
 function applyTheme(theme) {
