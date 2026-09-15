@@ -117,7 +117,7 @@ def _default_groq_client():
     return Groq(api_key=os.environ["GROQ_API_KEY"])
 
 
-def run_agent_groq(question: str, config: dict, client=None, history: list[dict] | None = None):
+def run_agent_groq(question: str, config: dict, client=None, history: list[dict] | None = None, event_cb=None):
     from src.agent.agent import AgentResponse, ToolCallRecord, _extract_citations
 
     client = client or _default_groq_client()
@@ -217,6 +217,8 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
         for tc in requested_tool_calls:
             t0 = time.monotonic()
             args = json.loads(tc.function.arguments) if tc.function.arguments else {}
+            if event_cb:
+                event_cb({"type": "tool_start", "tool": tc.function.name})
             try:
                 result = call_tool(tc.function.name, **args)
                 duration_ms = round((time.monotonic() - t0) * 1000, 1)
@@ -224,6 +226,8 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
                 messages.append({
                     "role": "tool", "tool_call_id": tc.id, "content": json.dumps(result, default=str),
                 })
+                if event_cb:
+                    event_cb({"type": "tool_done", "tool": tc.function.name, "ok": True})
                 logger.info(
                     "tool call succeeded",
                     extra={"turn_id": turn_id, "tool_name": tc.function.name, "duration_ms": duration_ms},
@@ -232,6 +236,8 @@ def run_agent_groq(question: str, config: dict, client=None, history: list[dict]
                 duration_ms = round((time.monotonic() - t0) * 1000, 1)
                 tool_calls.append(ToolCallRecord(name=tc.function.name, input=args, error=str(exc)))
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": f"Error: {exc}"})
+                if event_cb:
+                    event_cb({"type": "tool_done", "tool": tc.function.name, "ok": False, "error": str(exc)})
                 logger.warning(
                     "tool call failed",
                     extra={"turn_id": turn_id, "tool_name": tc.function.name, "duration_ms": duration_ms, "error": str(exc)},

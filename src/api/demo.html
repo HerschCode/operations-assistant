@@ -253,9 +253,17 @@
   }
   button[type=submit]:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  /* Streaming toggle */
+  .stream-toggle {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.72rem; color: var(--muted); cursor: pointer; user-select: none;
+  }
+  .stream-toggle input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
+  .stream-toggle span { white-space: nowrap; }
+
   /* Rate counter */
   .rate-row {
-    display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     font-size: 0.74rem; color: var(--muted);
   }
   .rate-warn { color: var(--warn); font-weight: 600; font-size: 0.76rem; }
@@ -453,13 +461,19 @@
       <button id="send" type="submit">Ask</button>
     </form>
 
-    <div class="rate-row">
+    <div class="rate-row" style="justify-content:space-between">
+      <label class="stream-toggle" title="Stream tool-call events in real time via SSE">
+        <input type="checkbox" id="streamToggle" checked>
+        <span>Stream</span>
+      </label>
+      <div style="display:flex;align-items:center;gap:8px">
       <span id="rateWarn" class="rate-warn" style="display:none"></span>
       <span id="rateLabel">5 / 5 questions remaining</span>
       <div class="rate-dots" id="rateDots">
         <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         <div class="dot"></div><div class="dot"></div>
       </div>
+      </div><!-- /rate right group -->
     </div>
   </div>
 
@@ -478,8 +492,9 @@
 const log      = document.getElementById('log');
 const form     = document.getElementById('form');
 const input    = document.getElementById('question');
-const sendBtn  = document.getElementById('send');
-const rateDots = document.getElementById('rateDots').querySelectorAll('.dot');
+const sendBtn      = document.getElementById('send');
+const streamToggle = document.getElementById('streamToggle');
+const rateDots  = document.getElementById('rateDots').querySelectorAll('.dot');
 const rateLabel = document.getElementById('rateLabel');
 const rateWarn  = document.getElementById('rateWarn');
 const emptyState = document.getElementById('emptyState');
@@ -690,7 +705,83 @@ function addRespMeta(container, data, elapsed_ms) {
   container.appendChild(bar);
 }
 
-// ── Main ask ──
+// ── Main ask (non-streaming) ──
+async function askBatch(question, pair) {
+  const thinking = addAssistantMsg(pair, 'Thinking…', 'assistant');
+  const t0 = Date.now();
+  try {
+    const res = await fetch('/demo/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+    const elapsed = Date.now() - t0;
+    thinking.remove();
+    if (!res.ok) { addAssistantMsg(pair, data.detail || 'Something went wrong.', 'error'); return; }
+    const answerEl = addAssistantMsg(pair, data.answer, 'assistant');
+    addReasoningTrace(answerEl, data.tools_used);
+    addCitations(answerEl, data.citations);
+    addRespMeta(answerEl, data, elapsed);
+  } catch {
+    thinking.remove();
+    addAssistantMsg(pair, 'Could not reach the assistant — it may be waking from a free-tier sleep. Try again in a moment.', 'error');
+  }
+}
+
+// ── Main ask (SSE streaming) ──
+function askStream(question, pair) {
+  return new Promise(resolve => {
+    const thinking = addAssistantMsg(pair, 'Thinking…', 'assistant');
+    const t0 = Date.now();
+    const toolsUsed = [];
+    let toolBadgeEl = null;
+
+    const url = '/demo/chat/stream?question=' + encodeURIComponent(question);
+    const es = new EventSource(url);
+
+    es.onmessage = e => {
+      let event;
+      try { event = JSON.parse(e.data); } catch { return; }
+
+      if (event.type === 'tool_start') {
+        if (!toolBadgeEl) {
+          toolBadgeEl = document.createElement('div');
+          toolBadgeEl.className = 'trace';
+          toolBadgeEl.style.cssText = 'margin-top:6px;font-size:0.75rem;color:var(--muted)';
+          thinking.appendChild(toolBadgeEl);
+        }
+        toolsUsed.push(event.tool);
+        toolBadgeEl.innerHTML = toolsUsed.map(t =>
+          `<span style="margin-right:6px">⚙ ${t.replace(/_/g,' ')}</span>`
+        ).join('');
+      } else if (event.type === 'answer') {
+        es.close();
+        const elapsed = Date.now() - t0;
+        thinking.remove();
+        const answerEl = addAssistantMsg(pair, event.answer, 'assistant');
+        addReasoningTrace(answerEl, event.tools_used || toolsUsed);
+        addCitations(answerEl, event.citations || []);
+        addRespMeta(answerEl, event, elapsed);
+        resolve();
+      } else if (event.type === 'error') {
+        es.close();
+        thinking.remove();
+        addAssistantMsg(pair, event.detail || 'Something went wrong.', 'error');
+        resolve();
+      }
+    };
+
+    es.onerror = () => {
+      es.close();
+      thinking.remove();
+      addAssistantMsg(pair, 'Could not reach the assistant — it may be waking from a free-tier sleep. Try again in a moment.', 'error');
+      resolve();
+    };
+  });
+}
+
+// ── Main ask (dispatcher) ──
 async function ask(question) {
   removeEmptyState();
   input.value = '';
@@ -704,31 +795,12 @@ async function ask(question) {
   }
 
   const pair = addPair(question);
-  const thinking = addAssistantMsg(pair, 'Thinking…', 'assistant');
-  const t0 = Date.now();
-
   try {
-    const res = await fetch('/demo/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question })
-    });
-    const data = await res.json();
-    const elapsed = Date.now() - t0;
-    thinking.remove();
-
-    if (!res.ok) {
-      addAssistantMsg(pair, data.detail || 'Something went wrong.', 'error');
-      return;
+    if (streamToggle.checked) {
+      await askStream(question, pair);
+    } else {
+      await askBatch(question, pair);
     }
-
-    const answerEl = addAssistantMsg(pair, data.answer, 'assistant');
-    addReasoningTrace(answerEl, data.tools_used);
-    addCitations(answerEl, data.citations);
-    addRespMeta(answerEl, data, elapsed);
-  } catch {
-    thinking.remove();
-    addAssistantMsg(pair, 'Could not reach the assistant — it may be waking from a free-tier sleep. Try again in a moment.', 'error');
   } finally {
     sendBtn.disabled = false;
     log.scrollTop = log.scrollHeight;

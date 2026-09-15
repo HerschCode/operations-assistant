@@ -49,6 +49,9 @@ class AgentState(TypedDict):
     # of state (no shared mutable global) — which is what makes graph checkpointing
     # and replay work correctly when added later.
     model_client: Any
+    # Optional SSE event callback; None in the normal (non-streaming) path so that
+    # graph nodes stay pure functions even when streaming is active.
+    event_cb: Any
 
 
 def _call_model(state: AgentState) -> dict:
@@ -61,19 +64,26 @@ def _run_tools(state: AgentState) -> dict:
     pending = (last_msg.tool_calls or [])[: state["budget_remaining"]]
     new_messages: list = []
     new_tool_calls = state["tool_calls"][:]
+    event_cb = state.get("event_cb")
 
     for tc in pending:
         t0 = time.monotonic()
+        if event_cb:
+            event_cb({"type": "tool_start", "tool": tc["name"]})
         try:
             result = call_tool(tc["name"], **tc["args"])
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
             new_tool_calls.append(ToolCallRecord(name=tc["name"], input=tc["args"], result=result))
             new_messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
+            if event_cb:
+                event_cb({"type": "tool_done", "tool": tc["name"], "ok": True})
             logger.info("tool ok", extra={"tool": tc["name"], "ms": duration_ms})
         except (OpsPerformanceUnavailable, Exception) as exc:
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
             new_tool_calls.append(ToolCallRecord(name=tc["name"], input=tc["args"], error=str(exc)))
             new_messages.append(ToolMessage(content=f"Error: {exc}", tool_call_id=tc["id"]))
+            if event_cb:
+                event_cb({"type": "tool_done", "tool": tc["name"], "ok": False, "error": str(exc)})
             logger.warning("tool fail", extra={"tool": tc["name"], "ms": duration_ms, "err": str(exc)})
 
     remaining = max(0, state["budget_remaining"] - len(pending))
@@ -124,6 +134,7 @@ def run_agent_langgraph(
     config: dict,
     client: Any | None = None,
     history: list[dict] | None = None,
+    event_cb=None,
 ) -> AgentResponse:
     """`client` is an already-tool-bound LangChain chat model when injected
     for testing; this function builds one from ChatGroq otherwise — same
@@ -143,6 +154,7 @@ def run_agent_langgraph(
         "tool_calls": [],
         "budget_remaining": config.get("max_tool_calls_per_turn", 6),
         "model_client": client,
+        "event_cb": event_cb,
     }
 
     logger.info("langgraph run start", extra={"turn_id": turn_id})

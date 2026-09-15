@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 import time
 import uuid
 import tempfile
@@ -141,10 +141,13 @@ def demo_chat(request: ChatRequest, http_request: Request):
     cost_usd: float | None = None
     if result.prompt_tokens and result.completion_tokens:
         try:
+            # Use raw_model (e.g. "openai/gpt-oss-120b") for pricing lookup so it
+            # matches the key in config/pricing.yaml; model_display is stripped for
+            # display only and would miss the "openai/" prefix the Groq key needs.
             est = calculate_cost(
                 input_tokens=result.prompt_tokens,
                 output_tokens=result.completion_tokens,
-                model=model_display or None,
+                model=raw_model or None,
                 is_estimated_token_count=False,
             )
             cost_usd = est.total_cost_usd
@@ -171,6 +174,101 @@ def demo_chat(request: ChatRequest, http_request: Request):
         cost_usd=cost_usd,
     )
     return response
+
+
+@health_router.get("/demo/chat/stream")
+def demo_chat_stream(question: str, http_request: Request):
+    """SSE endpoint — streams real-time tool-call events then the final answer.
+    Uses the same agent and rate-limiting as /demo/chat; clients should use an
+    EventSource to consume the stream.
+
+    Event shape:
+      {"type": "thinking"}                           — agent has started
+      {"type": "tool_start", "tool": "<name>"}       — tool call initiated
+      {"type": "tool_done",  "tool": "<name>", "ok": bool}  — tool returned
+      {"type": "answer",     "answer": "...", "tools_used": [...], "latency_ms": N}
+      {"type": "error",      "detail": "..."}        — agent raised
+    """
+    import queue
+    import threading
+    import json as _json
+
+    forwarded_for = http_request.headers.get("x-forwarded-for")
+    client_ip = forwarded_for.split(",")[0].strip() if forwarded_for else (
+        http_request.client.host if http_request.client else "unknown"
+    )
+    if not rate_limit_is_allowed(client_ip):
+        raise HTTPException(
+            status_code=429,
+            detail="Demo rate limit reached (5 questions per 10 minutes) -- please try again shortly.",
+        )
+
+    event_queue: queue.Queue = queue.Queue()
+
+    def on_event(event: dict) -> None:
+        event_queue.put(event)
+
+    def run() -> None:
+        t0 = time.monotonic()
+        try:
+            on_event({"type": "thinking"})
+            result = run_agent(question, event_cb=on_event)
+            latency_ms = round((time.monotonic() - t0) * 1000, 1)
+
+            from src.agent.agent import load_agent_config
+            from src.evaluation.cost_estimator import calculate_cost
+            cfg = load_agent_config()
+            raw_m = cfg.get("model", "")
+            disp_m = raw_m.split("/")[-1] if "/" in raw_m else raw_m
+            cost_usd: float | None = None
+            if result.prompt_tokens and result.completion_tokens:
+                try:
+                    est = calculate_cost(
+                        input_tokens=result.prompt_tokens,
+                        output_tokens=result.completion_tokens,
+                        model=raw_m or None,
+                        is_estimated_token_count=False,
+                    )
+                    cost_usd = est.total_cost_usd
+                except Exception:
+                    pass
+
+            log_trace(
+                tools_used=result.tools_used,
+                num_citations=len(result.citations),
+                latency_ms=latency_ms,
+                answered=bool(result.answer),
+                model=disp_m or None,
+                cost_usd=cost_usd,
+            )
+            on_event({
+                "type": "answer",
+                "answer": result.answer,
+                "tools_used": result.tools_used,
+                "citations": [{"kind": c["kind"], "reference": c["reference"]} for c in result.citations],
+                "latency_ms": latency_ms,
+                "model": disp_m or None,
+                "cost_usd": cost_usd,
+            })
+        except Exception as exc:
+            on_event({"type": "error", "detail": str(exc)})
+        finally:
+            event_queue.put(None)
+
+    threading.Thread(target=run, daemon=True).start()
+
+    def generate():
+        while True:
+            event = event_queue.get()
+            if event is None:
+                return
+            yield f"data: {_json.dumps(event)}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 def _agent_error_response(exc: Exception) -> HTTPException:

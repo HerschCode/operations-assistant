@@ -110,11 +110,13 @@ def _extract_citations(tool_calls: list[ToolCallRecord]) -> list[dict]:
 
 
 def _execute_tool_calls(
-    tool_use_blocks: list, tool_calls: list[ToolCallRecord], turn_id: str
+    tool_use_blocks: list, tool_calls: list[ToolCallRecord], turn_id: str, event_cb=None,
 ) -> list[dict]:
     tool_results_content = []
     for block in tool_use_blocks:
         t0 = time.monotonic()
+        if event_cb:
+            event_cb({"type": "tool_start", "tool": block.name})
         try:
             result = call_tool(block.name, **(block.input or {}))
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
@@ -122,6 +124,8 @@ def _execute_tool_calls(
             tool_results_content.append({
                 "type": "tool_result", "tool_use_id": block.id, "content": json.dumps(result, default=str),
             })
+            if event_cb:
+                event_cb({"type": "tool_done", "tool": block.name, "ok": True})
             logger.info(
                 "tool call succeeded",
                 extra={"turn_id": turn_id, "tool_name": block.name, "duration_ms": duration_ms},
@@ -133,6 +137,8 @@ def _execute_tool_calls(
                 "type": "tool_result", "tool_use_id": block.id,
                 "content": f"Error: {exc}", "is_error": True,
             })
+            if event_cb:
+                event_cb({"type": "tool_done", "tool": block.name, "ok": False, "error": str(exc)})
             logger.warning(
                 "tool call failed",
                 extra={"turn_id": turn_id, "tool_name": block.name, "duration_ms": duration_ms, "error": str(exc)},
@@ -143,12 +149,13 @@ def _execute_tool_calls(
 def run_agent(
     question: str, config_path: str = "config/agent.yaml", client=None,
     config_override: dict | None = None, history: list[dict] | None = None,
+    event_cb=None,
 ) -> AgentResponse:
     config = config_override if config_override is not None else load_agent_config(config_path)
     provider = config.get("provider", "anthropic")
     if provider == "groq":
         from src.agent.providers import run_agent_groq
-        return run_agent_groq(question, config, client=client, history=history)
+        return run_agent_groq(question, config, client=client, history=history, event_cb=event_cb)
     if provider == "gemini":
         from src.agent.providers import run_agent_gemini
         return run_agent_gemini(question, config, client=client, history=history)
@@ -157,12 +164,12 @@ def run_agent(
         return run_agent_langchain(question, config, client=client, history=history)
     if provider == "langgraph":
         from src.agent.langgraph_agent import run_agent_langgraph
-        return run_agent_langgraph(question, config, client=client, history=history)
-    return _run_agent_anthropic(question, config, client=client, history=history)
+        return run_agent_langgraph(question, config, client=client, history=history, event_cb=event_cb)
+    return _run_agent_anthropic(question, config, client=client, history=history, event_cb=event_cb)
 
 
 def _run_agent_anthropic(
-    question: str, config: dict, client=None, history: list[dict] | None = None,
+    question: str, config: dict, client=None, history: list[dict] | None = None, event_cb=None,
 ) -> AgentResponse:
     client = client or _default_client()
     # Prior turns (simple text Q/A pairs, not raw tool-call scaffolding -- see
@@ -238,7 +245,7 @@ def _run_agent_anthropic(
                 citations=_extract_citations(tool_calls), budget_exceeded=True,
             )
 
-        tool_results_content = _execute_tool_calls(tool_use_blocks, tool_calls, turn_id)
+        tool_results_content = _execute_tool_calls(tool_use_blocks, tool_calls, turn_id, event_cb=event_cb)
         messages.append({"role": "user", "content": tool_results_content})
 
     # unreachable given the range(max_rounds + 1) loop above always returns inside it,
