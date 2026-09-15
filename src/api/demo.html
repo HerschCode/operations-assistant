@@ -47,8 +47,9 @@
   .status-dot {
     width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0;
   }
-  .status-dot.ok { background: var(--good); }
-  .status-dot.err { background: var(--bad); }
+  .status-dot.ok   { background: var(--good); }
+  .status-dot.warn { background: var(--warn); }
+  .status-dot.err  { background: var(--bad); }
   .theme-btn {
     background: none; border: 1px solid var(--border); border-radius: 8px;
     color: var(--muted); font-size: 0.9rem; cursor: pointer; padding: 4px 9px;
@@ -60,8 +61,16 @@
 
   /* ── Layout ── */
   .outer { width: 100%; max-width: 1200px; padding: 20px 16px 0; }
-  .layout { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
-  .col-left { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+  .col-left {
+    min-width: 0; display: flex; flex-direction: column; gap: 12px;
+    position: sticky; top: 48px;
+    max-height: calc(100vh - 60px); overflow-y: auto;
+    padding-right: 4px; /* room for scrollbar */
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .col-left::-webkit-scrollbar { width: 4px; }
+  .col-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   .col-right { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 
   /* ── Shared card style ── */
@@ -86,28 +95,42 @@
   .card-body.hidden { display: none; }
 
   /* ── Guide: sections ── */
-  .guide-section { margin-bottom: 12px; }
+  .guide-section { margin-bottom: 10px; }
   .guide-section:last-child { margin-bottom: 0; }
   .guide-section-header {
-    font-size: 0.72rem; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 7px;
+    font-size: 0.7rem; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
     display: flex; align-items: center; gap: 6px;
+    border-left: 3px solid var(--accent-dim); padding-left: 8px;
   }
   .guide-chips { display: flex; flex-wrap: wrap; gap: 5px; }
   .chip {
-    font-size: 0.73rem; color: var(--accent); border: 1px solid var(--accent-dim);
-    padding: 3px 9px; border-radius: 999px; cursor: pointer; background: none;
-    font-weight: 400; font-family: inherit; transition: background 0.12s, border-color 0.12s;
-    line-height: 1.4;
+    font-size: 0.73rem; color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    font-weight: 400; font-family: inherit;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+    line-height: 1.4; text-align: left;
   }
   .chip:hover { background: var(--accent-dim); border-color: var(--accent); }
-  .guide-docs { list-style: none; margin: 6px 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-  .guide-docs li {
-    font-size: 0.73rem; color: var(--muted); padding: 3px 0;
-    border-bottom: 1px solid var(--divider); display: flex; align-items: flex-start; gap: 5px;
+
+  /* Combined section: full-width block buttons (too long for pills) */
+  .chip.block {
+    display: block; width: 100%; border-radius: 8px;
+    padding: 7px 11px; white-space: normal; line-height: 1.5;
   }
-  .guide-docs li:last-child { border-bottom: none; }
-  .guide-divider { border: none; border-top: 1px solid var(--divider); margin: 10px 0; }
+
+  /* Policy docs: card-style list */
+  .guide-docs { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .guide-docs li {
+    font-size: 0.74rem; color: var(--text); padding: 6px 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 7px; display: flex; align-items: center; gap: 7px;
+    line-height: 1.4;
+  }
+  .doc-icon { font-size: 0.8rem; flex-shrink: 0; opacity: 0.7; }
+  .guide-divider { border: none; border-top: 1px solid var(--divider); margin: 8px 0; }
 
   /* Collapsed-guide re-open button */
   .guide-reopen { display: none; }
@@ -312,10 +335,10 @@
       <div class="guide-section">
         <div class="guide-section-header">📄 Policy · 4 SOPs indexed</div>
         <ul class="guide-docs">
-          <li>📄 Purchase Order Approval Thresholds</li>
-          <li>📄 SLA Cycle Time Targets by Category</li>
-          <li>📄 Escalation Triggers &amp; Paths</li>
-          <li>📄 Exception Handling Procedures</li>
+          <li><span class="doc-icon">📄</span>Purchase Order Approval Thresholds</li>
+          <li><span class="doc-icon">📄</span>SLA Cycle Time Targets by Category</li>
+          <li><span class="doc-icon">📄</span>Escalation Triggers &amp; Paths</li>
+          <li><span class="doc-icon">📄</span>Exception Handling Procedures</li>
         </ul>
         <div class="guide-chips">
           <button class="chip" type="button">What is the approval threshold for high-value orders?</button>
@@ -331,10 +354,10 @@
       <div class="guide-section">
         <div class="guide-section-header">🔗 Combined · data + policy</div>
         <div class="guide-chips">
-          <button class="chip" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
-          <button class="chip" type="button">Which supplier should I escalate first based on our policy?</button>
-          <button class="chip" type="button">Is our current breach rate within the policy's acceptable range?</button>
-          <button class="chip" type="button">Which HIGH risk orders also require dual approval under policy?</button>
+          <button class="chip block" type="button">Why are high-value orders breaching SLA, and does policy explain the extra step?</button>
+          <button class="chip block" type="button">Which supplier should I escalate first based on our policy?</button>
+          <button class="chip block" type="button">Is our current breach rate within the policy's acceptable range?</button>
+          <button class="chip block" type="button">Which HIGH risk orders also require dual approval under policy?</button>
         </div>
       </div>
 
