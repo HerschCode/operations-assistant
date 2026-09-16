@@ -35,7 +35,7 @@ def _default_langchain_client(model: str):
     return ChatGroq(model=model, api_key=os.environ["GROQ_API_KEY"], temperature=0.0)
 
 
-def run_agent_langchain(question: str, config: dict, client=None, history: list[dict] | None = None):
+def run_agent_langchain(question: str, config: dict, client=None, history: list[dict] | None = None, event_cb=None):
     """`client` is an already-tool-bound LangChain chat model (i.e. the result of
     `.bind_tools(...)`) when injected for testing -- constructing the real
     ChatGroq + bind_tools pair is left to this function when client is None, same

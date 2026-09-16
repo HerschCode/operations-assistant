@@ -158,10 +158,10 @@ def run_agent(
         return run_agent_groq(question, config, client=client, history=history, event_cb=event_cb)
     if provider == "gemini":
         from src.agent.providers import run_agent_gemini
-        return run_agent_gemini(question, config, client=client, history=history)
+        return run_agent_gemini(question, config, client=client, history=history, event_cb=event_cb)
     if provider == "langchain":
         from src.agent.langchain_agent import run_agent_langchain
-        return run_agent_langchain(question, config, client=client, history=history)
+        return run_agent_langchain(question, config, client=client, history=history, event_cb=event_cb)
     if provider == "langgraph":
         from src.agent.langgraph_agent import run_agent_langgraph
         return run_agent_langgraph(question, config, client=client, history=history, event_cb=event_cb)

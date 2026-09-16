@@ -290,7 +290,7 @@ def _gemini_function_response_parts(response_parts: list[dict]):
     ]
 
 
-def run_agent_gemini(question: str, config: dict, client=None, history: list[dict] | None = None):
+def run_agent_gemini(question: str, config: dict, client=None, history: list[dict] | None = None, event_cb=None):
     """`client` here is a started chat session (an object with `.send_message(content)`
     returning a Gemini response) so tests can inject a fake one the same way
     tests/test_agent.py injects a fake Anthropic client -- constructing the real
