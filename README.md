@@ -15,8 +15,8 @@ willing to say "insufficient data" rather than guess.
 
 | What | Number | How measured |
 |---|---|---|
-| Hybrid retrieval Hit@1 | **69.2%** | 91 in-scope questions, section-level match, deployed config |
-| Hybrid retrieval MRR | **0.770** | same eval set; with optional cross-encoder reranker: Hit@1 78.0%, MRR 0.840 |
+| Hybrid retrieval Hit@1 | **66.2%** | 130 in-scope questions over a 10-document corpus, section-level match, deployed config |
+| Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
 | Faithfulness gate pass rate | **89.7%** (at `t=0.5`) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
 | Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
 | Provider count | **4** | Anthropic, Groq, Gemini, LangChain — one interface |
@@ -88,18 +88,31 @@ real usage numbers, a known gap rather than an oversight.
 
 ## Retrieval evaluation
 
-Four-method head-to-head benchmark (`scripts/benchmark_retrieval.py`): **120 questions** across 8 categories (lookup, numerical, policy interpretation, multi-hop, paraphrase, ambiguous, out-of-domain, adversarial) against the live ChromaDB collection. Section-level hit matching — document ID + section heading substring must both match — which is strictly harder than document-level hit rate and doesn't saturate on a 4-document corpus.
+Four-method head-to-head benchmark (`scripts/benchmark_retrieval.py`): **165 questions** (130 in-scope, 35 out-of-domain/adversarial) across 8 categories (lookup, numerical, policy interpretation, multi-hop, paraphrase, ambiguous, out-of-domain, adversarial) against the live ChromaDB collection. Section-level hit matching — document ID + section heading substring must both match — which is strictly harder than document-level hit rate and doesn't saturate. The corpus is 10 synthetic policy documents (58 chunks): the original 4 (procurement, SLA, escalation, exception handling) plus 6 added later (vendor onboarding, quality control, inventory, contract renewal, data retention, safety incident reporting) that cross-reference each other and reuse the same terms (thresholds, Vendor Risk Score, business-day deadlines), so they act as realistic distractors rather than easy new topics.
 
-### Method comparison (91 in-scope questions)
+### Method comparison (130 in-scope questions, 10 documents)
 
 | Method | Hit@1 | Hit@3 | Hit@5 | MRR | Avg latency (per query) |
 |---|---|---|---|---|---|
-| BM25 only | 62.6% | 73.6% | 79.1% | 0.685 | 11 ms |
-| Semantic only | 71.4% | 84.6% | 89.0% | 0.787 | 830 ms |
-| Hybrid (BM25 + semantic, RRF) | 69.2% | 85.7% | 87.9% | 0.770 | 907 ms |
-| **Hybrid + Cross-encoder rerank** | **78.0%** | **90.1%** | **93.4%** | **0.840** | ~1470 ms |
+| BM25 only | 59.2% | 77.7% | 81.5% | 0.680 | 12 ms |
+| Semantic only | **72.3%** | 86.9% | 89.2% | 0.797 | 229 ms |
+| Hybrid (BM25 + semantic, RRF) | 66.2% | 85.4% | 88.5% | 0.756 | 233 ms |
+| **Hybrid + Cross-encoder rerank** | **77.7%** | **88.5%** | **90.8%** | **0.832** | 446 ms |
 
-The cross-encoder reranker (`cross-encoder/ms-marco-MiniLM-L-6-v2`, fine-tuned on MS MARCO) reads each (query, chunk) pair jointly rather than comparing independent embeddings — this joint attention is what closes remaining misses. Hit@1 gains +8.8pp over hybrid alone (69.2% → 78.0%) and Hit@3 reaches 90.1%.
+(Latencies are from this development machine and vary run to run; a repeat run moved Hybrid Hit@1 by one question, 65.4% vs 66.2%. Differences of ~1pp are noise.)
+
+**What growing the corpus from 4 to 10 documents did.** Scoring only the original 91 questions against the new 10-document index isolates the distractor effect (before: 4 docs):
+
+| Method | Hit@1 (4 docs) | Hit@1 (same 91 questions, 10 docs) |
+|---|---|---|
+| BM25 | 62.6% | 52.7% |
+| Semantic | 71.4% | 69.2% |
+| Hybrid | 69.2% | 58.2% |
+| Hybrid + rerank | 78.0% | 72.5% |
+
+More documents that reuse the same vocabulary hurt keyword matching the most (BM25 -9.9pp, Hybrid -11.0pp) and dense retrieval the least (-2.2pp). Hybrid now trails semantic-only at Hit@1 (66.2% vs 72.3%), which reverses the ordering measured on the 4-document corpus; on 4 documents hybrid's exact-keyword advantage was a small edge, and with 10 documents the BM25 side is dragging RRF down. The cross-encoder is the most robust method (-5.5pp) and stays best. This is a real limitation of the deployed (no-reranker) config, reported rather than tuned away.
+
+The cross-encoder reranker (`cross-encoder/ms-marco-MiniLM-L-6-v2`, fine-tuned on MS MARCO) reads each (query, chunk) pair jointly rather than comparing independent embeddings. It adds +11.5pp Hit@1 over hybrid (66.2% → 77.7%) and reaches 88.5% Hit@3.
 
 **Pipeline architecture (`reranked_search()`):**
 ```
@@ -110,33 +123,33 @@ query → hybrid retrieval (top-20 candidates)
      top-5 context → LLM
 ```
 
-The bi-encoder retrieval step runs for recall (catch all plausibly relevant chunks quickly); the cross-encoder runs for precision (pick the right one from the candidate pool). The reranker also reduces OOD false positives: 45% vs 83% for hybrid alone — it demotes chunks that are lexically similar to the query but semantically off-target.
+The bi-encoder retrieval step runs for recall (catch all plausibly relevant chunks quickly); the cross-encoder runs for precision (pick the right one from the candidate pool). The reranker also reduces OOD false positives: 49% vs 77% for hybrid alone — it demotes chunks that are lexically similar to the query but semantically off-target.
 
-**Deployment note:** `RERANKER_BACKEND=none` disables the cross-encoder (falls back to hybrid ranking), for the same reason `EMBEDDING_BACKEND=tfidf` exists in P3 — torch doesn't fit Render's 512MB free tier. The deployed config (no reranker) reports Hit@1 69.2% / MRR 0.770 on 91 in-scope questions.
+**Deployment note:** `RERANKER_BACKEND=none` disables the cross-encoder (falls back to hybrid ranking), for the same reason `EMBEDDING_BACKEND=tfidf` exists in P3 — torch doesn't fit Render's 512MB free tier. The deployed config (no reranker) reports Hit@1 66.2% / MRR 0.756 on 130 in-scope questions.
 
-### Per-category Hit@3 (Hybrid, 91 in-scope questions)
+### Per-category Hit@3 (Hybrid, 130 in-scope questions)
 
 | Category | Hit@3 | Notes |
 |---|---|---|
-| Lookup (23) | 22/23 (96%) | Direct fact retrieval, all methods do well |
-| Policy interpretation (19) | 17/19 (89%) | Correct section found even when phrased abstractly |
-| Multi-hop (17) | 15/17 (88%) | Cross-section questions hit the primary source correctly |
-| Numerical (12) | 10/12 (83%) | Exact thresholds — BM25 contribution visible |
-| Paraphrase (12) | 10/12 (83%) | Semantic retrieval handles paraphrases cleanly |
-| Ambiguous (8) | 4/8 (50%) | Hardest category — chunk boundaries misalign with question scope |
+| Lookup (30) | 28/30 (93%) | Direct fact retrieval |
+| Numerical (25) | 23/25 (92%) | Exact thresholds; BM25 contribution visible |
+| Multi-hop (22) | 19/22 (86%) | Primary source usually retrieved |
+| Policy interpretation (25) | 21/25 (84%) | Correct section found even when phrased abstractly |
+| Paraphrase (17) | 14/17 (82%) | Semantic retrieval handles most paraphrases |
+| Ambiguous (11) | 6/11 (55%) | Hardest: deliberately underspecified questions ("What are the notice requirements?") |
 
-Ambiguous misses share a pattern: the correct document comes back at rank 1 but the section boundary doesn't match the question's scope. Expected behavior for heading-level chunking — the chunk splits where headings fall, not where question scopes fall.
+Two failure patterns recur in the miss list: (1) the correct document is at rank 1 but the section boundary doesn't match the question's scope (heading-level chunking splits at headings, not question scopes); (2) after the corpus expansion, generic phrasing ("How long does the process take?") is captured by a different document's process section. The self-approval-threshold questions in procurement-policy are also a consistent miss.
 
-### OOD and adversarial false-positive rate (29 questions)
+### OOD and adversarial false-positive rate (35 questions)
 
 | Method | False positives | Notes |
 |---|---|---|
-| BM25 | 29/29 (100%) | Always returns something — no similarity gate |
-| Semantic | 24/29 (83%) | Some OOD questions fall below the 0.3 similarity threshold |
-| Hybrid | 24/29 (83%) | Same as semantic on OOD |
-| **Hybrid + Rerank** | **13/29 (45%)** | Cross-encoder demotes OOD chunks with low joint relevance |
+| BM25 | 35/35 (100%) | Always returns something, no similarity gate |
+| Semantic | 29/35 (83%) | Some OOD questions fall below the 0.3 similarity threshold |
+| Hybrid | 27/35 (77%) | |
+| **Hybrid + Rerank** | **17/35 (49%)** | Cross-encoder demotes OOD chunks with low joint relevance |
 
-**The retriever's OOD false-positive rate is high, and this is expected.** A retriever's job is to find the most relevant chunk — not to refuse. The similarity threshold (0.3) rejects 3/10 OOD questions but passes 7/10 because questions like "Who is the CEO of Northstar?" find low-but-nonzero similarity to procurement text about Northstar. **OOD safety comes from the agent's grounding layer** (the agent is instructed to answer only from retrieved chunks and say "insufficient data" otherwise), not from the retriever. This distinction — retriever quality vs. answer faithfulness — is a real architectural boundary and is why both layers are evaluated separately. See [`tests/test_groundedness.py`](tests/test_groundedness.py) for the grounding-layer tests.
+**The retriever's OOD false-positive rate is high, and this is expected.** A retriever's job is to find the most relevant chunk — not to refuse. The similarity threshold (0.3) rejects 6/35 OOD questions but passes 29/35 because questions like "Who is the CEO of Northstar?" find low-but-nonzero similarity to procurement text about Northstar. **OOD safety comes from the agent's grounding layer** (the agent is instructed to answer only from retrieved chunks and say "insufficient data" otherwise), not from the retriever. This distinction — retriever quality vs. answer faithfulness — is a real architectural boundary and is why both layers are evaluated separately. See [`tests/test_groundedness.py`](tests/test_groundedness.py) for the grounding-layer tests.
 
 ### Earlier section-level comparison (10 questions, `evaluate_retrieval.py`)
 

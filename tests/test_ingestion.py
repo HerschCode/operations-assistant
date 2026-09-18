@@ -32,7 +32,7 @@ def test_load_document_handles_no_frontmatter(tmp_path):
 
 def test_load_all_documents_finds_real_corpus():
     docs = load_all_documents("data/documents")
-    assert len(docs) == 4  # the 4 synthetic policy docs written for this project
+    assert len(docs) == 10  # the 10 synthetic policy docs written for this project
     titles = {d.title for d in docs}
     assert "Procurement Policy" in titles
     assert "SLA Policy" in titles

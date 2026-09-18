@@ -6,7 +6,7 @@ uniformly reassuring ones.
 ## Data
 | Question | Answer |
 |---|---|
-| Can data be regenerated? | **Yes.** All 4 policy documents are version-controlled markdown; `scripts/index_documents.py` rebuilds the vector store from them deterministically, with safe re-indexing (Phase 14 -- old chunks deleted before new ones are added). |
+| Can data be regenerated? | **Yes.** All 10 policy documents are version-controlled markdown; `scripts/index_documents.py` rebuilds the vector store from them deterministically, with safe re-indexing (Phase 14 -- old chunks deleted before new ones are added). |
 | Can bad input be detected? | **Yes.** `validate_query`/`validate_case_id` (Phase 20) reject malformed tool input before it reaches a URL path or the retrieval layer. |
 | Are the documents' claims reproducible? | **Yes, and cross-verified.** The SLA values in `sla-policy.md` are checked against `operations-performance/config/sla.yaml`'s actual values (re-verified again in Phase 24), not just written to sound plausible. |
 | Is provenance documented? | **Yes.** `docs/rag-design.md` states plainly these are synthetic documents, not a real company's actual policies. |

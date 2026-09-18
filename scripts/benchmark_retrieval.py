@@ -1,11 +1,13 @@
 """
 Head-to-head retrieval benchmark: BM25-only vs semantic-only vs hybrid.
 
-Runs all methods against the 120-question eval dataset
-(data/evaluation/eval_dataset.json) and reports:
+Runs all methods against the eval dataset (data/evaluation/eval_dataset.json --
+question counts are printed at run time rather than hardcoded here, since the
+dataset has been expanded twice and a hardcoded number in this docstring went
+stale both times) and reports:
 
-  - Hit@1, Hit@3, Hit@5, MRR   — for the 91 in-scope questions
-  - False-positive rate          — for the 29 OOD/adversarial questions
+  - Hit@1, Hit@3, Hit@5, MRR   — for the in-scope questions
+  - False-positive rate          — for the OOD/adversarial questions
   - Per-category Hit@3 breakdown (hybrid method)
   - Per-method latency
 
@@ -14,7 +16,7 @@ expected document ID AND the expected section title (case-insensitive contains).
 
 Run from the project root after indexing documents:
     python -m scripts.index_documents   # if not done
-    python scripts/benchmark_retrieval.py
+    python -m scripts.benchmark_retrieval   # -m, not `python scripts/...`: src/ must be importable
 
 The MIN_SIMILARITY filter applies only to semantic and hybrid search
 (BM25 scores are not on a [0,1] scale, so filtering by it would be meaningless).
@@ -23,6 +25,7 @@ counts as a "retrieval" — if the method returns anything with score > 0.1, tha
 is counted as a false positive for OOD/adversarial questions.
 """
 import json
+import sys
 import time
 from pathlib import Path
 
@@ -75,6 +78,7 @@ def _is_ood_false_positive(results) -> bool:
 
 
 def run_benchmark():
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows cp1252 consoles choke on the bar-chart glyphs
     dataset = json.loads(EVAL_PATH.read_text(encoding="utf-8"))
     in_scope = [q for q in dataset if q["in_scope"]]
     out_of_scope = [q for q in dataset if not q["in_scope"]]
