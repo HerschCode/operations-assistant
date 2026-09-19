@@ -213,6 +213,22 @@ Per-category at `t=0.5`: paraphrase 0% faithfulness → 5/5 gated; numerical 16.
 
 `GROUNDED_GATE_ENABLED=false` disables the gate for A/B comparison or torch-free deploys where NLI isn't available.
 
+## Multi-agent review and embedding fine-tuning (experiments, both negative or inconclusive)
+
+**Researcher + Reviewer** (`src/agent/multi_agent.py`, 16 unit tests): the existing tool-calling agent drafts an answer; a separate Reviewer call, with its own system prompt and seeing only the question, the tool evidence and the draft, approves or revises it. A reviewer failure never fails the turn (it keeps the draft, verdict `error`). It is a library module, not wired into `/chat`, because the measurement below does not justify enabling it.
+
+Measured on `agent_questions.json` (`scripts/evaluate_multi_agent.py`, raw output `data/evaluation/multi_agent_results.json`; `gpt-oss-120b`, live data via a local P1 API). **Only 17 of 25 questions completed**: the Groq free-tier daily token limit was exhausted mid-run, so treat this as a partial result.
+
+| Reviewer verdict (17 questions) | Count |
+|---|---|
+| approve | 5 |
+| revise | 11 |
+| error | 1 |
+
+Mechanical number-grounding (`check_groundedness`): answers with an ungrounded number went from 6 (draft) to 8 (after review); total ungrounded numbers 38 to 32. In three cases the revision made things worse by adding numbers absent from the evidence, mostly when the draft was an unhelpful "tool-call limit reached" message that the Reviewer then "answered". Two causes seen in the reviewer's stated issues: (1) the evidence digest truncates each tool result to 1,500 characters, so the Reviewer flagged correct claims about later rows (e.g. bottleneck stages 8-10) as unsupported and rewrote them; (2) 11 of 17 answers were revised, a rate too high to be catching real errors only. Conclusion: as configured, the Reviewer over-revises and is not a demonstrated improvement. The next experiment would raise or remove the truncation and rerun on all 25 questions once quota allows; that has not been done. Where it clearly helped: it caught a draft naming a vendor not present in the evidence.
+
+**Embedding fine-tuning** (`scripts/finetune_embedding.py`, [`docs/embedding-finetune.md`](docs/embedding-finetune.md)): fine-tuning the retrieval embedder on the labelled questions, evaluated with leakage-safe question-level and document-level splits over 5 seeds. No statistically reliable gain (all pooled 95% CIs include zero), so the stock model stays. This is embedding fine-tuning only, not generation-LLM fine-tuning.
+
 ## Agent evaluation
 
 Run via `python run_eval.py` — **25 hand-written questions**
