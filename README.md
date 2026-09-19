@@ -28,9 +28,10 @@ via a small set of controlled tools rather than re-implementing that logic.
 
 ## Knowledge base
 
-The RAG layer indexes 4 synthetic Northstar Manufacturing policy/SOP documents
-([`data/documents/`](data/documents/)) — `procurement-policy.md`, `sla-policy.md`,
-`escalation-procedure.md`, `exception-handling-procedure.md` — each split into
+The RAG layer indexes 10 synthetic Northstar Manufacturing policy/SOP documents
+([`data/documents/`](data/documents/)) — procurement, SLA, escalation, exception handling,
+vendor onboarding, quality control, inventory, contract renewal, data retention and safety
+incident reporting — each split into
 section-level chunks by markdown heading (`##`/`#`), so a chunk boundary always
 lines up with a real section, not an arbitrary character count. Small on purpose:
 this is a portfolio-scale RAG target, not a claim of enterprise document volume —
