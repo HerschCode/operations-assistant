@@ -2,8 +2,8 @@
 
 **Scope.** This fine-tunes the *retrieval embedding model* (`all-MiniLM-L6-v2`) with
 MultipleNegativesRankingLoss on (question, correct-chunk) pairs from
-`data/evaluation/eval_dataset.json`. It is **not** fine-tuning of a generation LLM (no GPU or
-fine-tuning-API budget), and nothing from it is deployed; the served retriever still uses the
+`data/evaluation/eval_dataset.json`. It is **not** fine-tuning of a generation LLM (that is a separate experiment) and
+nothing from it is deployed; the served retriever still uses the
 stock ONNX model. Script: `scripts/finetune_embedding.py`; raw output:
 `docs/embedding-finetune-raw-result.json`.
 

@@ -3,7 +3,7 @@ Offline experiment: does fine-tuning the retrieval embedding model on this corpu
 
 SCOPE, stated plainly: this fine-tunes the *embedding* model (all-MiniLM-L6-v2) with
 MultipleNegativesRankingLoss on (question, correct-chunk) pairs. It does NOT fine-tune a
-generation LLM (no GPU / no fine-tuning API budget here) and the result is NOT deployed:
+generation LLM (see the separate generation fine-tune work) and the result is NOT deployed:
 the served retriever still uses the stock ONNX model. This is a measured experiment.
 
 Leakage control -- the whole point of doing this carefully with ~130 labelled questions:
@@ -34,6 +34,8 @@ from src.ingestion.document_loader import load_all_documents
 ROOT = Path(__file__).parent.parent
 EVAL_PATH = ROOT / "data/evaluation/eval_dataset.json"
 OUT_PATH = ROOT / "docs/embedding-finetune-raw-result.json"
+import torch
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BASE_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
@@ -68,7 +70,7 @@ def train(train_qs, chunks, epochs, batch_size, lr, seed):
     import torch
     from sentence_transformers import SentenceTransformer, losses
     torch.manual_seed(seed)
-    model = SentenceTransformer(BASE_MODEL, device="cpu")
+    model = SentenceTransformer(BASE_MODEL, device=DEVICE)
     loss_fn = losses.MultipleNegativesRankingLoss(model)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
     rng = random.Random(seed)
@@ -126,7 +128,7 @@ def main():
     data = [q for q in json.loads(EVAL_PATH.read_text(encoding="utf-8")) if q["in_scope"] and positives(q, [c for c in chunks])]
     doc_ids = sorted({q["expected_document_id"] for q in data})
     print(f"{len(chunks)} chunks | {len(data)} usable in-scope questions | {len(doc_ids)} documents")
-    base_model = SentenceTransformer(BASE_MODEL, device="cpu")
+    base_model = SentenceTransformer(BASE_MODEL, device=DEVICE)
 
     results = {"config": vars(args), "n_chunks": len(chunks), "n_questions": len(data), "runs": []}
     pooled = {"question": [[], [], []], "document": [[], [], []]}
