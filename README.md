@@ -19,7 +19,7 @@ willing to say "insufficient data" rather than guess.
 | Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
 | Faithfulness gate pass rate | **89.7%** (at `t=0.5`) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
 | Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
-| Provider count | **4** | Anthropic, Groq, Gemini, LangChain — one interface |
+| Provider count | **5** | Anthropic, Groq, Gemini, LangChain, LangGraph — one interface |
 
 The distinguishing piece is the **faithfulness gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, NLI scoring decides whether the LLM's answer is entailed by the retrieved chunks. If not, the gate fires and returns "insufficient information" rather than a hallucinated answer. This directly addresses the paraphrase-question failure mode (0% faithfulness without gating) and is evaluated at multiple thresholds with real numbers.
 
@@ -40,21 +40,25 @@ was actually measured against it, not just assumed.
 
 ## Stack
 Python · FastAPI · PostgreSQL · RAG (ChromaDB + hybrid BM25/semantic retrieval) ·
-LangChain · Groq / Anthropic / Gemini · Docker · Render
+LangChain · LangGraph · Groq / Anthropic / Gemini · Docker · Render
 
 Containerised; deployable as a Kubernetes `Deployment` behind a `ClusterIP` `Service` — the
 one stateful piece (`data/conversations.db`, SQLite) is the reason a real cluster deployment
 would swap that for a shared store first, noted here rather than glossed over.
 
 ## Agent orchestration
-Four interchangeable providers behind one interface (`config["provider"]`, switchable
-via `AGENT_PROVIDER` without touching code): Anthropic, Groq, Gemini, and
-**LangChain** (`src/agent/langchain_agent.py`) — the LangChain path wraps this
-project's real tools as `StructuredTool` objects (schema inferred from the actual
-function signatures, not a hand-copied duplicate) and drives them through
-`ChatGroq.bind_tools()`. Every provider calls the exact same underlying tool
-functions and returns the same response shape, so switching orchestration layers
-never changes what a tool actually does.
+Five interchangeable providers behind one interface (`config["provider"]`, switchable
+via `AGENT_PROVIDER` without touching code): Anthropic, Groq, Gemini,
+**LangChain** (`src/agent/langchain_agent.py`), and **LangGraph**
+(`src/agent/langgraph_agent.py`). The LangChain path wraps this project's real
+tools as `StructuredTool` objects (schema inferred from the actual function
+signatures, not a hand-copied duplicate) and drives them through
+`ChatGroq.bind_tools()`. The LangGraph path uses a `StateGraph` with a
+`ThreadPoolExecutor` in the `_run_tools` node to execute all pending tool calls
+concurrently rather than sequentially — the only provider where parallel tool
+dispatch is measured rather than just described. Every provider calls the exact
+same underlying tool functions and returns the same response shape, so switching
+orchestration layers never changes what a tool actually does.
 
 **Provider comparison, benchmarked, not just enumerated:** ran the same 3
 questions (a data-tool question, a document-retrieval question, and an
