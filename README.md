@@ -220,6 +220,19 @@ Per-category at `t=0.5`: paraphrase 0% faithfulness → 5/5 gated; numerical 16.
 
 `GROUNDED_GATE_ENABLED=false` disables the gate for A/B comparison or torch-free deploys where NLI isn't available.
 
+### OOD abstention evaluation — external dataset (`scripts/evaluate_ood_abstention.py`)
+
+The in-domain gate numbers above (68.8% gate rate, 89.7% avg faithfulness of passing answers) are measured on the same procurement-domain questions used to design the gate. To test whether the gate catches answers from a completely different domain — **without relying on the LLM admitting ignorance** — 35 SQuAD 2.0 "unanswerable" questions (`is_impossible=True`, validation split) were sampled from 35 distinct Wikipedia article topics (history, law, geography, science, sports, culture — none overlap with the 10 procurement policy documents). One question per title, seeded random selection.
+
+**Methodology:** each question goes to the LLM with **no context injected** (intentional — the goal is to test the gate against a model using parametric knowledge, not a model told to say "I don't know"). The LLM's answer is then checked by the faithfulness gate against the top-5 retrieved procurement chunks. If the gate fires (faith < 0.5), the system correctly refuses to surface an outside-knowledge answer.
+
+| Case | LLM answer | Faithfulness | Gated? |
+|---|---|---|---|
+| "What is ethnic community is traditionally found Downtown?" (Fresno) | 3-sentence US-cities answer | 0.0 (0/3 sentences grounded) | ✓ GATED |
+| "What sources did the EU courts not drawn on?" (EU law) | *(empty string)* | 1.0 — see limitation | ✗ bypassed |
+
+**Known limitation (documented, not fixed):** `_split_sentences()` filters out sentences shorter than 20 characters; if all sentences are filtered, the gate defaults to `faithfulness_score=1.0` (`src/evaluation/faithfulness.py:99-105`). In practice this means a very short or empty LLM response bypasses the gate. In this eval, questions with short/empty LLM responses (e.g., obscure factual questions the LLM declines to answer) scored faith=1.0 and passed through — the failure mode is when the LLM says nothing meaningful rather than when it hallucinates from outside knowledge. Full results pending Groq daily quota reset; raw output: `data/evaluation/ood_abstention_results.json`. Resume with `python -X utf8 -m scripts.evaluate_ood_abstention --resume`.
+
 ## Multi-agent review and embedding fine-tuning (experiments, both negative or inconclusive)
 
 **Researcher + Reviewer** (`src/agent/multi_agent.py`, 16 unit tests): the existing tool-calling agent drafts an answer; a separate Reviewer call, with its own system prompt and seeing only the question, the tool evidence and the draft, approves or revises it. A reviewer failure never fails the turn (it keeps the draft, verdict `error`). It is a library module, not wired into `/chat`, because the measurement below does not justify enabling it.

@@ -1,0 +1,46 @@
+{
+  "summary": {
+    "dataset": "SQuAD 2.0 validation — unanswerable (is_impossible=True)",
+    "n_questions": 35,
+    "n_evaluated_so_far": 3,
+    "n_errors_so_far": 1,
+    "n_gated_so_far": 1,
+    "abstention_rate_so_far": 0.3333,
+    "gate_threshold": 0.5,
+    "status": "in_progress"
+  },
+  "rows": [
+    {
+      "question": "What sources did the EU courts not drawn on?",
+      "topic": "European_Union_law",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is ethnic community is traditionally found Downtown?",
+      "topic": "Fresno,_California",
+      "parametric_answer": "The short answer is: **it depends on the city**. Every major downtown in the United States (and in many other countries) has its own historic ethnic enclave that grew up around the commercial core, and the “traditional” community you’ll hear about is usually the one that first settled there and left a lasting cultural imprint.\n\nBelow is a quick reference guide to some",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 3,
+      "n_grounded": 0
+    },
+    {
+      "question": "In what decade did Louis XIV start his reign?",
+      "topic": "Huguenot",
+      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199829, Requested 337. Please try again in 1m11.712s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+    },
+    {
+      "question": "What is the name of the bridge over the Longwood Medical and Academic area?",
+      "topic": "Harvard_University",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    }
+  ]
+}
