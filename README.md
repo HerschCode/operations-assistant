@@ -86,10 +86,12 @@ request completed (`google-genai`'s `Client` closes its own HTTP session in
 `__del__`, and nothing in the old code kept a reference to it alive past
 function return) — fixed in `src/agent/providers.py::_default_gemini_client`
 by keeping a strong reference on the returned chat session, verified against
-the live API up to the point of the account-level 403 above. Token/cost
-tracking exists only on the Groq path (`_log_real_cost` in
-`src/agent/providers.py`) — the LangChain and Gemini paths don't yet surface
-real usage numbers, a known gap rather than an oversight.
+the live API up to the point of the account-level 403 above. Token/cost tracking via `_log_real_cost` (`src/agent/providers.py`) now covers
+all three paths: Groq accumulates `response.usage` across every round of a
+multi-tool turn; LangChain extracts `response_metadata["token_usage"]` from each
+`ChatGroq` invoke; Gemini reads `response.usage_metadata` (populated when the
+API key has access). The LangGraph path inherits Groq-level tracking through its
+underlying Groq model calls.
 
 ## Retrieval evaluation
 

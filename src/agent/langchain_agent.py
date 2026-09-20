@@ -24,6 +24,7 @@ from src.tools.registry import call_tool
 from src.tools.client import OpsPerformanceUnavailable
 from src.agent.prompts import SYSTEM_PROMPT
 from src.agent.langchain_tools import build_langchain_tools
+from src.agent.providers import _log_real_cost
 from src.observability.logging_config import get_logger
 
 logger = get_logger("agent")
@@ -58,6 +59,8 @@ def run_agent_langchain(question: str, config: dict, client=None, history: list[
     max_rounds = config["max_tool_calls_per_turn"]
     turn_id = str(uuid.uuid4())[:8]
     turn_start = time.monotonic()
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
     logger.info("agent turn started", extra={"turn_id": turn_id, "provider": "langchain", "question_length": len(question)})
 
@@ -66,6 +69,12 @@ def run_agent_langchain(question: str, config: dict, client=None, history: list[
         ai_message: AIMessage = client.invoke(messages)
         api_call_duration_ms = round((time.monotonic() - api_call_start) * 1000, 1)
         messages.append(ai_message)
+        # langchain-groq surfaces usage in response_metadata["token_usage"] (OpenAI shape);
+        # newer LangChain versions also populate usage_metadata directly. Try both.
+        _um = getattr(ai_message, "usage_metadata", None) or {}
+        _tu = (ai_message.response_metadata or {}).get("token_usage", {})
+        total_prompt_tokens += _um.get("input_tokens") or _tu.get("prompt_tokens", 0)
+        total_completion_tokens += _um.get("output_tokens") or _tu.get("completion_tokens", 0)
 
         requested_tool_calls = ai_message.tool_calls or []
         logger.info(
@@ -78,6 +87,7 @@ def run_agent_langchain(question: str, config: dict, client=None, history: list[
 
         if not requested_tool_calls:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.info(
                 "agent turn complete",
                 extra={
@@ -88,10 +98,12 @@ def run_agent_langchain(question: str, config: dict, client=None, history: list[
             return AgentResponse(
                 answer=ai_message.content or "", tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls),
+                prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens,
             )
 
         if round_num == max_rounds:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.warning(
                 "agent turn hit tool-call budget",
                 extra={
@@ -107,6 +119,7 @@ def run_agent_langchain(question: str, config: dict, client=None, history: list[
                 ),
                 tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls), budget_exceeded=True,
+                prompt_tokens=total_prompt_tokens, completion_tokens=total_completion_tokens,
             )
 
         for tc in requested_tool_calls:

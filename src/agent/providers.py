@@ -307,6 +307,8 @@ def run_agent_gemini(question: str, config: dict, client=None, history: list[dic
     turn_id = str(uuid.uuid4())[:8]
     turn_start = time.monotonic()
     next_message = question
+    total_prompt_tokens = 0
+    total_completion_tokens = 0
 
     logger.info("agent turn started", extra={"turn_id": turn_id, "provider": "gemini", "question_length": len(question)})
 
@@ -314,6 +316,10 @@ def run_agent_gemini(question: str, config: dict, client=None, history: list[dic
         api_call_start = time.monotonic()
         response = client.send_message(next_message)
         api_call_duration_ms = round((time.monotonic() - api_call_start) * 1000, 1)
+        _um = getattr(response, "usage_metadata", None)
+        if _um is not None:
+            total_prompt_tokens += getattr(_um, "prompt_token_count", 0) or 0
+            total_completion_tokens += getattr(_um, "candidates_token_count", 0) or 0
 
         parts = response.candidates[0].content.parts
         function_calls = [p.function_call for p in parts if getattr(p, "function_call", None)]
@@ -329,6 +335,7 @@ def run_agent_gemini(question: str, config: dict, client=None, history: list[dic
 
         if not function_calls:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.info(
                 "agent turn complete",
                 extra={
@@ -339,10 +346,12 @@ def run_agent_gemini(question: str, config: dict, client=None, history: list[dic
             return AgentResponse(
                 answer=text, tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls),
+                prompt_tokens=total_prompt_tokens or None, completion_tokens=total_completion_tokens or None,
             )
 
         if round_num == max_rounds:
             tools_used = list(dict.fromkeys(tc.name for tc in tool_calls))
+            _log_real_cost(turn_id, config["model"], total_prompt_tokens, total_completion_tokens)
             logger.warning(
                 "agent turn hit tool-call budget",
                 extra={
@@ -358,6 +367,7 @@ def run_agent_gemini(question: str, config: dict, client=None, history: list[dic
                 ),
                 tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls), budget_exceeded=True,
+                prompt_tokens=total_prompt_tokens or None, completion_tokens=total_completion_tokens or None,
             )
 
         # Gemini expects every function_call in this turn answered with a matching
