@@ -1,7 +1,7 @@
 # RAG Design
 
 ## Corpus format: markdown + YAML frontmatter, not PDF
-The 4 synthetic policy documents (`data/documents/*.md`) are written as markdown with frontmatter
+The 10 synthetic policy documents (`data/documents/*.md`) are written as markdown with frontmatter
 (title, version, effective_date, department) rather than actual PDF/DOCX files. Chosen because:
 easy to author realistically, easy to diff/version in git, and the content is what matters for
 RAG quality -- format-parsing complexity (PDF layout extraction) would be solved problem overhead

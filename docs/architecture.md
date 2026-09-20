@@ -10,7 +10,7 @@
           operations-performance                  operations-assistant
         "understand the business"                "investigate the business"
                   |                                         |
-        BPI 2019 event log (real)                4 synthetic policy docs
+        BPI 2019 event log (real)                10 synthetic policy docs
         + synthetic business rules                         |
                   |                                    chunk -> embed
         ETL -> Postgres -> analytics/ML                Chroma (local)

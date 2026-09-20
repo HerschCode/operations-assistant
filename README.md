@@ -282,7 +282,8 @@ The LangChain path uses `ChatGroq.bind_tools()` driven by a manual `while` loop 
 | `get_management_report` | analytics.py | Finding → Evidence → Impact → Recommendation report from live data |
 | `predict_sla_risk` | prediction.py | SLA breach risk level and probability for a specific case ID |
 | `get_pipeline_status` | database.py | Recent data pipeline run status — confirms data is fresh before trusting a metric |
-| `search_policy_documents` | documents.py | Hybrid BM25 + semantic search over the 4 policy/SOP documents |
+| `get_conformance` | process.py | Share of cases that follow the expected activity sequence, and the deviation types found |
+| `search_policy_documents` | documents.py | Hybrid BM25 + semantic search (optionally cross-encoder reranked) over the 10 policy/SOP documents |
 
 ## Chunking strategy
 
