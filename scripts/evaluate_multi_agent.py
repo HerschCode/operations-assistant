@@ -17,10 +17,18 @@ Env: AGENT_PROVIDER=groq AGENT_MODEL=openai/gpt-oss-120b GROQ_API_KEY,
 Run: python -X utf8 -m scripts.evaluate_multi_agent
 """
 import json
+import os
 import sys
 import time
 from dataclasses import replace
 from pathlib import Path
+
+# Load .env so local runs don't need every key exported in the shell
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # CI / Docker environments already have vars set
 
 from src.agent.agent import load_agent_config, run_agent
 from src.agent.multi_agent import review_answer
@@ -44,18 +52,59 @@ def _retry(fn, attempts=4):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="Evaluate multi-agent Reviewer against 25 questions.")
+    ap.add_argument("--limit", type=int, default=None, metavar="N", help="Run only the first N questions (quota smoke-test).")
+    ap.add_argument("--start", type=int, default=0, metavar="N", help="Skip the first N questions (resume after a partial run).")
+    ap.add_argument("--resume", action="store_true", help="Load existing results from OUT and skip already-answered questions.")
+    args = ap.parse_args()
+
     sys.stdout.reconfigure(encoding="utf-8")
     config = load_agent_config()
-    questions = json.loads(QUESTIONS.read_text(encoding="utf-8"))
-    rows = []
-    for i, q in enumerate(questions):
+    all_questions = json.loads(QUESTIONS.read_text(encoding="utf-8"))
+
+    # --resume: load prior rows and skip questions already in the file
+    prior_rows: list[dict] = []
+    if args.resume and OUT.exists():
+        prior_data = json.loads(OUT.read_text(encoding="utf-8"))
+        prior_rows = prior_data.get("rows", [])
+        done_qs = {r["question"] for r in prior_rows}
+        questions_to_run = [q for q in all_questions if q["question"] not in done_qs]
+        print(f"Resuming: {len(prior_rows)} rows already done, {len(questions_to_run)} remaining.")
+    else:
+        questions_to_run = all_questions[args.start:]
+        if args.limit is not None:
+            questions_to_run = questions_to_run[:args.limit]
+
+    rows: list[dict] = list(prior_rows)
+
+    def _flush():
+        ok = [r for r in rows if "researcher_error" not in r]
+        verdicts = {v: sum(r["verdict"] == v for r in ok) for v in ("approve", "revise", "error")}
+        summary = {
+            "n_questions": len(all_questions), "n_attempted": len(rows), "n_completed": len(ok),
+            "verdicts": verdicts,
+            "answers_changed": sum(r["revised"] for r in ok),
+            "answers_with_ungrounded_numbers_draft": sum(bool(r["ungrounded_draft"]) for r in ok),
+            "answers_with_ungrounded_numbers_final": sum(bool(r["ungrounded_final"]) for r in ok),
+            "total_ungrounded_numbers_draft": sum(len(r["ungrounded_draft"]) for r in ok),
+            "total_ungrounded_numbers_final": sum(len(r["ungrounded_final"]) for r in ok),
+            "made_worse": [r["question"] for r in ok if len(r["ungrounded_final"]) > len(r["ungrounded_draft"])],
+        }
+        OUT.write_text(json.dumps(
+            {"config": {"provider": config.get("provider"), "model": config.get("model")},
+             "summary": summary, "rows": rows}, indent=2, ensure_ascii=False), encoding="utf-8")
+        return summary
+
+    for i, q in enumerate(questions_to_run):
         if i:
             time.sleep(8)
         try:
             draft = _retry(lambda: run_agent(q["question"]))
         except Exception as exc:  # noqa: BLE001
-            print(f"[{i+1}] researcher failed: {exc}")
+            print(f"[{len(rows)+1}] researcher failed: {exc}")
             rows.append({"question": q["question"], "category": q["category"], "researcher_error": str(exc)})
+            _flush()
             continue
         review, revised = _retry(lambda: review_answer(q["question"], draft, config))
         final_answer = revised if review.verdict == "revise" and revised else draft.answer
@@ -68,22 +117,11 @@ def main():
             "draft_answer": draft.answer, "final_answer": final_answer,
         }
         rows.append(row)
-        print(f"[{i+1}/{len(questions)}] ({q['category']}) verdict={review.verdict} "
+        _flush()
+        print(f"[{len(rows)}/{len(all_questions)}] ({q['category']}) verdict={review.verdict} "
               f"ungrounded {len(g_draft.ungrounded_numbers)}->{len(g_final.ungrounded_numbers)}")
 
-    ok = [r for r in rows if "researcher_error" not in r]
-    verdicts = {v: sum(r["verdict"] == v for r in ok) for v in ("approve", "revise", "error")}
-    summary = {
-        "n_questions": len(questions), "n_completed": len(ok), "verdicts": verdicts,
-        "answers_changed": sum(r["revised"] for r in ok),
-        "answers_with_ungrounded_numbers_draft": sum(bool(r["ungrounded_draft"]) for r in ok),
-        "answers_with_ungrounded_numbers_final": sum(bool(r["ungrounded_final"]) for r in ok),
-        "total_ungrounded_numbers_draft": sum(len(r["ungrounded_draft"]) for r in ok),
-        "total_ungrounded_numbers_final": sum(len(r["ungrounded_final"]) for r in ok),
-        "made_worse": [r["question"] for r in ok if len(r["ungrounded_final"]) > len(r["ungrounded_draft"])],
-    }
-    OUT.write_text(json.dumps({"config": {"provider": config.get("provider"), "model": config.get("model")},
-                               "summary": summary, "rows": rows}, indent=2, ensure_ascii=False), encoding="utf-8")
+    summary = _flush()
     print("\n" + json.dumps(summary, indent=2))
 
 
