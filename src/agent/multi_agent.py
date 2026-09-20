@@ -35,7 +35,7 @@ from src.observability.logging_config import get_logger
 
 logger = get_logger("agent.multi")
 
-MAX_EVIDENCE_CHARS_PER_TOOL = 1500
+MAX_EVIDENCE_CHARS_PER_TOOL = int(os.environ.get("REVIEWER_MAX_EVIDENCE_CHARS", "1500"))
 
 REVIEWER_SYSTEM_PROMPT = """You are an independent compliance reviewer for an operations assistant.
 You did NOT write the draft answer below and you have no access to how it was produced.

@@ -1,0 +1,245 @@
+{
+  "config": {
+    "provider": "groq",
+    "model": "openai/gpt-oss-120b"
+  },
+  "summary": {
+    "n_questions": 25,
+    "n_attempted": 14,
+    "n_completed": 11,
+    "verdicts": {
+      "approve": 7,
+      "revise": 3,
+      "error": 1
+    },
+    "answers_changed": 3,
+    "answers_with_ungrounded_numbers_draft": 6,
+    "answers_with_ungrounded_numbers_final": 6,
+    "total_ungrounded_numbers_draft": 28,
+    "total_ungrounded_numbers_final": 27,
+    "made_worse": []
+  },
+  "rows": [
+    {
+      "question": "What is the average procurement cycle time?",
+      "category": "data",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [
+        "2,393",
+        "99.7"
+      ],
+      "ungrounded_final": [
+        "2,393",
+        "99.7"
+      ],
+      "draft_answer": "The average (mean) procurement cycle time across all recent cases is **≈ 2,393 hours** (about 99.7 days)【get_cycle_time】.",
+      "final_answer": "The average (mean) procurement cycle time across all recent cases is **≈ 2,393 hours** (about 99.7 days)【get_cycle_time】."
+    },
+    {
+      "question": "Which supplier has the highest SLA breach rate?",
+      "category": "data",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [
+        "100"
+      ],
+      "ungrounded_final": [
+        "100"
+      ],
+      "draft_answer": "The supplier with the highest SLA breach rate is **vendorID_0387**, which has a breach rate of **100 %** (1.0) across its 5 orders【functions.get_supplier_performance】.",
+      "final_answer": "The supplier with the highest SLA breach rate is **vendorID_0387**, which has a breach rate of **100 %** (1.0) across its 5 orders【functions.get_supplier_performance】."
+    },
+    {
+      "question": "What are the current process bottlenecks?",
+      "category": "data",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [
+        "10",
+        "2.58",
+        "3,694",
+        "2.06",
+        "0.93",
+        "1,770",
+        "1,756",
+        "131",
+        "94",
+        "0.80",
+        "1,520",
+        "841",
+        "0.78",
+        "1,133",
+        "0.58",
+        "10",
+        "882",
+        "10"
+      ],
+      "ungrounded_final": [
+        "10",
+        "2.58",
+        "3,694",
+        "2.06",
+        "0.93",
+        "1,770",
+        "1,756",
+        "131",
+        "94",
+        "0.80",
+        "1,520",
+        "841",
+        "0.78",
+        "1,133",
+        "0.58",
+        "10",
+        "882",
+        "10"
+      ],
+      "draft_answer": "**Current Procure‑to‑Pay bottlenecks (top 10 stages by average delay)**  \n\n| Rank | Process stage (from → to) | Avg. delay (hrs) | Median delay (hrs) | % of total delay |\n|------|---------------------------|------------------|--------------------|------------------|\n| 1 | **Cancel Goods Receipt → Cancel Invoice Receipt** | **5,047 h** | 4,381 h | 2.58 % |\n| 2 | **Clear Invoice → SRM: In Transfer to Execution System** | 4,036 h | 3,694 h | 2.06 % |\n| 3 | **Vendor creates invoice → SRM: Created** | 1,816 h | 368 h | 0.93 % |\n| 4 | **Clear Invoice → Change Price** | 1,770 h | 196 h | 0.90 % |\n| 5 | **Vendor creates invoice → Create Purchase Order Item** | 1,756 h | 131 h | 0.90 % |\n| 6 | **Clear Invoice → Cancel Invoice Receipt** | 1,566 h | 94 h | 0.80 % |\n| 7 | **Clear Invoice → Cancel Subsequent Invoice** | 1,520 h | 841 h | 0.78 % |\n| 8 | **Clear Invoice → Vendor creates debit memo** | 1,133 h | 254 h | 0.58 % |\n| 9 | **Clear Invoice → SRM: Created** | 989 h | 561 h | 0.50 % |\n|10 | **Vendor creates invoice → Remove Payment Block** | 976 h | 882 h | 0.50 % |\n\n*Source: live bottleneck analysis returned by the **get_bottlenecks** function (average, median, and percent‑of‑total‑delay values for each stage).*\n\nThese stages represent the points in the Procure‑to‑Pay flow where cases are spending the most time, and together they account for roughly **10 % of the total process delay** across all cases. Prioritizing improvements (e.g., automation, staffing, or policy clarification) on the top‑ranked stages should yield the greatest reduction in overall cycle time.",
+      "final_answer": "**Current Procure‑to‑Pay bottlenecks (top 10 stages by average delay)**  \n\n| Rank | Process stage (from → to) | Avg. delay (hrs) | Median delay (hrs) | % of total delay |\n|------|---------------------------|------------------|--------------------|------------------|\n| 1 | **Cancel Goods Receipt → Cancel Invoice Receipt** | **5,047 h** | 4,381 h | 2.58 % |\n| 2 | **Clear Invoice → SRM: In Transfer to Execution System** | 4,036 h | 3,694 h | 2.06 % |\n| 3 | **Vendor creates invoice → SRM: Created** | 1,816 h | 368 h | 0.93 % |\n| 4 | **Clear Invoice → Change Price** | 1,770 h | 196 h | 0.90 % |\n| 5 | **Vendor creates invoice → Create Purchase Order Item** | 1,756 h | 131 h | 0.90 % |\n| 6 | **Clear Invoice → Cancel Invoice Receipt** | 1,566 h | 94 h | 0.80 % |\n| 7 | **Clear Invoice → Cancel Subsequent Invoice** | 1,520 h | 841 h | 0.78 % |\n| 8 | **Clear Invoice → Vendor creates debit memo** | 1,133 h | 254 h | 0.58 % |\n| 9 | **Clear Invoice → SRM: Created** | 989 h | 561 h | 0.50 % |\n|10 | **Vendor creates invoice → Remove Payment Block** | 976 h | 882 h | 0.50 % |\n\n*Source: live bottleneck analysis returned by the **get_bottlenecks** function (average, median, and percent‑of‑total‑delay values for each stage).*\n\nThese stages represent the points in the Procure‑to‑Pay flow where cases are spending the most time, and together they account for roughly **10 % of the total process delay** across all cases. Prioritizing improvements (e.g., automation, staffing, or policy clarification) on the top‑ranked stages should yield the greatest reduction in overall cycle time."
+    },
+    {
+      "question": "Show me the overall pipeline status.",
+      "category": "data",
+      "verdict": "revise",
+      "revised": true,
+      "issues": [
+        "The draft answer does not cite the source of the pipeline data."
+      ],
+      "review_error": null,
+      "ungrounded_draft": [],
+      "ungrounded_final": [],
+      "draft_answer": "**Recent pipeline runs (most recent 5)**  \n\n| Run ID | Started at (UTC) | Finished at (UTC) | Status | Rows raw | Rows cleaned | Cases processed | Notes |\n|-------|------------------|-------------------|--------|----------|--------------|----------------|-------|\n| 3 | 2026‑09‑07 12:34:48.862673 | 2026‑09‑07 12:36:35.067118 | **success** | 33 720 | 32 274 | 3 000 | – |\n| 2 | 2026‑09‑07 12:33:27.091116 | 2026‑09‑07 12:34:08.760577 | **failed** | – | – | – | Error: dependent objects prevent dropping `analytics.process_cases` (see full error in pipeline log). |\n| 1 | 2026‑09‑07 12:32:44.592953 | 2026‑09‑07 12:32:45.736466 | **failed** | – | – | – | Error: data‑contract violation – `purchase_order_id` and `item_id` have numeric types but should be string‑like. |\n\n**What this means**\n\n* The most recent run (run #3) completed successfully, ingesting 33 720 raw rows, cleaning 32 274 of them, and processing 3 000 procurement cases.  \n* The two prior runs failed due to schema‑related issues (run #1) and a database‑dependency problem (run #2).  \n\nIf you need the pipeline to be fully reliable, the failures should be addressed—particularly the data‑type mismatch and the table‑drop dependency error—so that future runs continue to succeed.",
+      "final_answer": "**Recent pipeline runs (most recent 3)**\n\n| Run ID | Started at (UTC) | Finished at (UTC) | Status | Rows raw | Rows cleaned | Cases processed | Notes |\n|-------|------------------|-------------------|--------|----------|--------------|----------------|-------|\n| 3 | 2026‑09‑07 12:34:48.862673 | 2026‑09‑07 12:36:35.067118 | **success** | 33 720 | 32 274 | 3 000 | – |\n| 2 | 2026‑09‑07 12:33:27.091116 | 2026‑09‑07 12:34:08.760577 | **failed** | – | – | – | Error: dependent objects prevent dropping `analytics.process_cases` (see full error in pipeline log). |\n| 1 | 2026‑09‑07 12:32:44.592953 | 2026‑09‑07 12:32:45.736466 | **failed** | – | – | – | Error: data‑contract violation – `purchase_order_id` and `item_id` have numeric types but should be string‑like. |\n\n*Source: output of `get_pipeline_status`*.\n\n**What this means**\n\n- The most recent run (run #3) completed successfully, ingesting **33 720** raw rows, cleaning **32 274** of them, and processing **3 000** procurement cases.\n- The two prior runs failed:\n  - Run #1 failed due to a data‑contract violation (numeric types where strings were expected).\n  - Run #2 failed because a table drop was blocked by dependent objects (see the error message).\n\nAddressing the data‑type mismatch and the table‑dependency issue will help ensure future runs succeed."
+    },
+    {
+      "question": "What is the SLA breach rate for orders over $50,000?",
+      "category": "data",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [
+        "$50,000"
+      ],
+      "ungrounded_final": [
+        "$50,000"
+      ],
+      "draft_answer": "The live SLA‑breach data currently only provides an overall rate. According to the latest operational metrics, the overall SLA breach rate across all orders is **93.8 %** (2814 breaches out of 3000 cases)【source: live SLA metrics – overall segment】.  \n\nThe system does not return a separate breach‑rate breakdown by order‑value range, so the specific SLA breach rate for orders **over $50,000** is not available in the current data set. If you need that detail, the data pipeline would need to be extended to capture order‑value segments, or you could request a custom report from the analytics team.",
+      "final_answer": "The live SLA‑breach data currently only provides an overall rate. According to the latest operational metrics, the overall SLA breach rate across all orders is **93.8 %** (2814 breaches out of 3000 cases)【source: live SLA metrics – overall segment】.  \n\nThe system does not return a separate breach‑rate breakdown by order‑value range, so the specific SLA breach rate for orders **over $50,000** is not available in the current data set. If you need that detail, the data pipeline would need to be extended to capture order‑value segments, or you could request a custom report from the analytics team."
+    },
+    {
+      "question": "What approval is required for a $15,000 purchase order?",
+      "category": "document",
+      "verdict": "revise",
+      "revised": true,
+      "issues": [
+        "The draft claims that a first‑level budget‑owner approval is required for a $15,000 PO, but the evidence only states that budget‑owner approval applies to purchase orders up to $10,000. It does not confirm that this approval is also required for amounts above $10,000."
+      ],
+      "review_error": null,
+      "ungrounded_draft": [
+        "$15,000",
+        "$10,000",
+        "$10,000,",
+        "$15,000"
+      ],
+      "ungrounded_final": [
+        "$15,000",
+        "$10,000",
+        "$10,000"
+      ],
+      "draft_answer": "A purchase order of **$15,000** falls into the “above $10,000” tier.\n\n- **First‑level approval** – the request must be approved by the budget owner of the requesting department (the standard approval for any PO).【citation: Procurement Policy, Section 4.1 Standard Approval】\n- **Second‑level (secondary) approval** – because the amount exceeds $10,000, a **Procurement‑leadership approval** is also required before the PO can be released to the supplier【citation: Procurement Policy, Section 4.2 Secondary Approval】.  \n\nThus, a $15,000 PO needs both the department budget‑owner sign‑off **and** an additional approval from Procurement leadership.",
+      "final_answer": "A purchase order of **$15,000** is above the $10,000 threshold, so according to the policy it requires a **second approval from Procurement leadership** before the order can be released to the supplier【citation: Procurement Policy, Section 4.2 Secondary Approval】. The provided evidence does not specify any additional approval steps for amounts above $10,000."
+    },
+    {
+      "question": "What is the escalation procedure when a supplier misses an SLA deadline?",
+      "category": "document",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [],
+      "ungrounded_final": [],
+      "draft_answer": "**Escalation procedure for a supplier SLA miss**\n\n1. **Determine if escalation is required**  \n   *A case is escalated only when the SLA breach exceeds 5 business days* (Procurement Escalation Procedure, Section 1 – “When to Escalate”). A single‑day breach is reported but does **not** trigger escalation automatically.\n\n2. **Escalation path**  \n   The case moves up the defined hierarchy, with each level given **2 business days** to respond before it is automatically forwarded to the next level (Procurement Escalation Procedure, Section 2 – “Escalation Path”):  \n\n   - **Requesting Department Manager** →  \n   - **Procurement Team Lead** →  \n   - **Operations Director**  \n\n3. **What escalation does not do**  \n   Escalation **does not bypass** any required approval steps in the Procurement Policy; it only accelerates attention to the stalled case (Procurement Escalation Procedure, Section 3).\n\n**In practice:**  \nWhen a supplier’s delivery exceeds the SLA by more than five business days, the responsible department manager is notified. If they do not resolve or provide a plan within two business days, the issue is automatically escalated to the Procurement Team Lead, and subsequently to the Operations Director if needed, ensuring senior leadership is aware and can intervene.",
+      "final_answer": "**Escalation procedure for a supplier SLA miss**\n\n1. **Determine if escalation is required**  \n   *A case is escalated only when the SLA breach exceeds 5 business days* (Procurement Escalation Procedure, Section 1 – “When to Escalate”). A single‑day breach is reported but does **not** trigger escalation automatically.\n\n2. **Escalation path**  \n   The case moves up the defined hierarchy, with each level given **2 business days** to respond before it is automatically forwarded to the next level (Procurement Escalation Procedure, Section 2 – “Escalation Path”):  \n\n   - **Requesting Department Manager** →  \n   - **Procurement Team Lead** →  \n   - **Operations Director**  \n\n3. **What escalation does not do**  \n   Escalation **does not bypass** any required approval steps in the Procurement Policy; it only accelerates attention to the stalled case (Procurement Escalation Procedure, Section 3).\n\n**In practice:**  \nWhen a supplier’s delivery exceeds the SLA by more than five business days, the responsible department manager is notified. If they do not resolve or provide a plan within two business days, the issue is automatically escalated to the Procurement Team Lead, and subsequently to the Operations Director if needed, ensuring senior leadership is aware and can intervene."
+    },
+    {
+      "question": "Under what conditions can a purchase order bypass the standard approval process?",
+      "category": "document",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [],
+      "ungrounded_final": [],
+      "draft_answer": "A purchase order may skip the normal requisition‑approval workflow only in **emergency‑purchase situations**:\n\n* **Production‑stopping shortage** – When a shortage threatens to halt production, the PO can be released with **verbal authorization from the department manager** instead of the usual written approvals.  \n* **Retroactive documentation** – The emergency purchase must be documented by filing a **Purchase Requisition within 2 business days** after the PO is issued.  \n* **Credit review still applies** – If the supplier meets the credit‑risk criteria defined in the Procurement Policy (Section 5), the PO is still subject to a **Manual Credit Review** before payment.\n\nThese conditions are outlined in the **Exception Handling Procedure, Section 2 – Emergency Purchases**. No other bypass provisions are described in the current policy corpus.",
+      "final_answer": "A purchase order may skip the normal requisition‑approval workflow only in **emergency‑purchase situations**:\n\n* **Production‑stopping shortage** – When a shortage threatens to halt production, the PO can be released with **verbal authorization from the department manager** instead of the usual written approvals.  \n* **Retroactive documentation** – The emergency purchase must be documented by filing a **Purchase Requisition within 2 business days** after the PO is issued.  \n* **Credit review still applies** – If the supplier meets the credit‑risk criteria defined in the Procurement Policy (Section 5), the PO is still subject to a **Manual Credit Review** before payment.\n\nThese conditions are outlined in the **Exception Handling Procedure, Section 2 – Emergency Purchases**. No other bypass provisions are described in the current policy corpus."
+    },
+    {
+      "question": "What are the SLA targets defined in our procurement policy?",
+      "category": "document",
+      "verdict": "approve",
+      "revised": false,
+      "issues": [],
+      "review_error": null,
+      "ungrounded_draft": [],
+      "ungrounded_final": [],
+      "draft_answer": "The procurement policy defines the internal service‑level targets for the Procure‑to‑Pay flow as follows:\n\n* **Standard purchase orders** – approval must be completed **within 5 business days** of the requisition being submitted.  \n* **High‑value orders** (those that trigger a secondary approval step) – approval must be completed **within 10 business days** of the requisition being submitted.  \n\nThese targets are stated in **Procurement Policy, Section 7 – Service Level Targets**【search_policy_documents results=0 citation=\"Procurement Policy, Section 7. Service Level Targets\"】.  \n\n(Other SLA‑related guidance, such as spend‑category targets, is outlined in the separate **SLA Policy** (e.g., “internal service‑level targets for procurement cycle time by spend category” – SLA Policy, Section 1), but the specific numeric approval‑time targets are those listed above in the procurement policy.)",
+      "final_answer": "The procurement policy defines the internal service‑level targets for the Procure‑to‑Pay flow as follows:\n\n* **Standard purchase orders** – approval must be completed **within 5 business days** of the requisition being submitted.  \n* **High‑value orders** (those that trigger a secondary approval step) – approval must be completed **within 10 business days** of the requisition being submitted.  \n\nThese targets are stated in **Procurement Policy, Section 7 – Service Level Targets**【search_policy_documents results=0 citation=\"Procurement Policy, Section 7. Service Level Targets\"】.  \n\n(Other SLA‑related guidance, such as spend‑category targets, is outlined in the separate **SLA Policy** (e.g., “internal service‑level targets for procurement cycle time by spend category” – SLA Policy, Section 1), but the specific numeric approval‑time targets are those listed above in the procurement policy.)"
+    },
+    {
+      "question": "How many business days does the procurement policy allow for invoice processing?",
+      "category": "document",
+      "verdict": "revise",
+      "revised": true,
+      "issues": [
+        "The draft answer does not address the question and claims a tool-call limit was reached, which is not supported by the evidence.",
+        "The evidence does not contain any information about invoice processing timelines, yet the draft does not explicitly state that the answer is unavailable."
+      ],
+      "review_error": null,
+      "ungrounded_draft": [],
+      "ungrounded_final": [],
+      "draft_answer": "I gathered some information but reached the tool-call limit for this question before I could fully answer it. Here's what I found so far, though it may be incomplete.",
+      "final_answer": "The provided policy documents do not specify a number of business days for invoice processing. The sections that are available discuss service‑level targets for purchase‑order approval (5 business days for standard orders and 10 business days for high‑value orders) and escalation timelines (2 business days per level), but none mention an invoice‑processing timeframe. Therefore, based on the evidence, the procurement policy’s allowed business days for invoice processing are not stated."
+    },
+    {
+      "question": "Why are high-value orders breaching SLA, and does our procurement policy explain the extra step?",
+      "category": "combined",
+      "verdict": "error",
+      "revised": false,
+      "issues": [],
+      "review_error": "RateLimitError: Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 198172, Requested 3191. Please try again in 9m48.816s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}",
+      "ungrounded_draft": [
+        "$10,000",
+        "80"
+      ],
+      "ungrounded_final": [
+        "$10,000",
+        "80"
+      ],
+      "draft_answer": "**Why high‑value orders are breaching SLA**\n\n1. **Extra approval step** – The Procurement Policy mandates a *secondary approval* for any purchase order > $10,000 (or flagged high‑risk). This step must be signed off by Procurement leadership before the order can be released to the supplier【citation: Procurement Policy, Section 4.2 Secondary Approval】.  \n\n2. **Longer SLA target** – Because of that extra step, the policy sets a longer approval‑to‑release target: **10 business days** for high‑value orders versus **5 business days** for standard orders【citation: Procurement Policy, Section 7 Service Level Targets】.  \n\n3. **Observed breach rates** – Current SLA metrics show breach rates well above 80 % across all categories (e.g., Packaging 97.9 %, CAPEX 96.7 %, Sales 85.7 %)【citation: SLA metrics by category】. While the data are not broken out by order value, the uniformly high breach rates indicate that many cases are exceeding even the relaxed 10‑day target, which is consistent with the added secondary‑approval delay.\n\n**Does the policy explain the extra step?**  \nYes. Section 4.2 of the Procurement Policy explicitly describes the secondary‑approval requirement for high‑value orders and notes that *“this is the primary source of processing delay for high‑value orders”*【citation: Procurement Policy, Section 4.2 Secondary Approval】. The same section is referenced in the policy’s SLA‑breach driver analysis, confirming that the extra step is recognized as a key factor in SLA performance.\n\n**Summary**  \nHigh‑value orders breach SLA because they must pass a secondary leadership approval, which adds processing time beyond the standard 5‑day target. The policy both defines this extra step and sets a longer 10‑day target for such orders, acknowledging it as a major source of delay. The current operational data (very high breach percentages) suggest that many high‑value orders are still exceeding even the extended target.",
+      "final_answer": "**Why high‑value orders are breaching SLA**\n\n1. **Extra approval step** – The Procurement Policy mandates a *secondary approval* for any purchase order > $10,000 (or flagged high‑risk). This step must be signed off by Procurement leadership before the order can be released to the supplier【citation: Procurement Policy, Section 4.2 Secondary Approval】.  \n\n2. **Longer SLA target** – Because of that extra step, the policy sets a longer approval‑to‑release target: **10 business days** for high‑value orders versus **5 business days** for standard orders【citation: Procurement Policy, Section 7 Service Level Targets】.  \n\n3. **Observed breach rates** – Current SLA metrics show breach rates well above 80 % across all categories (e.g., Packaging 97.9 %, CAPEX 96.7 %, Sales 85.7 %)【citation: SLA metrics by category】. While the data are not broken out by order value, the uniformly high breach rates indicate that many cases are exceeding even the relaxed 10‑day target, which is consistent with the added secondary‑approval delay.\n\n**Does the policy explain the extra step?**  \nYes. Section 4.2 of the Procurement Policy explicitly describes the secondary‑approval requirement for high‑value orders and notes that *“this is the primary source of processing delay for high‑value orders”*【citation: Procurement Policy, Section 4.2 Secondary Approval】. The same section is referenced in the policy’s SLA‑breach driver analysis, confirming that the extra step is recognized as a key factor in SLA performance.\n\n**Summary**  \nHigh‑value orders breach SLA because they must pass a secondary leadership approval, which adds processing time beyond the standard 5‑day target. The policy both defines this extra step and sets a longer 10‑day target for such orders, acknowledging it as a major source of delay. The current operational data (very high breach percentages) suggest that many high‑value orders are still exceeding even the extended target."
+    },
+    {
+      "question": "Which bottleneck stage do the SLA policy targets apply to most?",
+      "category": "combined",
+      "researcher_error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197938, Requested 2307. Please try again in 1m45.84s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+    },
+    {
+      "question": "Are we meeting the SLA targets for the approval stage specifically?",
+      "category": "combined",
+      "researcher_error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199256, Requested 2306. Please try again in 11m14.784s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+    },
+    {
+      "question": "Which supplier has the most bottleneck-related delays, and what does policy say about supplier escalation?",
+      "category": "combined",
+      "researcher_error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199021, Requested 1875. Please try again in 6m27.071999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+    }
+  ]
+}

@@ -36,7 +36,7 @@ from src.evaluation.evaluate_answers import check_groundedness
 
 ROOT = Path(__file__).parent.parent
 QUESTIONS = ROOT / "data/evaluation/agent_questions.json"
-OUT = ROOT / "data/evaluation/multi_agent_results.json"
+OUT = ROOT / os.environ.get("MULTI_AGENT_OUT", "data/evaluation/multi_agent_results.json")
 
 
 def _retry(fn, attempts=4):
