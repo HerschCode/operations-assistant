@@ -17,7 +17,7 @@ willing to say "insufficient data" rather than guess.
 |---|---|---|
 | Hybrid retrieval Hit@1 | **66.2%** | 130 in-scope questions over a 10-document corpus, section-level match, deployed config |
 | Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
-| Faithfulness gate pass rate | **89.7%** (at `t=0.5`) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
+| Faithfulness gate — avg faith of passing answers | **89.7%** (at `t=0.5`, 31.2% of in-domain answers pass) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
 | Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
 | Provider count | **5** | Anthropic, Groq, Gemini, LangChain, LangGraph — one interface |
 
