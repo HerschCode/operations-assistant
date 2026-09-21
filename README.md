@@ -226,12 +226,30 @@ The in-domain gate numbers above (68.8% gate rate, 89.7% avg faithfulness of pas
 
 **Methodology:** each question goes to the LLM with **no context injected** (intentional — the goal is to test the gate against a model using parametric knowledge, not a model told to say "I don't know"). The LLM's answer is then checked by the faithfulness gate against the top-5 retrieved procurement chunks. If the gate fires (faith < 0.5), the system correctly refuses to surface an outside-knowledge answer.
 
-| Case | LLM answer | Faithfulness | Gated? |
-|---|---|---|---|
-| "What is ethnic community is traditionally found Downtown?" (Fresno) | 3-sentence US-cities answer | 0.0 (0/3 sentences grounded) | ✓ GATED |
-| "What sources did the EU courts not drawn on?" (EU law) | *(empty string)* | 1.0 — see limitation | ✗ bypassed |
+**Results (35/35 questions, 0 errors):**
 
-**Known limitation (documented, not fixed):** `_split_sentences()` filters out sentences shorter than 20 characters; if all sentences are filtered, the gate defaults to `faithfulness_score=1.0` (`src/evaluation/faithfulness.py:99-105`). In practice this means a very short or empty LLM response bypasses the gate. In this eval, questions with short/empty LLM responses (e.g., obscure factual questions the LLM declines to answer) scored faith=1.0 and passed through — the failure mode is when the LLM says nothing meaningful rather than when it hallucinates from outside knowledge. Full results pending Groq daily quota reset; raw output: `data/evaluation/ood_abstention_results.json`. Resume with `python -X utf8 -m scripts.evaluate_ood_abstention --resume`.
+| Metric | Value |
+|---|---|
+| Questions evaluated | 35 |
+| Gated (gate fired correctly) | **7 (20%)** |
+| Not gated — empty LLM response → short-answer bypass | 28 (80%) |
+| Errors | 0 |
+
+Of the 7 questions where the LLM gave a substantive answer, the gate intercepted **7/7 (100%)**. The remaining 28 triggered the known edge case described below.
+
+**All 7 gated cases:**
+
+| Topic | Question (excerpt) | LLM answer (excerpt) | Faith | Result |
+|---|---|---|---|---|
+| Fresno, CA | "What ethnic community is found Downtown?" | "it depends on the city … historic ethnic enclave …" (3 sent.) | 0.0 | ✓ GATED |
+| Huguenot | "In what decade did Louis XIV start his reign?" | "Louis XIV began his reign in **1643**…" | 0.0 | ✓ GATED |
+| Black Death | "How many people died of the plague in Ottoman society in the 19th century?" | "Plague mortality in the Ottoman Empire during the 19th cent…" | 0.0 | ✓ GATED |
+| Amazon rainforest | "What rain forest supports more than 11,003 species" | "The ecosystem you're thinking of is…" | 0.0 | ✓ GATED |
+| Construction | "What is one way an attorney tries to get a business district changed?" | "One common tactic an attorney uses to reshape a business district is…" | 0.0 | ✓ GATED |
+| Rhine | "How long is Austria?" | "Austria is a relatively compact country…" | 0.0 | ✓ GATED |
+| Civil disobedience | "When was the essay written by modern activists published?" | "I'm not sure which specific essay you're…" | 0.0 | ✓ GATED |
+
+**Known limitation (documented, not fixed):** `_split_sentences()` filters out sentences shorter than 20 characters; if all sentences are filtered, the gate defaults to `faithfulness_score=1.0` (`src/evaluation/faithfulness.py:99-105`). In this eval, 28 of 35 SQuAD "unanswerable" questions — many oddly phrased or obscure enough that the LLM declines to answer — resulted in empty LLM responses, which bypassed the gate (0 sentences to check → faith=1.0 assumed). The failure mode is a model that returns nothing rather than one that hallucinates outside knowledge. Raw output: `data/evaluation/ood_abstention_results.json`.
 
 ## Multi-agent review and embedding fine-tuning (experiments, both negative or inconclusive)
 

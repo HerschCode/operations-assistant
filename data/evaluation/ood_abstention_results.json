@@ -2,12 +2,154 @@
   "summary": {
     "dataset": "SQuAD 2.0 validation — unanswerable (is_impossible=True)",
     "n_questions": 35,
-    "n_evaluated_so_far": 3,
-    "n_errors_so_far": 1,
-    "n_gated_so_far": 1,
-    "abstention_rate_so_far": 0.3333,
+    "n_evaluated": 35,
+    "n_errors": 0,
+    "n_gated": 7,
+    "abstention_rate": 0.2,
     "gate_threshold": 0.5,
-    "status": "in_progress"
+    "llm_prompt": "unconstrained (no context injected — tests gate, not LLM refusal)",
+    "topic_breakdown": {
+      "European_Union_law": {
+        "total": 1,
+        "gated": 0
+      },
+      "Fresno,_California": {
+        "total": 1,
+        "gated": 1
+      },
+      "Harvard_University": {
+        "total": 1,
+        "gated": 0
+      },
+      "Huguenot": {
+        "total": 1,
+        "gated": 1
+      },
+      "Imperialism": {
+        "total": 1,
+        "gated": 0
+      },
+      "Economic_inequality": {
+        "total": 1,
+        "gated": 0
+      },
+      "Scottish_Parliament": {
+        "total": 1,
+        "gated": 0
+      },
+      "Pharmacy": {
+        "total": 1,
+        "gated": 0
+      },
+      "Intergovernmental_Panel_on_Climate_Change": {
+        "total": 1,
+        "gated": 0
+      },
+      "Yuan_dynasty": {
+        "total": 1,
+        "gated": 0
+      },
+      "Black_Death": {
+        "total": 1,
+        "gated": 1
+      },
+      "Amazon_rainforest": {
+        "total": 1,
+        "gated": 1
+      },
+      "Ctenophora": {
+        "total": 1,
+        "gated": 0
+      },
+      "Prime_number": {
+        "total": 1,
+        "gated": 0
+      },
+      "1973_oil_crisis": {
+        "total": 1,
+        "gated": 0
+      },
+      "Private_school": {
+        "total": 1,
+        "gated": 0
+      },
+      "Islamism": {
+        "total": 1,
+        "gated": 0
+      },
+      "Steam_engine": {
+        "total": 1,
+        "gated": 0
+      },
+      "Immune_system": {
+        "total": 1,
+        "gated": 0
+      },
+      "Normans": {
+        "total": 1,
+        "gated": 0
+      },
+      "French_and_Indian_War": {
+        "total": 1,
+        "gated": 0
+      },
+      "Packet_switching": {
+        "total": 1,
+        "gated": 0
+      },
+      "Construction": {
+        "total": 1,
+        "gated": 1
+      },
+      "Southern_California": {
+        "total": 1,
+        "gated": 0
+      },
+      "Warsaw": {
+        "total": 1,
+        "gated": 0
+      },
+      "Rhine": {
+        "total": 1,
+        "gated": 1
+      },
+      "Jacksonville,_Florida": {
+        "total": 1,
+        "gated": 0
+      },
+      "Sky_(United_Kingdom)": {
+        "total": 1,
+        "gated": 0
+      },
+      "University_of_Chicago": {
+        "total": 1,
+        "gated": 0
+      },
+      "Victoria_(Australia)": {
+        "total": 1,
+        "gated": 0
+      },
+      "Force": {
+        "total": 1,
+        "gated": 0
+      },
+      "Geology": {
+        "total": 1,
+        "gated": 0
+      },
+      "Civil_disobedience": {
+        "total": 1,
+        "gated": 1
+      },
+      "Computational_complexity_theory": {
+        "total": 1,
+        "gated": 0
+      },
+      "Oxygen": {
+        "total": 1,
+        "gated": 0
+      }
+    }
   },
   "rows": [
     {
@@ -29,13 +171,296 @@
       "n_grounded": 0
     },
     {
-      "question": "In what decade did Louis XIV start his reign?",
-      "topic": "Huguenot",
-      "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m1xw85w2eb6semexa1sh7wek` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199829, Requested 337. Please try again in 1m11.712s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
-    },
-    {
       "question": "What is the name of the bridge over the Longwood Medical and Academic area?",
       "topic": "Harvard_University",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "In what decade did Louis XIV start his reign?",
+      "topic": "Huguenot",
+      "parametric_answer": "Louis XIV began his reign in **1643**, which places the start of his rule in",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": " What weapons were the Zulus using during the Anglo-Zulu War of 1880?",
+      "topic": "Imperialism",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "When there are many workers competing for a many jobs its considered as what?",
+      "topic": "Economic_inequality",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What complex features flower-shaped buildings?",
+      "topic": "Scottish_Parliament",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "Where are clinical pharmacists not allowed to work with patients?",
+      "topic": "Pharmacy",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What year did more than 375 officials attend the IPCC Bureau session?",
+      "topic": "Intergovernmental_Panel_on_Climate_Change",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": " What religions did Tugh Temur reject?",
+      "topic": "Yuan_dynasty",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "How many people died of the plague in Ottoman society in the 19th century?",
+      "topic": "Black_Death",
+      "parametric_answer": "**Plague mortality in the Ottoman Empire during the 19th cent",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": "What rain forced supports more than 11,003 species",
+      "topic": "Amazon_rainforest",
+      "parametric_answer": "The ecosystem you’re thinking of is",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": "How many species of Cestida were found in 1985?",
+      "topic": "Ctenophora",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "In the Great Internet Mersenne Prime Search hat was the prize for finding a prime with at least 150,000 digits?",
+      "topic": "Prime_number",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What did Israel and Syria do to avoid being targeted by the boycott?",
+      "topic": "1973_oil_crisis",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What was abolished during the apartheid era?",
+      "topic": "Private_school",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "How did the Islamic Group's campaign to support the government turn out?",
+      "topic": "Islamism",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "High pressure power sources were small enough that they could be used in what application?",
+      "topic": "Steam_engine",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is an example of a chemical barrier?",
+      "topic": "Immune_system",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "Who married Cnut the Great?",
+      "topic": "Normans",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What territory wasn't ceded to Britain?",
+      "topic": "French_and_Indian_War",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "Who had influenced ARPANET?",
+      "topic": "Packet_switching",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is one way an attorney tries to get a business district changed?",
+      "topic": "Construction",
+      "parametric_answer": "One common tactic an attorney uses to reshape a business district is **",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": "What type of club is the Southern California Automobile Club?",
+      "topic": "Southern_California",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What was a major failure, especially in the building of Warsaw?",
+      "topic": "Warsaw",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "How long is Austria?",
+      "topic": "Rhine",
+      "parametric_answer": "Austria is a relatively compact country",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": "What cities 340 km from Jacksonville?",
+      "topic": "Jacksonville,_Florida",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "When was NTL Telewest rebranded from Virgin Media?",
+      "topic": "Sky_(United_Kingdom)",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "Who governs the University of Zimmer?",
+      "topic": "University_of_Chicago",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "How many narrow gauge rail lines were built before 1900?",
+      "topic": "Victoria_(Australia)",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is now described by the Newtonian equations?",
+      "topic": "Force",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What did the theory regarding the San Andreas fault do?",
+      "topic": "Geology",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "When was the essay written by modern activists published?",
+      "topic": "Civil_disobedience",
+      "parametric_answer": "I’m not sure which specific essay you’re",
+      "faithfulness_score": 0.0,
+      "gated": true,
+      "n_sentences": 1,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is the name of the alphabet that is rarely used in a problem instance?",
+      "topic": "Computational_complexity_theory",
+      "parametric_answer": "",
+      "faithfulness_score": 1.0,
+      "gated": false,
+      "n_sentences": 0,
+      "n_grounded": 0
+    },
+    {
+      "question": "What is difficult with a satellite-to-noise ratio?",
+      "topic": "Oxygen",
       "parametric_answer": "",
       "faithfulness_score": 1.0,
       "gated": false,
