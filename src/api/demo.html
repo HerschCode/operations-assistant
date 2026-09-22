@@ -271,6 +271,50 @@
   .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transition: background 0.3s; }
   .dot.used { background: var(--border); }
 
+  /* ── Notice bar ── */
+  .notice-bar {
+    width: 100%; background: color-mix(in srgb, var(--warn) 10%, var(--panel));
+    border-bottom: 1px solid color-mix(in srgb, var(--warn) 30%, var(--border));
+    padding: 6px 20px; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; font-size: 0.73rem; color: var(--muted);
+  }
+  .notice-bar.hidden { display: none; }
+  .notice-bar-text { flex: 1; }
+  .notice-bar-text strong { color: var(--warn); }
+  .notice-dismiss {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 1rem; padding: 0 4px; line-height: 1; flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .notice-dismiss:hover { color: var(--text); }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed; bottom: 20px; right: 20px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 1000; max-width: 360px;
+  }
+  .toast {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 11px 14px; border-radius: 10px; font-size: 0.81rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4); line-height: 1.5;
+    animation: toast-in 0.2s ease;
+  }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .toast-quota {
+    background: #2b1f0f; border: 1px solid #7a4e10; color: #f5c270;
+  }
+  .toast-rate {
+    background: #1a2535; border: 1px solid #2d4a72; color: #8ab4f8;
+  }
+  .toast-body { flex: 1; }
+  .toast-title { font-weight: 700; margin-bottom: 3px; }
+  .toast-close {
+    background: none; border: none; color: inherit; opacity: 0.6;
+    cursor: pointer; font-size: 1rem; padding: 0; line-height: 1; flex-shrink: 0;
+  }
+  .toast-close:hover { opacity: 1; }
+
   footer {
     color: var(--muted); font-size: 0.74rem; text-align: center; line-height: 1.7;
     padding-top: 2px;
@@ -305,6 +349,15 @@
     <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
     <a class="github-link" href="https://github.com/HerschCode/operations-assistant" target="_blank" rel="noopener">GitHub ↗</a>
   </div>
+</div>
+
+<!-- Quota / free-tier notice bar -->
+<div class="notice-bar" id="noticeBar">
+  <span class="notice-bar-text">
+    <strong>Free-tier demo</strong> — runs on Groq's free tier: <strong>5 questions / 10 min</strong> per visitor.
+    If you see a <em>"provider rate-limited"</em> error, the daily token quota may be exhausted — try again after midnight UTC.
+  </span>
+  <button class="notice-dismiss" id="noticeDismiss" title="Dismiss notice" aria-label="Dismiss notice">×</button>
 </div>
 
 <div class="outer">
@@ -718,7 +771,12 @@ async function askBatch(question, pair) {
     const data = await res.json();
     const elapsed = Date.now() - t0;
     thinking.remove();
-    if (!res.ok) { addAssistantMsg(pair, data.detail || 'Something went wrong.', 'error'); return; }
+    if (!res.ok) {
+      const detail = data.detail || 'Something went wrong.';
+      addAssistantMsg(pair, detail, 'error');
+      handleApiError(detail, res.status);
+      return;
+    }
     const answerEl = addAssistantMsg(pair, data.answer, 'assistant');
     addReasoningTrace(answerEl, data.tools_used);
     addCitations(answerEl, data.citations);
@@ -767,7 +825,9 @@ function askStream(question, pair) {
       } else if (event.type === 'error') {
         es.close();
         thinking.remove();
-        addAssistantMsg(pair, event.detail || 'Something went wrong.', 'error');
+        const detail = event.detail || 'Something went wrong.';
+        addAssistantMsg(pair, detail, 'error');
+        handleApiError(detail, null);
         resolve();
       }
     };
@@ -821,6 +881,46 @@ document.querySelectorAll('.chip').forEach(btn => {
 
 // ── Init ──
 updateRateCounter();
+
+// ── Notice bar dismiss ──
+document.getElementById('noticeDismiss').addEventListener('click', () => {
+  document.getElementById('noticeBar').classList.add('hidden');
+  try { sessionStorage.setItem('noticeDismissed', '1'); } catch {}
+});
+try { if (sessionStorage.getItem('noticeDismissed')) document.getElementById('noticeBar').classList.add('hidden'); } catch {}
+
+// ── Toast helper ──
+function showToast(title, body, type = 'quota', duration = 10000) {
+  const ct = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div>${body}</div>
+    </div>
+    <button class="toast-close" title="Dismiss">×</button>`;
+  t.querySelector('.toast-close').onclick = () => t.remove();
+  ct.appendChild(t);
+  if (duration > 0) setTimeout(() => t.remove(), duration);
+}
+
+function handleApiError(detail, statusCode) {
+  if (!detail) return;
+  if (detail.includes('provider is temporarily rate-limited') || detail.includes('rate-limited')) {
+    showToast(
+      '⚠ Provider rate-limited',
+      'The Groq free-tier may have hit its daily token quota (resets midnight UTC), or a short-term rate limit. ' +
+      'Try again in a few seconds — if it persists until tomorrow, the daily quota is exhausted.',
+      'quota', 15000
+    );
+  } else if (detail.includes('Demo rate limit')) {
+    showToast('⏱ Demo limit', '5 questions per 10 minutes per visitor. Try again shortly.', 'rate', 8000);
+  }
+}
 </script>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
 </body>
 </html>

@@ -16,9 +16,11 @@ This tests the core claim: the gate catches answers that don't come from
 the source documents, not just answers where the LLM admits ignorance.
 
 Run:
-    python -X utf8 -m scripts.evaluate_ood_abstention [--n 50]
+    python -X utf8 -m scripts.evaluate_ood_abstention [--n 50] [--provider groq|gemini]
 
-Requires: GROQ_API_KEY; `pip install datasets` (HuggingFace).
+Requires: GROQ_API_KEY (default) or GOOGLE_API_KEY (--provider gemini);
+`pip install datasets` (HuggingFace).
+Use --provider gemini when the Groq daily quota is exhausted (resets midnight UTC).
 Results: data/evaluation/ood_abstention_results.json
 """
 import argparse
@@ -36,6 +38,7 @@ load_dotenv()
 
 OUT = REPO_ROOT / "data" / "evaluation" / "ood_abstention_results.json"
 GROQ_MODEL = "openai/gpt-oss-120b"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 
 def _save(rows: list[dict], questions: list[dict]) -> None:
@@ -85,11 +88,21 @@ def _load_squad_unanswerable(n: int) -> list[dict]:
     return sampled
 
 
-def _ask_groq_unconstrained(question: str) -> str:
+def _ask_llm_unconstrained(question: str, provider: str = "groq") -> str:
     """Answer question from parametric knowledge — no retrieval context injected.
     This is intentional: we want to measure whether the faithfulness gate catches
     answers that use outside knowledge, not answers where the LLM says 'I don't know'
-    because we told it to stick to context."""
+    because we told it to stick to context.
+
+    Use provider='gemini' when the Groq daily free-tier quota is exhausted."""
+    if provider == "gemini":
+        import google.generativeai as genai
+        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+        model = genai.GenerativeModel(GEMINI_MODEL)
+        resp = model.generate_content(question,
+                                      generation_config={"max_output_tokens": 80, "temperature": 0})
+        return resp.text.strip()
+    # default: groq
     from groq import Groq
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     resp = client.chat.completions.create(
@@ -119,6 +132,9 @@ def main():
                     help="Number of SQuAD unanswerable questions to evaluate (default 50).")
     ap.add_argument("--resume", action="store_true",
                     help="Continue from an existing partial results file (skips already-evaluated questions).")
+    ap.add_argument("--provider", choices=["groq", "gemini"], default="groq",
+                    help="LLM provider for unconstrained answers (default: groq). "
+                         "Use --provider gemini when the Groq daily quota is exhausted (resets midnight UTC).")
     args = ap.parse_args()
 
     sys.stdout.reconfigure(encoding="utf-8")
@@ -142,12 +158,12 @@ def main():
             print(f"[{i+1}/{len(questions)}] skip (done): {q['question'][:60]}")
             continue
         if rows:
-            time.sleep(5)  # stay within Groq free-tier rate limit (only between actual API calls)
+            time.sleep(3 if args.provider == "gemini" else 5)  # rate-limit pause between API calls
         print(f"[{i+1}/{len(questions)}] {q['context_topic']:30} {q['question'][:60]}")
 
         # Step 1: get an unconstrained LLM answer (uses parametric knowledge)
         try:
-            parametric_answer = _retry(lambda: _ask_groq_unconstrained(q["question"]))
+            parametric_answer = _retry(lambda: _ask_llm_unconstrained(q["question"], args.provider))
         except Exception as exc:
             print(f"  LLM failed: {exc}")
             rows.append({"question": q["question"], "topic": q["context_topic"],
