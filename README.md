@@ -17,7 +17,7 @@ willing to say "insufficient data" rather than guess.
 |---|---|---|
 | Hybrid retrieval Hit@1 | **66.2%** | 130 in-scope questions over a 10-document corpus, section-level match, deployed config |
 | Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
-| Faithfulness gate — avg faith of passing answers | **89.7%** (at `t=0.5`, 31.2% of in-domain answers pass) | NLI scoring via `cross-encoder/nli-deberta-v3-small` |
+| Faithfulness gate — avg faith of passing answers | **89.7%** (at `t=0.5`, 34% of in-domain answers pass; 100% of OOD questions gated) | NLI scoring via `cross-encoder/nli-deberta-v3-small`; see calibration analysis below |
 | Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
 | Provider count | **5** | Anthropic, Groq, Gemini, LangChain, LangGraph — one interface |
 
@@ -208,15 +208,18 @@ result = grounded_answer(question, llm_fn, top_k=5)
 
 **How it works:** `grounded_answer()` runs `reranked_search` → LLM generation → NLI faithfulness scoring. If `faithfulness_score < threshold`, returns `INSUFFICIENT_DATA_MSG` instead of the LLM's answer. This directly addresses the paraphrase 0% finding — paraphrase-intent questions now return "The retrieved documents do not contain sufficient information" rather than a hallucinated answer.
 
-**The precision/coverage tradeoff at each threshold** — real numbers from `scripts/evaluate_grounded_gate.py` (32 questions, openai/gpt-oss-120b, `data/evaluation/grounded_gate_results.json`):
+**Gate calibration** (`scripts/calibrate_gate.py`, `data/evaluation/gate_calibration_results.json`) — labeled set: 32 in-domain questions (should NOT be gated) + 35 SQuAD OOD questions (should be gated):
 
-| Threshold | Gate rate | Coverage | Avg faith (passing) |
-|---|---|---|---|
-| `t=0.3` | 68.8% | 31.2% | 89.7% |
-| `t=0.5` (recommended) | 68.8% | 31.2% | 89.7% |
-| `t=0.7` | 75.0% | 25.0% | 97.5% |
+| Threshold | In-domain coverage | OOD rejection |
+|---|---|---|
+| `t=0.00` | **100%** | 0% |
+| `t=0.05` (recommended) | 37.5% | **100%** |
+| `t=0.50` (default) | 34.4% | **100%** |
+| `t=1.00` | 28.1% | **100%** |
 
-Per-category at `t=0.5`: paraphrase 0% faithfulness → 5/5 gated; numerical 16.7% → 5/6 gated; policy_interpretation 50% → 3/6 gated; multi_hop 36% → 3/5 gated. The high overall gate rate (68.8%) reflects that the LLM's answers frequently paraphrase or extend beyond the retrieved chunks — faithfulness scoring is deliberately strict. Answers that clear the gate average 89.7% faithfulness.
+**Finding:** threshold tuning barely moves coverage (37.5% → 28.1% across the full range). The root cause is NLI domain mismatch: the `deberta` model trained on MNLI/SNLI/FEVER produces a bimodal score distribution on procurement text — 67% of in-domain answer sentences score `max_entailment < 0.05`, with almost none in the 0.05–0.5 range. The gate is reliable for OOD rejection but over-aggressive for in-domain recall at any threshold above 0. Fixing coverage properly would require either (a) a procurement-domain fine-tuned NLI model, or (b) a different gate strategy (e.g., chunk citation check).
+
+Per-category at `t=0.5`: paraphrase 0% faithfulness → 5/5 gated; numerical 16.7% → 5/6 gated; policy_interpretation 50% → 3/6 gated; multi_hop 36% → 3/5 gated.
 
 `GROUNDED_GATE_ENABLED=false` disables the gate for A/B comparison or torch-free deploys where NLI isn't available.
 
@@ -226,16 +229,17 @@ The in-domain gate numbers above (68.8% gate rate, 89.7% avg faithfulness of pas
 
 **Methodology:** each question goes to the LLM with **no context injected** (intentional — the goal is to test the gate against a model using parametric knowledge, not a model told to say "I don't know"). The LLM's answer is then checked by the faithfulness gate against the top-5 retrieved procurement chunks. If the gate fires (faith < 0.5), the system correctly refuses to surface an outside-knowledge answer.
 
-**Results (35/35 questions, 0 errors):**
+**Results (35/35 questions, 0 errors) — after empty-response bug fix:**
 
 | Metric | Value |
 |---|---|
 | Questions evaluated | 35 |
-| Gated (gate fired correctly) | **7 (20%)** |
-| Not gated — empty LLM response → short-answer bypass | 28 (80%) |
+| Gated (gate fired correctly) | **35 (100%)** |
+| Gated via NLI faithfulness < 0.5 | 7 (20%) |
+| Gated via empty-response fix (n_sentences=0 → faith=0.0) | 28 (80%) |
 | Errors | 0 |
 
-Of the 7 questions where the LLM gave a substantive answer, the gate intercepted **7/7 (100%)**. The remaining 28 triggered the known edge case described below.
+**Before the bug fix**, the gate reported only 7/35 (20%) because `_split_sentences()` filters sub-20-char fragments; empty LLM responses produced 0 sentences, and the original code defaulted `faithfulness_score=1.0` for the empty case (no sentences to check = "fully faithful"). This was wrong: an empty response should be gated, not treated as passing. The fix (`src/evaluation/faithfulness.py`, empty case now returns `faithfulness_score=0.0`) corrects all 28 cases. See `data/evaluation/gate_calibration_results.json` for the full pre/post comparison.
 
 **All 7 gated cases:**
 
@@ -249,7 +253,7 @@ Of the 7 questions where the LLM gave a substantive answer, the gate intercepted
 | Rhine | "How long is Austria?" | "Austria is a relatively compact country…" | 0.0 | ✓ GATED |
 | Civil disobedience | "When was the essay written by modern activists published?" | "I'm not sure which specific essay you're…" | 0.0 | ✓ GATED |
 
-**Known limitation (documented, not fixed):** `_split_sentences()` filters out sentences shorter than 20 characters; if all sentences are filtered, the gate defaults to `faithfulness_score=1.0` (`src/evaluation/faithfulness.py:99-105`). In this eval, 28 of 35 SQuAD "unanswerable" questions — many oddly phrased or obscure enough that the LLM declines to answer — resulted in empty LLM responses, which bypassed the gate (0 sentences to check → faith=1.0 assumed). The failure mode is a model that returns nothing rather than one that hallucinates outside knowledge. Raw output: `data/evaluation/ood_abstention_results.json`.
+**Empty-response bypass — fixed:** `_split_sentences()` filters sub-20-char fragments; if all sentences are filtered, the original code defaulted `faithfulness_score=1.0` (`src/evaluation/faithfulness.py:99`). Fixed: the empty case now returns `faithfulness_score=0.0` so the gate fires. Raw output: `data/evaluation/ood_abstention_results.json`.
 
 **Reproducing / Groq free-tier quota:** the script makes one Groq LLM call per question and writes results incrementally after each one. If the daily token limit is hit mid-run, re-run with `--resume` the next day — it reads the existing results file and skips already-completed questions:
 ```

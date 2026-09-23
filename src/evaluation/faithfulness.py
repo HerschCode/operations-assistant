@@ -97,8 +97,10 @@ def score_faithfulness(answer: str, retrieved_chunks: list[str]) -> Faithfulness
 
     sentences = _split_sentences(answer)
     if not sentences:
+        # Empty or sub-20-char answer: gate it rather than treating as "fully faithful".
+        # An answer with nothing to check should not pass a faithfulness gate.
         return FaithfulnessResult(
-            faithfulness_score=1.0,
+            faithfulness_score=0.0,
             contradiction_rate=0.0,
             backend_used="nli",
             n_sentences=0,
@@ -140,7 +142,7 @@ def score_faithfulness(answer: str, retrieved_chunks: list[str]) -> Faithfulness
         n = len(sentences)
 
         return FaithfulnessResult(
-            faithfulness_score=round(n_grounded / n, 3) if n else 1.0,
+            faithfulness_score=round(n_grounded / n, 3) if n else 0.0,
             contradiction_rate=round(n_contradicted / n, 3) if n else 0.0,
             sentence_scores=sentence_results,
             backend_used="nli",

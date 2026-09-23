@@ -1,0 +1,305 @@
+{
+  "n_indomain": 32,
+  "n_ood": 35,
+  "recommended_threshold": 0.05,
+  "bug_fix_note": "OOD scores corrected post-hoc: 28 rows with n_sentences==0 reassigned faithfulness_score=0.0 (reflects the fix to faithfulness.py)",
+  "finding": "NLI gate is miscalibrated for procurement text. At threshold=0.5 (default): 34.4% coverage, 100.0% OOD rejection (after bug fix). Root cause: deberta NLI domain mismatch — 67% of in-domain answer sentences score max_entailment<0.05. The score distribution is bimodal; threshold tuning has limited effect.",
+  "threshold_table": [
+    {
+      "threshold": 0.0,
+      "coverage": 1.0,
+      "ood_rejection": 0.0,
+      "n_indomain_answered": 32,
+      "n_ood_gated": 0
+    },
+    {
+      "threshold": 0.05,
+      "coverage": 0.375,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.1,
+      "coverage": 0.375,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.15,
+      "coverage": 0.375,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.2,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.25,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.3,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.35,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.4,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.45,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.5,
+      "coverage": 0.3438,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.55,
+      "coverage": 0.3125,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 10,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.6,
+      "coverage": 0.3125,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 10,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.65,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.7,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.75,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.8,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.85,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.9,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 0.95,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    },
+    {
+      "threshold": 1.0,
+      "coverage": 0.2812,
+      "ood_rejection": 1.0,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 35
+    }
+  ],
+  "threshold_table_bugged_ood": [
+    {
+      "threshold": 0.0,
+      "coverage": 1.0,
+      "ood_rejection": 0.0,
+      "n_indomain_answered": 32,
+      "n_ood_gated": 0
+    },
+    {
+      "threshold": 0.05,
+      "coverage": 0.375,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.1,
+      "coverage": 0.375,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.15,
+      "coverage": 0.375,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 12,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.2,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.25,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.3,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.35,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.4,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.45,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.5,
+      "coverage": 0.3438,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 11,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.55,
+      "coverage": 0.3125,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 10,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.6,
+      "coverage": 0.3125,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 10,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.65,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.7,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.75,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.8,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.85,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.9,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 0.95,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    },
+    {
+      "threshold": 1.0,
+      "coverage": 0.2812,
+      "ood_rejection": 0.2,
+      "n_indomain_answered": 9,
+      "n_ood_gated": 7
+    }
+  ]
+}
