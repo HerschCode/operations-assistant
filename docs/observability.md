@@ -37,12 +37,40 @@ Fixed by testing against `capsys` (raw stdout capture) instead, parsing the JSON
 which is actually the more honest test anyway, since raw stdout is exactly where these logs land
 in production (a container's stdout, picked up by whatever log aggregator sits in front of it).
 
+## OpenTelemetry tracing (Phase 3)
+
+`src/observability/spans.py` adds optional OTLP tracing spans to the key pipeline operations:
+
+| Span | Attributes |
+|---|---|
+| `retrieve` | `question`, `top_k`, `method`, `n_chunks_returned` |
+| `faithfulness_gate` | `faithfulness_score`, `gated`, `threshold` |
+| `tool:<name>` | `tool.name`, `tool.arg.*` per argument |
+| `llm_call` | `model`, `prompt_tokens`, `completion_tokens`, `cost_usd` |
+| `agent` | `question`, `provider`, `model` |
+
+All spans degrade to no-ops when `OTEL_EXPORTER=none` (the default) or when `opentelemetry-sdk`
+is not installed — the wrapped code runs unchanged, no import errors.
+
+**Backend selection** via `OTEL_EXPORTER` env var:
+
+```bash
+# Local Arize Phoenix (no Docker, no cloud)
+pip install arize-phoenix openinference-instrumentation opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc
+python -m phoenix.server.main serve   # starts on :4317
+OTEL_EXPORTER=phoenix python -m src.api.main
+
+# OTLP/gRPC to any collector
+OTEL_EXPORTER=otlp OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317 python -m src.api.main
+
+# Console (development / smoke-test)
+OTEL_EXPORTER=console python -m src.api.main
+```
+
 ## What's NOT done
 - No log aggregation/shipping configured (Cloud Logging, CloudWatch, etc.) -- these are structured
   JSON lines to stdout, ready to be picked up by whatever the deployment environment provides, not
   wired to a specific destination
-- No metrics/tracing beyond structured logs (no OpenTelemetry, no dashboards) -- Tier 3 territory
-  for a project this size
 - No persisted turn history the way `operations-performance`'s `pipeline_runs` table persists
   pipeline run history -- an equivalent `agent_turns` table (or reusing the same Postgres instance)
   would be a reasonable next addition if this needed to answer "how has agent latency trended over

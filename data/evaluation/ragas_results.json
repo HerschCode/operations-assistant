@@ -1,0 +1,268 @@
+{
+  "model": "groq/qwen/qwen3.8-27b",
+  "top_k": 5,
+  "n_total": 32,
+  "n_scored": 31,
+  "results": [
+    {
+      "id": 1,
+      "category": "lookup",
+      "question": "What is the approval target for standard purchase orders?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 2,
+      "category": "lookup",
+      "question": "What is the SLA target for 3-way match category orders?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 3,
+      "category": "lookup",
+      "question": "What is the SLA target for Consignment orders?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 4,
+      "category": "lookup",
+      "question": "Who performs Manual Credit Review?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 5,
+      "category": "lookup",
+      "question": "How many business days does each escalation level have to act before the next level takes over?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 6,
+      "category": "lookup",
+      "question": "How often are SLA targets reviewed by Operations leadership?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 7,
+      "category": "numerical",
+      "question": "What is the dollar threshold above which a purchase order requires secondary approval?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 8,
+      "category": "numerical",
+      "question": "How many prior completed orders must a supplier have to avoid automatic Manual Credit Review?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.0
+    },
+    {
+      "id": 9,
+      "category": "numerical",
+      "question": "How many business days past an SLA target triggers escalation?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 10,
+      "category": "numerical",
+      "question": "How many rounds of PO Change Approval trigger escalation?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 11,
+      "category": "numerical",
+      "question": "How many business days of supplier unresponsiveness during Manual Credit Review triggers escalation?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 12,
+      "category": "numerical",
+      "question": "How many business days does a department have to file a retroactive Purchase Requisition after an emergency purchase?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 13,
+      "category": "policy_interpretation",
+      "question": "Does PO Change Approval time count toward cycle time even though it is outside the standard approval SLA?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 14,
+      "category": "policy_interpretation",
+      "question": "Can escalation override the secondary approval requirement in the Procurement Policy?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 15,
+      "category": "policy_interpretation",
+      "question": "Is Manual Credit Review time excluded from SLA cycle time measurement?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 16,
+      "category": "policy_interpretation",
+      "question": "What approval is required when a released Purchase Order is changed?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 17,
+      "category": "policy_interpretation",
+      "question": "Does a supplier dispute pause the SLA clock?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 18,
+      "category": "policy_interpretation",
+      "question": "What is the one documented exception where process time is not counted against SLA?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 19,
+      "category": "multi_hop",
+      "question": "Is an emergency purchase from a supplier with no prior orders still subject to Manual Credit Review?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 20,
+      "category": "multi_hop",
+      "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.3333333333333333
+    },
+    {
+      "id": 21,
+      "category": "multi_hop",
+      "question": "A supplier appears in escalations three times in one quarter. What does the procedure require?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 22,
+      "category": "multi_hop",
+      "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+      "nli_faithfulness": 0.6,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.5714285714285714
+    },
+    {
+      "id": 23,
+      "category": "multi_hop",
+      "question": "A PO has gone through 3 rounds of Change Approval. What is the escalation path?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 24,
+      "category": "paraphrase",
+      "question": "Which orders need two sign-offs before the supplier receives them?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": null,
+      "ragas_faithfulness_error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m1xw85w2"
+    },
+    {
+      "id": 25,
+      "category": "paraphrase",
+      "question": "When does a vendor's risk profile trigger an additional review step?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.16666666666666666
+    },
+    {
+      "id": 26,
+      "category": "paraphrase",
+      "question": "How often does leadership revisit the delivery timing benchmarks?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.5
+    },
+    {
+      "id": 27,
+      "category": "paraphrase",
+      "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 28,
+      "category": "paraphrase",
+      "question": "What are the time targets for getting a purchase approved?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.8571428571428571
+    },
+    {
+      "id": 29,
+      "category": "ambiguous",
+      "question": "What are the approval requirements?",
+      "nli_faithfulness": 1.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.6
+    },
+    {
+      "id": 30,
+      "category": "ambiguous",
+      "question": "When is an SLA breach reported?",
+      "nli_faithfulness": 0.0,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    },
+    {
+      "id": 31,
+      "category": "ambiguous",
+      "question": "When should I escalate?",
+      "nli_faithfulness": 0.167,
+      "n_contexts": 5,
+      "ragas_faithfulness": 0.9
+    },
+    {
+      "id": 32,
+      "category": "ambiguous",
+      "question": "What happens after a Purchase Order is changed?",
+      "nli_faithfulness": 0.5,
+      "n_contexts": 5,
+      "ragas_faithfulness": 1.0
+    }
+  ],
+  "mean_nli_faithfulness": 0.3312,
+  "mean_ragas_faithfulness": 0.8687,
+  "nli_ragas_direction_agreement_pct": 45.2
+}

@@ -8,18 +8,20 @@ not literal matches for the query. This module closes that gap by scoring the
 LLM's answer against retrieved chunks via NLI and refusing to return an answer
 that contradicts or ignores the retrieved context.
 
-The gate is enforced at FAITHFULNESS_GATE_THRESHOLD (default 0.5). When the
-answer's faithfulness score falls below this threshold, the system returns a
-structured "insufficient information" response rather than an unfaithful answer.
-This trades recall (sometimes saying "I don't know" when a correct answer exists)
-for precision (never returning answers that contradict the source documents).
+The gate is enforced at FAITHFULNESS_GATE_THRESHOLD (default 0.05, calibrated
+2026-09-24 via scripts/calibrate_gate.py against a 67-question labeled set;
+see reports/gate-calibration.md). When the answer's faithfulness score falls
+below this threshold, the system returns a structured "insufficient information"
+response rather than an unfaithful answer. This trades recall (sometimes saying
+"I don't know" when a correct answer exists) for precision (never returning
+answers that contradict the source documents).
 
 GROUNDED_GATE_ENABLED env var:
   "true" (default) — enforce the faithfulness gate
   "false"          — run as plain RAG (no gate), useful for comparison runs
 
 FAITHFULNESS_GATE_THRESHOLD env var:
-  float in [0, 1], default 0.5. A sentence is grounded if its NLI entailment
+  float in [0, 1], default 0.05. A sentence is grounded if its NLI entailment
   probability against any retrieved chunk exceeds this. The answer is gated if
   the fraction of grounded sentences < this threshold.
 """
@@ -67,11 +69,15 @@ def grounded_answer(
     """
     from src.retrieval.search import reranked_search
     from src.evaluation.faithfulness import score_faithfulness
+    from src.observability.spans import retrieve_span, gate_span
 
     threshold = gate_threshold if gate_threshold is not None else FAITHFULNESS_GATE_THRESHOLD
 
-    chunks = reranked_search(question, top_k=top_k)
-    chunk_texts = [r.text for r in chunks]
+    with retrieve_span(question, top_k=top_k) as rspan:
+        chunks = reranked_search(question, top_k=top_k)
+        chunk_texts = [r.text for r in chunks]
+        if rspan:
+            rspan.set_attribute("n_chunks_returned", len(chunks))
 
     raw_answer = llm_fn(question, chunk_texts)
 
@@ -79,6 +85,9 @@ def grounded_answer(
 
     gated = GROUNDED_GATE_ENABLED and result.faithfulness_score < threshold
     final_answer = INSUFFICIENT_DATA_MSG if gated else raw_answer
+
+    with gate_span(result.faithfulness_score, gated, threshold):
+        pass
 
     return GroundedAnswer(
         answer=final_answer,

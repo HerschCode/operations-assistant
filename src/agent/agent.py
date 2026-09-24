@@ -112,13 +112,15 @@ def _extract_citations(tool_calls: list[ToolCallRecord]) -> list[dict]:
 def _execute_tool_calls(
     tool_use_blocks: list, tool_calls: list[ToolCallRecord], turn_id: str, event_cb=None,
 ) -> list[dict]:
+    from src.observability.spans import tool_call_span
     tool_results_content = []
     for block in tool_use_blocks:
         t0 = time.monotonic()
         if event_cb:
             event_cb({"type": "tool_start", "tool": block.name})
         try:
-            result = call_tool(block.name, **(block.input or {}))
+            with tool_call_span(block.name, block.input or {}):
+                result = call_tool(block.name, **(block.input or {}))
             duration_ms = round((time.monotonic() - t0) * 1000, 1)
             tool_calls.append(ToolCallRecord(name=block.name, input=block.input, result=result))
             tool_results_content.append({
@@ -185,6 +187,7 @@ def _run_agent_anthropic(
 
     logger.info("agent turn started", extra={"turn_id": turn_id, "question_length": len(question)})
 
+    from src.observability.spans import llm_call_span
     for round_num in range(max_rounds + 1):
         api_call_start = time.monotonic()
         response = client.messages.create(
@@ -196,6 +199,10 @@ def _run_agent_anthropic(
             messages=messages,
         )
         api_call_duration_ms = round((time.monotonic() - api_call_start) * 1000, 1)
+        _pt = getattr(getattr(response, "usage", None), "input_tokens", 0) or 0
+        _ct = getattr(getattr(response, "usage", None), "output_tokens", 0) or 0
+        with llm_call_span(config["model"], prompt_tokens=_pt, completion_tokens=_ct):
+            pass
         messages.append({"role": "assistant", "content": response.content})
 
         tool_use_blocks = [b for b in response.content if b.type == "tool_use"]
