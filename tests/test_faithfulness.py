@@ -150,3 +150,32 @@ def test_faithfulness_result_is_faithful_threshold():
 
     r2 = FaithfulnessResult(faithfulness_score=0.6, contradiction_rate=0.1)
     assert not r2.is_faithful
+
+
+# ── empty-response regression (bug fix 2026-09-23) ───────────────────────────
+# Before the fix, score_faithfulness("", chunks) returned faithfulness_score=1.0
+# because 0 sentences were checked and the code assumed "nothing to check = fully
+# faithful". This allowed empty LLM responses to bypass the gate. The correct
+# treatment is score=0.0 so the gate fires.
+
+def test_empty_answer_returns_zero_faithfulness():
+    """Empty answer must score 0.0, not 1.0 (regression for empty-response bypass)."""
+    result = score_faithfulness("", ["Any retrieved chunk about procurement policy."])
+    assert result.faithfulness_score == 0.0, (
+        f"Expected 0.0, got {result.faithfulness_score}. "
+        "Empty responses must gate, not pass."
+    )
+    assert result.n_sentences == 0
+
+
+def test_whitespace_only_answer_returns_zero_faithfulness():
+    result = score_faithfulness("   \n  ", ["Some context chunk."])
+    assert result.faithfulness_score == 0.0
+    assert result.n_sentences == 0
+
+
+def test_short_only_answer_returns_zero_faithfulness():
+    """Answers that consist only of short fragments (< 20 chars) should also score 0."""
+    result = score_faithfulness("Yes.", ["Context text about approval policy."])
+    assert result.faithfulness_score == 0.0
+    assert result.n_sentences == 0

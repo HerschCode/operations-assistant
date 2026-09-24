@@ -27,7 +27,7 @@ import os
 from dataclasses import dataclass, field
 
 GROUNDED_GATE_ENABLED = os.environ.get("GROUNDED_GATE_ENABLED", "true").lower() in ("true", "1", "yes")
-FAITHFULNESS_GATE_THRESHOLD = float(os.environ.get("FAITHFULNESS_GATE_THRESHOLD", "0.5"))
+FAITHFULNESS_GATE_THRESHOLD = float(os.environ.get("FAITHFULNESS_GATE_THRESHOLD", "0.05"))  # calibrated 2026-09-24; see reports/gate-calibration.md
 INSUFFICIENT_DATA_MSG = (
     "The retrieved documents do not contain sufficient information to answer "
     "this question faithfully. Please consult the relevant policy documents directly "
