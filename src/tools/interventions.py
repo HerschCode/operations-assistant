@@ -1,0 +1,163 @@
+"""
+Intervention store and propose_intervention tool.
+
+propose_intervention is the only write-like tool in the system — it proposes an
+action that must be approved by a human before it executes. Calling the tool adds
+a record to the in-memory store with status "pending_approval"; nothing is executed
+until approve_intervention() is called (via the HITL agent's LangGraph interrupt
+path or the POST /interventions/{id}/approve endpoint).
+
+Execution is intentionally a logged mock: operations-performance exposes only
+read-only analytics endpoints, so the "action" would call a write-back API (a
+notification service, an escalation endpoint) in a real deployment. The architecture
+(propose → interrupt → approve → execute) is the portfolio demonstration; the mock
+execution is honest about the boundary.
+"""
+import time
+import uuid
+from dataclasses import dataclass
+
+VALID_ACTIONS = {
+    "escalate_case",
+    "flag_supplier",
+    "notify_manager",
+    "request_approval",
+    "mark_exception",
+}
+VALID_PRIORITIES = {"low", "normal", "high", "urgent"}
+
+PROPOSE_INTERVENTION_SCHEMA = {
+    "name": "propose_intervention",
+    "description": (
+        "Propose an operational intervention action for human approval. Use this when "
+        "you have identified a problem that warrants a concrete action (escalating a case, "
+        "flagging a supplier, notifying a manager) but must not act unilaterally. "
+        "The action will not execute until a human approves it at POST /interventions/{id}/approve. "
+        "Valid actions: escalate_case, flag_supplier, notify_manager, request_approval, mark_exception."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "action": {
+                "type": "string",
+                "description": "The action type. One of: escalate_case, flag_supplier, notify_manager, request_approval, mark_exception.",
+            },
+            "target": {
+                "type": "string",
+                "description": "The entity to act on (case ID, supplier name, team name, etc.).",
+            },
+            "reason": {
+                "type": "string",
+                "description": "Why this intervention is needed. Be specific — this is what the human reviewer sees.",
+            },
+            "priority": {
+                "type": "string",
+                "description": "Urgency: low, normal, high, or urgent. Default: normal.",
+                "default": "normal",
+            },
+        },
+        "required": ["action", "target", "reason"],
+    },
+}
+
+
+@dataclass
+class InterventionRecord:
+    intervention_id: str
+    action: str
+    target: str
+    reason: str
+    priority: str
+    status: str          # "pending_approval" | "rejected" | "executed"
+    created_at: float
+    thread_id: str | None = None   # HITL thread to resume on approval
+    resolved_at: float | None = None
+    execution_note: str | None = None
+
+
+_STORE: dict[str, InterventionRecord] = {}
+
+
+def propose_intervention(action: str, target: str, reason: str, priority: str = "normal") -> dict:
+    if action not in VALID_ACTIONS:
+        raise ValueError(
+            f"Unknown action {action!r}. Valid actions: {sorted(VALID_ACTIONS)}"
+        )
+    if priority not in VALID_PRIORITIES:
+        priority = "normal"
+
+    intervention_id = f"inv_{uuid.uuid4().hex[:8]}"
+    record = InterventionRecord(
+        intervention_id=intervention_id,
+        action=action,
+        target=target,
+        reason=reason[:500],
+        priority=priority,
+        status="pending_approval",
+        created_at=time.time(),
+    )
+    _STORE[intervention_id] = record
+    return {
+        "intervention_id": intervention_id,
+        "status": "pending_approval",
+        "action": action,
+        "target": target,
+        "reason": reason,
+        "priority": priority,
+        "message": (
+            f"Intervention '{action}' on '{target}' has been proposed and is awaiting human approval. "
+            f"A reviewer must call POST /interventions/{intervention_id}/approve to execute it, "
+            f"or POST /interventions/{intervention_id}/reject to cancel."
+        ),
+    }
+
+
+def get_intervention(intervention_id: str) -> InterventionRecord | None:
+    return _STORE.get(intervention_id)
+
+
+def set_intervention_thread(intervention_id: str, thread_id: str) -> None:
+    if intervention_id in _STORE:
+        _STORE[intervention_id].thread_id = thread_id
+
+
+def approve_intervention(intervention_id: str) -> dict:
+    record = _STORE.get(intervention_id)
+    if record is None:
+        raise KeyError(f"Intervention {intervention_id!r} not found")
+    if record.status != "pending_approval":
+        raise ValueError(f"Intervention {intervention_id!r} is already {record.status!r}")
+
+    execution_note = _execute_action(record)
+    record.status = "executed"
+    record.resolved_at = time.time()
+    record.execution_note = execution_note
+    return {"intervention_id": intervention_id, "status": "executed", "execution_note": execution_note}
+
+
+def reject_intervention(intervention_id: str, reason: str = "") -> dict:
+    record = _STORE.get(intervention_id)
+    if record is None:
+        raise KeyError(f"Intervention {intervention_id!r} not found")
+    if record.status != "pending_approval":
+        raise ValueError(f"Intervention {intervention_id!r} is already {record.status!r}")
+
+    record.status = "rejected"
+    record.resolved_at = time.time()
+    record.execution_note = f"Rejected. {reason}".strip() if reason else "Rejected."
+    return {
+        "intervention_id": intervention_id,
+        "status": "rejected",
+        "execution_note": record.execution_note,
+    }
+
+
+def _execute_action(record: InterventionRecord) -> str:
+    descriptions = {
+        "escalate_case": f"Case {record.target} escalated to operations management.",
+        "flag_supplier": f"Supplier {record.target} flagged for procurement team review.",
+        "notify_manager": f"Operations manager notified regarding {record.target}.",
+        "request_approval": f"Additional approval requested for {record.target}.",
+        "mark_exception": f"Exception recorded for {record.target} per policy.",
+    }
+    return descriptions.get(record.action, f"Action '{record.action}' executed on '{record.target}'.")

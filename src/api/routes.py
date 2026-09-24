@@ -10,6 +10,8 @@ from src.api.schemas import (
     HealthResponse, DocumentUploadResponse, DocumentListItem,
     ChatRequest, ChatResponse, SourceCitation,
     InvestigateRequest, InvestigateResponse, InvestigationReport,
+    HITLChatResponse, InterventionProposal, InterventionStatusResponse,
+    InterventionResumeResponse, RejectRequest,
 )
 from src.api.auth import require_role
 from src.api.dependencies import check_ops_performance_reachable, check_vector_store_reachable
@@ -362,6 +364,132 @@ async def upload_document(file: UploadFile = File(...)):
     )
 # pipeline wired to an actual upload endpoint (chunking/indexing logic itself is
 # already done, this route just calls it once file upload handling is added).
+
+
+@router.post("/chat/hitl", response_model=HITLChatResponse)
+def chat_hitl(request: ChatRequest):
+    """Agent turn with human-in-the-loop approval gate.
+
+    If the model calls propose_intervention, the graph pauses and this endpoint
+    returns {"status": "awaiting_approval", "intervention": {...}, "thread_id": "..."}.
+    The caller must then POST /interventions/{intervention_id}/approve or /reject to
+    resume the turn and receive the final answer.
+
+    If the model does not call propose_intervention the response is identical to
+    /chat with {"status": "done"}.
+    """
+    from src.agent.hitl_agent import start_hitl_turn
+
+    try:
+        result = start_hitl_turn(request.question)
+    except Exception as exc:
+        raise _agent_error_response(exc)
+
+    if result["status"] == "awaiting_approval":
+        iv = result["intervention"]
+        return HITLChatResponse(
+            status="awaiting_approval",
+            thread_id=result["thread_id"],
+            intervention=InterventionProposal(
+                intervention_id=iv["intervention_id"],
+                action=iv["action"],
+                target=iv["target"],
+                reason=iv["reason"],
+                priority=iv["priority"],
+            ),
+        )
+
+    resp = result["response"]
+    return HITLChatResponse(
+        status="done",
+        thread_id=result["thread_id"],
+        answer=resp.answer,
+        tools_used=resp.tools_used,
+        citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in resp.citations],
+    )
+
+
+@router.get("/interventions/{intervention_id}", response_model=InterventionStatusResponse)
+def get_intervention_status(intervention_id: str):
+    from src.tools.interventions import get_intervention
+    record = get_intervention(intervention_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Intervention {intervention_id!r} not found")
+    return InterventionStatusResponse(
+        intervention_id=record.intervention_id,
+        action=record.action,
+        target=record.target,
+        reason=record.reason,
+        priority=record.priority,
+        status=record.status,
+        thread_id=record.thread_id,
+        execution_note=record.execution_note,
+    )
+
+
+@router.post("/interventions/{intervention_id}/approve", response_model=InterventionResumeResponse)
+def approve_intervention_endpoint(intervention_id: str):
+    """Approve a pending intervention and resume the paused HITL agent turn.
+
+    The agent generates a final answer reflecting the approval outcome.
+    """
+    from src.tools.interventions import get_intervention
+    from src.agent.hitl_agent import resume_hitl_turn
+
+    record = get_intervention(intervention_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Intervention {intervention_id!r} not found")
+    if record.status != "pending_approval":
+        raise HTTPException(status_code=409, detail=f"Intervention is already {record.status!r}")
+    if record.thread_id is None:
+        raise HTTPException(status_code=409, detail="No active HITL session for this intervention")
+
+    try:
+        result = resume_hitl_turn(record.thread_id, decision="approved")
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to resume agent turn: {exc}")
+
+    resp = result["response"]
+    return InterventionResumeResponse(
+        intervention_id=intervention_id,
+        decision="approved",
+        answer=resp.answer,
+        tools_used=resp.tools_used,
+        citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in resp.citations],
+    )
+
+
+@router.post("/interventions/{intervention_id}/reject", response_model=InterventionResumeResponse)
+def reject_intervention_endpoint(intervention_id: str, body: RejectRequest = RejectRequest()):
+    """Reject a pending intervention and resume the paused HITL agent turn.
+
+    The agent generates a final answer reflecting the rejection.
+    """
+    from src.tools.interventions import get_intervention
+    from src.agent.hitl_agent import resume_hitl_turn
+
+    record = get_intervention(intervention_id)
+    if record is None:
+        raise HTTPException(status_code=404, detail=f"Intervention {intervention_id!r} not found")
+    if record.status != "pending_approval":
+        raise HTTPException(status_code=409, detail=f"Intervention is already {record.status!r}")
+    if record.thread_id is None:
+        raise HTTPException(status_code=409, detail="No active HITL session for this intervention")
+
+    decision = body.reason if body.reason else "rejected"
+    try:
+        result = resume_hitl_turn(record.thread_id, decision=decision)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to resume agent turn: {exc}")
+
+    resp = result["response"]
+    return InterventionResumeResponse(
+        intervention_id=intervention_id,
+        decision="rejected",
+        answer=resp.answer,
+        tools_used=resp.tools_used,
+        citations=[SourceCitation(kind=c["kind"], reference=c["reference"]) for c in resp.citations],
+    )
 
 
 @router.post("/investigate", response_model=InvestigateResponse)
