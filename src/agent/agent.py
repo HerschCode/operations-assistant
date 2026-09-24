@@ -88,6 +88,9 @@ class AgentResponse:
     # exists, not for a turn that already has genuine numbers.
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
+    # Set when PROMPT_CACHE=1: tokens served from the Anthropic prompt cache
+    # across all rounds of this turn (sum of cache_read_input_tokens).
+    cache_read_input_tokens: int | None = None
 
 
 def _default_client():
@@ -185,6 +188,24 @@ def _run_agent_anthropic(
     turn_id = str(uuid.uuid4())[:8]
     turn_start = time.monotonic()
 
+    # Prompt caching: opt-in via PROMPT_CACHE=1. Marks the system prompt and the
+    # full tool schema list as ephemeral cache blocks so Anthropic can serve them
+    # from cache on subsequent rounds rather than re-encoding them each call.
+    _cache = os.environ.get("PROMPT_CACHE", "").lower() in ("1", "true", "yes")
+    _cache_read_total = 0
+    if _cache:
+        _system: object = [{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}]
+        _tools = list(TOOL_SCHEMAS)
+        if _tools:
+            last = dict(_tools[-1])
+            last["cache_control"] = {"type": "ephemeral"}
+            _tools = _tools[:-1] + [last]
+        _extra: dict = {"extra_headers": {"anthropic-beta": "prompt-caching-2024-07-31"}}
+    else:
+        _system = SYSTEM_PROMPT
+        _tools = TOOL_SCHEMAS
+        _extra = {}
+
     logger.info("agent turn started", extra={"turn_id": turn_id, "question_length": len(question)})
 
     from src.observability.spans import llm_call_span
@@ -194,13 +215,17 @@ def _run_agent_anthropic(
             model=config["model"],
             max_tokens=config["max_tokens"],
             temperature=config["temperature"],
-            system=SYSTEM_PROMPT,
-            tools=TOOL_SCHEMAS,
+            system=_system,
+            tools=_tools,
             messages=messages,
+            **_extra,
         )
         api_call_duration_ms = round((time.monotonic() - api_call_start) * 1000, 1)
         _pt = getattr(getattr(response, "usage", None), "input_tokens", 0) or 0
         _ct = getattr(getattr(response, "usage", None), "output_tokens", 0) or 0
+        if _cache:
+            _cr = getattr(getattr(response, "usage", None), "cache_read_input_tokens", 0) or 0
+            _cache_read_total += _cr
         with llm_call_span(config["model"], prompt_tokens=_pt, completion_tokens=_ct):
             pass
         messages.append({"role": "assistant", "content": response.content})
@@ -227,6 +252,7 @@ def _run_agent_anthropic(
             return AgentResponse(
                 answer=answer, tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls),
+                cache_read_input_tokens=_cache_read_total or None,
             )
 
         if round_num == max_rounds:
@@ -250,6 +276,7 @@ def _run_agent_anthropic(
                 ),
                 tool_calls=tool_calls, tools_used=tools_used,
                 citations=_extract_citations(tool_calls), budget_exceeded=True,
+                cache_read_input_tokens=_cache_read_total or None,
             )
 
         tool_results_content = _execute_tool_calls(tool_use_blocks, tool_calls, turn_id, event_cb=event_cb)

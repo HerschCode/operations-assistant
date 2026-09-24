@@ -5,6 +5,11 @@ report matching InvestigationReport's fixed shape (Summary -> Evidence -> Root C
 -> Policy -> Recommendations -> Limitations). Two calls, not one, because forcing the
 report JSON schema on every response (including simple ones) would be wasteful and
 awkward -- investigation mode is explicitly opted into via a separate endpoint/function.
+
+Structured outputs: the compile call uses Anthropic forced tool-use (tool_choice=tool)
+so the model MUST return valid JSON matching InvestigationReport's schema rather than
+free text. This eliminates the code-fence-stripping and json.loads failure modes. A
+text-parsing fallback is kept for non-Anthropic clients passed in tests.
 """
 import json
 import re
@@ -12,6 +17,28 @@ from dataclasses import dataclass, field
 
 from src.agent.agent import run_agent, AgentResponse, load_agent_config
 from src.agent.prompts import INVESTIGATION_COMPILE_PROMPT
+
+# Forced tool-use schema — drives structured output from the compile step.
+COMPILE_REPORT_TOOL = {
+    "name": "compile_report",
+    "description": "Compile investigation findings into a structured report.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "executive_summary": {"type": "string"},
+            "problem": {"type": "string"},
+            "evidence": {"type": "array", "items": {"type": "string"}},
+            "root_causes": {"type": "array", "items": {"type": "string"}},
+            "relevant_policy": {"type": "array", "items": {"type": "string"}},
+            "recommendations": {"type": "array", "items": {"type": "string"}},
+            "limitations": {"type": "string"},
+        },
+        "required": [
+            "executive_summary", "problem", "evidence", "root_causes",
+            "relevant_policy", "recommendations", "limitations",
+        ],
+    },
+}
 
 INVESTIGATION_REPORT_KEYS = [
     "executive_summary", "problem", "evidence", "root_causes",
@@ -59,6 +86,39 @@ def _fallback_report(agent_response: AgentResponse, reason: str) -> Investigatio
     )
 
 
+def _report_from_dict(data: dict) -> InvestigationReport:
+    return InvestigationReport(
+        executive_summary=data.get("executive_summary", ""),
+        problem=data.get("problem", ""),
+        evidence=data.get("evidence") or [],
+        root_causes=data.get("root_causes") or [],
+        relevant_policy=data.get("relevant_policy") or [],
+        recommendations=data.get("recommendations") or [],
+        limitations=data.get("limitations") or "",
+    )
+
+
+def _compile_with_tool(client, config: dict, compile_prompt: str) -> tuple[dict | None, bool]:
+    """Force the model to return structured JSON via Anthropic tool_choice=tool.
+    Returns (tool_input_dict, False) on success or (None, True) as a signal to use
+    the text-parsing fallback (non-Anthropic clients, or if the call itself errors)."""
+    try:
+        response = client.messages.create(
+            model=config["model"],
+            max_tokens=config["max_tokens"],
+            temperature=0.0,
+            messages=[{"role": "user", "content": compile_prompt}],
+            tools=[COMPILE_REPORT_TOOL],
+            tool_choice={"type": "tool", "name": "compile_report"},
+        )
+        tool_blocks = [b for b in response.content if getattr(b, "type", None) == "tool_use"]
+        if tool_blocks:
+            return tool_blocks[0].input, False
+        return None, True
+    except Exception:
+        return None, True
+
+
 def _parse_report(raw_text: str, agent_response: AgentResponse) -> tuple[InvestigationReport, bool]:
     try:
         cleaned = _strip_code_fences(raw_text)
@@ -104,15 +164,21 @@ def run_investigation(
         question=question, working_answer=agent_response.answer, tool_summary=tool_summary,
     )
 
-    compile_response = client.messages.create(
-        model=config["model"],
-        max_tokens=config["max_tokens"],
-        temperature=0.0,  # compilation should be deterministic even if chat isn't
-        messages=[{"role": "user", "content": compile_prompt}],
-    )
-    raw_text = "".join(b.text for b in compile_response.content if b.type == "text")
-
-    report, parse_failed = _parse_report(raw_text, agent_response)
+    # Try forced tool-use first (Anthropic-native structured output).
+    # Falls back to the text+json.loads path for non-Anthropic clients or
+    # if the forced call itself errors (e.g. model version doesn't support it).
+    data, parse_failed = _compile_with_tool(client, config, compile_prompt)
+    if data is not None:
+        report = _report_from_dict(data)
+    else:
+        compile_response = client.messages.create(
+            model=config["model"],
+            max_tokens=config["max_tokens"],
+            temperature=0.0,
+            messages=[{"role": "user", "content": compile_prompt}],
+        )
+        raw_text = "".join(b.text for b in compile_response.content if b.type == "text")
+        report, parse_failed = _parse_report(raw_text, agent_response)
     return InvestigationResult(
         report=report, tools_used=agent_response.tools_used,
         citations=agent_response.citations, parse_failed=parse_failed,

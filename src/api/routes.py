@@ -22,7 +22,10 @@ from src.ingestion.chunker import chunk_text
 from src.ingestion.index_documents import index_document, list_indexed_documents
 from src.agent.agent import run_agent
 from src.agent.investigation import run_investigation
-from src.agent.conversation_store import get_history, append_turn
+from src.agent.conversation_store import (
+    get_history, append_turn,
+    get_turns_to_summarize, get_summary, save_summary, delete_turns,
+)
 from src.observability.trace_log import log_trace, read_recent
 
 router = APIRouter()
@@ -273,6 +276,22 @@ def demo_chat_stream(question: str, http_request: Request):
     )
 
 
+def _maybe_summarize(conversation_id: str) -> None:
+    turns = get_turns_to_summarize(conversation_id)
+    if not turns:
+        return
+    try:
+        from src.agent.summarizer import summarize_turns
+        batch = [{"role": t["role"], "content": t["content"]} for t in turns]
+        new_text = summarize_turns(batch)
+        existing = get_summary(conversation_id) or ""
+        combined = f"{existing} {new_text}".strip() if existing else new_text
+        save_summary(conversation_id, combined)
+        delete_turns([t["id"] for t in turns])
+    except Exception:
+        pass  # never crash a conversation for a summarization failure
+
+
 def _agent_error_response(exc: Exception) -> HTTPException:
     # A provider rate-limit (found by scripts/load_test_live.py hitting the real
     # deployed service with genuinely concurrent requests -- Groq's free-tier limit
@@ -309,6 +328,11 @@ def chat(request: ChatRequest):
         raise _agent_error_response(exc)
 
     append_turn(conversation_id, request.question, result.answer)
+
+    # Summarize the oldest turns when the conversation grows past the threshold.
+    # Runs synchronously but on the cheap Haiku model; never crashes the response
+    # if the summarizer fails.
+    _maybe_summarize(conversation_id)
 
     return ChatResponse(
         answer=result.answer,
