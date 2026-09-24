@@ -1,0 +1,34 @@
+{
+  "n_in_scope": 130,
+  "n_train": 102,
+  "n_test": 28,
+  "n_skipped": 0,
+  "train_frac": 0.8,
+  "by_category": {
+    "ambiguous": {
+      "n_train": 8,
+      "n_test": 3
+    },
+    "lookup": {
+      "n_train": 24,
+      "n_test": 6
+    },
+    "multi_hop": {
+      "n_train": 17,
+      "n_test": 5
+    },
+    "numerical": {
+      "n_train": 20,
+      "n_test": 5
+    },
+    "paraphrase": {
+      "n_train": 13,
+      "n_test": 4
+    },
+    "policy_interpretation": {
+      "n_train": 20,
+      "n_test": 5
+    }
+  },
+  "skipped": []
+}
