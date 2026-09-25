@@ -21,6 +21,7 @@ from src.tools.interventions import (
     reject_intervention,
     set_intervention_initiated_by,
     set_intervention_approved_by,
+    _fetch_execution_context,
 )
 from src.agent.hitl_agent import get_graph, start_hitl_turn, resume_hitl_turn, HITLAgentState
 from src.api.main import app
@@ -318,3 +319,66 @@ class TestSeparationOfDuties:
         assert result["status"] == "awaiting_approval"
         iv_id = result["intervention"]["intervention_id"]
         assert get_intervention(iv_id).initiated_by == "analyst-carol"
+
+
+# ── Fix 5: action loop closes (P2 → P1 enrichment) ───────────────────────────
+
+class TestExecutionContextEnrichment:
+    """_fetch_execution_context enriches approve notes with live P1 data."""
+
+    def _make_record(self, action: str, target: str) -> InterventionRecord:
+        from src.tools.interventions import InterventionRecord
+        import time
+        return InterventionRecord(
+            intervention_id="inv_test",
+            action=action,
+            target=target,
+            reason="test",
+            priority="normal",
+            status="pending_approval",
+            created_at=time.time(),
+        )
+
+    def test_escalate_case_enriched_when_p1_available(self, monkeypatch):
+        """escalate_case execution note includes SLA breach probability from P1."""
+        import src.tools.interventions as iv_mod
+        monkeypatch.setattr(
+            "src.tools.client.get",
+            lambda path, **_: {"breach_probability": 0.87, "days_in_progress": 14}
+            if "/orders/" in path else [],
+        )
+        record = self._make_record("escalate_case", "C1023")
+        context = _fetch_execution_context(record)
+        assert "87%" in context
+        assert "14" in context
+
+    def test_flag_supplier_enriched_when_p1_available(self, monkeypatch):
+        """flag_supplier execution note includes performance score from P1."""
+        monkeypatch.setattr(
+            "src.tools.client.get",
+            lambda path, **_: [{"supplier_name": "ACME", "performance_score": 62, "late_delivery_rate_pct": 18}],
+        )
+        record = self._make_record("flag_supplier", "ACME")
+        context = _fetch_execution_context(record)
+        assert "62" in context
+        assert "18" in context
+
+    def test_execution_falls_back_when_p1_unreachable(self, monkeypatch):
+        """Context is empty string when P1 raises — base description still executes."""
+        from src.tools.client import OpsPerformanceUnavailable
+        monkeypatch.setattr(
+            "src.tools.client.get",
+            lambda *a, **kw: (_ for _ in ()).throw(OpsPerformanceUnavailable("down")),
+        )
+        record = self._make_record("escalate_case", "C999")
+        assert _fetch_execution_context(record) == ""
+
+    def test_approve_execution_note_includes_base_when_p1_unreachable(self, monkeypatch):
+        """Full approve_intervention returns meaningful note even with P1 down."""
+        _STORE.clear()
+        monkeypatch.setattr("src.tools.client.get", lambda *a, **kw: (_ for _ in ()).throw(Exception("down")))
+        result = propose_intervention("escalate_case", "C42", "breach")
+        iv_id = result["intervention_id"]
+        approved = approve_intervention(iv_id)
+        assert "C42" in approved["execution_note"]
+        assert approved["status"] == "executed"

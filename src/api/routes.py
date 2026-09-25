@@ -318,14 +318,47 @@ def chat(request: ChatRequest):
     scaffolding -- see conversation_store.py) as context, then persists this turn
     back to the store. A fresh conversation_id is generated and returned if none was
     given, so a client can start a new conversation with nothing and continue it on
-    subsequent calls by passing back what /chat returned."""
+    subsequent calls by passing back what /chat returned.
+
+    When SEMANTIC_CACHE=1 is set, a SemanticCache is consulted before calling the
+    agent. A cache hit returns the stored answer immediately and still records the
+    turn so conversation history stays consistent. Not applied to /chat/hitl (HITL
+    turns have side-effects from propose_intervention and must not be cached).
+    """
+    from src.cache.semantic_cache import SemanticCache, is_enabled as cache_enabled
+
     conversation_id = request.conversation_id or str(uuid.uuid4())[:8]
     history = get_history(conversation_id)
+
+    # ── semantic cache check ──────────────────────────────────────────────────
+    _cache: SemanticCache | None = None
+    if cache_enabled():
+        _cache = SemanticCache()
+        cached = _cache.get(request.question)
+        if cached is not None:
+            answer = cached.get("answer", "")
+            tools_used = cached.get("tools_used", [])
+            citations = [SourceCitation(**c) for c in cached.get("citations", [])]
+            append_turn(conversation_id, request.question, answer)
+            _maybe_summarize(conversation_id)
+            return ChatResponse(
+                answer=answer,
+                tools_used=tools_used,
+                citations=citations,
+                conversation_id=conversation_id,
+            )
 
     try:
         result = run_agent(request.question, history=history)
     except Exception as exc:
         raise _agent_error_response(exc)
+
+    if _cache is not None:
+        _cache.put(request.question, {
+            "answer": result.answer,
+            "tools_used": result.tools_used,
+            "citations": result.citations,
+        })
 
     append_turn(conversation_id, request.question, result.answer)
 

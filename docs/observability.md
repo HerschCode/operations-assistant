@@ -67,11 +67,60 @@ OTEL_EXPORTER=otlp OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317 python -m src
 OTEL_EXPORTER=console python -m src.api.main
 ```
 
+## Semantic cache (Fix 6)
+
+`src/cache/semantic_cache.py` adds an embedding-similarity cache for `/chat` responses.
+Activate with `SEMANTIC_CACHE=1`. Repeated or near-identical questions (cosine ≥ 0.97
+by default) return the stored answer without an LLM call.
+
+Key properties:
+- **SQLite persistence** via `data/cache.db` (configurable via `SEMANTIC_CACHE_DB`)
+- **Lazy encoder load** — sentence-transformers loads on first use, not at startup
+- **TTL** — entries expire after `SEMANTIC_CACHE_TTL_SECONDS` (default 3600)
+- **Graceful degradation** — `get()` and `put()` are no-ops on any error; a broken
+  cache never blocks a request
+- **Not applied to `/chat/hitl`** — HITL turns have stateful side-effects
+  (`propose_intervention`) that cannot safely be returned from a cache
+
+## Production upgrade paths
+
+### Postgres instead of SQLite
+Conversation summaries (`src/agent/conversation_store.py`) and the semantic cache
+(`src/cache/semantic_cache.py`) both use SQLite with path-based connection strings.
+Replacing both with Postgres is a single-line change in each: swap `sqlite3.connect(path)`
+for `psycopg2.connect(dsn)` (or use SQLAlchemy's `create_engine()` so either backend
+works from a `DATABASE_URL` env var without code changes). The same `conversations.db`
+tables can be created verbatim in Postgres; the cache's `semantic_cache` table is
+identical. Neon serverless Postgres would be the natural host alongside Render (same
+zero-infrastructure principle as the current deployment).
+
+### Postgres for agent_turns history
+There is no `agent_turns` table yet — a reasonable next addition for production monitoring.
+The schema would mirror `operations-performance`'s `pipeline_runs` table: `turn_id`,
+`question`, `tools_used`, `latency_ms`, `model`, `cost_usd`, `timestamp`. The per-request
+logs already emit this information; persisting it in Postgres would enable "how has agent
+latency trended over the last week" queries without log parsing.
+
+### Arize Phoenix tracing
+`src/observability/spans.py` already emits OTLP spans. Set `OTEL_EXPORTER=phoenix` and
+install the optional extras to stream traces to a local Phoenix server:
+
+```bash
+pip install arize-phoenix openinference-instrumentation opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc
+python -m phoenix.server.main serve   # UI at http://localhost:6006, OTLP on :4317
+OTEL_EXPORTER=phoenix python -m src.api.main
+```
+
+What you see in Phoenix: one trace per agent turn, with child spans for
+`retrieve`, `faithfulness_gate`, `tool:<name>`, and `llm_call`. The `agent` span
+wraps them all with `question`, `provider`, and `model` attributes. Cost and token
+counts are attached to each `llm_call` span, making per-question cost visible in the
+UI without any additional instrumentation.
+
 ## What's NOT done
 - No log aggregation/shipping configured (Cloud Logging, CloudWatch, etc.) -- these are structured
   JSON lines to stdout, ready to be picked up by whatever the deployment environment provides, not
   wired to a specific destination
-- No persisted turn history the way `operations-performance`'s `pipeline_runs` table persists
-  pipeline run history -- an equivalent `agent_turns` table (or reusing the same Postgres instance)
-  would be a reasonable next addition if this needed to answer "how has agent latency trended over
-  the last week" rather than just "what happened in this one turn, right now"
+- No persisted `agent_turns` table -- see "Postgres for agent_turns history" above for the
+  design; deferred because the current per-request logs answer "what happened in this turn"
+  well enough for a portfolio deployment that doesn't see production traffic volumes

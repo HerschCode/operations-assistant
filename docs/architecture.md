@@ -93,3 +93,48 @@ different kinds of system.
 - `docs/failure-modes.md` -- what happens when things break
 - `docs/deployment.md` -- Docker/Cloud Run, and what's honestly untested
 - `PLAN.md` -- the full phase-by-phase build log, including every real bug found along the way
+
+## Three-project trilogy (the full loop)
+
+```
+                            INCOMING REQUEST
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │   llm-security-gateway (P3)   │
+                    │  • prompt injection detection  │
+                    │  • token/rate budget gate      │
+                    │  • classifier + rule guard     │
+                    └───────────────┬───────────────┘
+                              allowed │ blocked → 403
+                                    │
+                    ┌───────────────▼───────────────┐
+                    │   operations-assistant (P2)   │
+                    │  • RAG over policy documents  │
+                    │  • tools → reads P1 live data │
+                    │  • HITL intervention gate     │
+                    └──────┬────────────────┬───────┘
+                           │ tool calls     │ approved intervention
+                           ▼                ▼
+                    ┌──────────────┐  ┌─────────────────────────┐
+                    │ operations-  │  │  execution closes loop:  │
+                    │ performance  │◄─│  GET /orders/{id}/risk   │
+                    │    (P1)      │  │  GET /suppliers/perf     │
+                    └──────────────┘  └─────────────────────────┘
+```
+
+The loop is "closed" at intervention execution time: when an operator approves an
+`escalate_case` or `flag_supplier` intervention, `_execute_action` (in
+`src/tools/interventions.py`) calls back into P1 to retrieve current data about the
+target entity (breach probability, performance score) and embeds it in the execution
+note. The note then appears in the HITL resumption answer the agent generates, so the
+human reviewer sees concrete P1 data, not just a string description.
+
+**Graceful degradation**: if P1 is unreachable when the execution fires, the call
+silently fails and the execution note falls back to the plain description. The
+intervention is still recorded as executed — the enrichment is additive, not required.
+
+**P3 integration**: in a production deployment, P3 (llm-security-gateway) would sit
+in front of P2's `/chat/hitl` endpoint. Every user question passes through the
+classifier before reaching the agent. P3 operates as a stateless HTTP middleware —
+no shared state with P2, no database coupling — so the integration is a one-line
+URL change in the load balancer, not a code change in either project.

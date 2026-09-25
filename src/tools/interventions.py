@@ -165,6 +165,14 @@ def reject_intervention(intervention_id: str, reason: str = "") -> dict:
 
 
 def _execute_action(record: InterventionRecord) -> str:
+    """Execute the approved intervention.
+
+    Tries to enrich the execution note with live context from operations-performance
+    (P1). Falls back to a plain description if P1 is unreachable — the action is
+    still recorded, just without the supporting data. This is the point at which the
+    trilogy loop closes: P2 (assistant) acting on a human-approved decision by calling
+    back into P1 (performance) to confirm the state of the entity being acted on.
+    """
     descriptions = {
         "escalate_case": f"Case {record.target} escalated to operations management.",
         "flag_supplier": f"Supplier {record.target} flagged for procurement team review.",
@@ -172,4 +180,45 @@ def _execute_action(record: InterventionRecord) -> str:
         "request_approval": f"Additional approval requested for {record.target}.",
         "mark_exception": f"Exception recorded for {record.target} per policy.",
     }
-    return descriptions.get(record.action, f"Action '{record.action}' executed on '{record.target}'.")
+    base = descriptions.get(record.action, f"Action '{record.action}' executed on '{record.target}'.")
+    context = _fetch_execution_context(record)
+    return f"{base} {context}".strip() if context else base
+
+
+def _fetch_execution_context(record: InterventionRecord) -> str:
+    """Fetch supporting data from operations-performance to enrich the execution note.
+
+    Returns an empty string if P1 is unreachable or the entity isn't found —
+    the execution always succeeds even when the enrichment fails.
+    """
+    try:
+        from src.tools.client import get as ops_get  # noqa: PLC0415
+        if record.action == "escalate_case":
+            result = ops_get(f"/orders/{record.target}/risk")
+            parts = []
+            prob = result.get("breach_probability")
+            days = result.get("days_in_progress")
+            if prob is not None:
+                parts.append(f"SLA breach probability: {prob:.0%}")
+            if days is not None:
+                parts.append(f"days in progress: {days}")
+            return f"({', '.join(parts)})" if parts else ""
+        if record.action == "flag_supplier":
+            rows = ops_get("/suppliers/performance")
+            match = next(
+                (r for r in (rows if isinstance(rows, list) else [])
+                 if r.get("supplier_name") == record.target),
+                None,
+            )
+            if match:
+                score = match.get("performance_score")
+                late = match.get("late_delivery_rate_pct")
+                parts = []
+                if score is not None:
+                    parts.append(f"performance score: {score}")
+                if late is not None:
+                    parts.append(f"late delivery rate: {late}%")
+                return f"({', '.join(parts)})" if parts else ""
+    except Exception:
+        pass
+    return ""
