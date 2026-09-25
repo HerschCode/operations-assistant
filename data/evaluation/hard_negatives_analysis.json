@@ -1,0 +1,84 @@
+{
+  "n_total": 32,
+  "type_counts": {
+    "ambiguous": 7,
+    "correct": 5,
+    "halluc_caught": 13,
+    "halluc_missed": 7
+  },
+  "type_stats": {
+    "ambiguous": {
+      "n": 7,
+      "pct": 21.9,
+      "gate_rate_at_0_5": 0.1429,
+      "mean_max_entailment": 0.917,
+      "mean_max_contradiction": 0.972,
+      "ids": [
+        5,
+        10,
+        16,
+        21,
+        22,
+        29,
+        31
+      ]
+    },
+    "correct": {
+      "n": 5,
+      "pct": 15.6,
+      "gate_rate_at_0_5": 0.0,
+      "mean_max_entailment": 0.864,
+      "mean_max_contradiction": 0.083,
+      "ids": [
+        1,
+        13,
+        15,
+        23,
+        32
+      ]
+    },
+    "halluc_caught": {
+      "n": 13,
+      "pct": 40.6,
+      "gate_rate_at_0_5": 1.0,
+      "mean_max_entailment": 0.011,
+      "mean_max_contradiction": 0.928,
+      "ids": [
+        2,
+        4,
+        6,
+        7,
+        8,
+        9,
+        17,
+        18,
+        20,
+        24,
+        25,
+        27,
+        30
+      ]
+    },
+    "halluc_missed": {
+      "n": 7,
+      "pct": 21.9,
+      "gate_rate_at_0_5": 1.0,
+      "mean_max_entailment": 0.009,
+      "mean_max_contradiction": 0.042,
+      "ids": [
+        3,
+        11,
+        12,
+        14,
+        19,
+        26,
+        28
+      ]
+    }
+  },
+  "gate_threshold": 0.5,
+  "gate_precision": 0.9524,
+  "gate_recall_over_hallucinations": 1.0,
+  "false_positive_rate_over_correct": 0.0,
+  "finding": "Of 32 in-domain answers, 13 hallucinations are caught by contradiction detection (precision 95.2%), 7 are missed (neutral NLI score — gate blind to these). 0/5 correct answers are incorrectly gated (false-positive rate 0.0%), confirming the DeBERTa domain-mismatch problem from calibrate_gate.py."
+}

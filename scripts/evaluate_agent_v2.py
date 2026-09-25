@@ -62,6 +62,8 @@ def _load_questions(path: Path) -> list[dict]:
 
 
 def _save(rows: list[dict], questions: list[dict], provider: str) -> None:
+    if not rows and OUT.exists():
+        return  # don't overwrite an existing file with an empty rows list
     ok = [r for r in rows if "error" not in r]
     summary = {
         "n_questions": len(questions),
@@ -171,7 +173,7 @@ def _call_judge(question: str, answer: str, category: str, expected_tools: list[
             from groq import Groq
             client = Groq(api_key=os.environ["GROQ_API_KEY"])
             resp = client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="qwen/qwen3.8-27b",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=100,
                 temperature=0,
@@ -208,6 +210,9 @@ def main():
         print(f"Resuming: {len(completed)} done, {len(questions) - len(completed)} remaining.")
 
     if args.judge:
+        if not rows and OUT.exists():
+            existing = json.loads(OUT.read_text(encoding="utf-8"))
+            rows = existing.get("rows", [])
         _run_judge_pass(rows, questions, args.judge_provider)
         _save(rows, questions, args.provider)
         print("Judge pass complete.")

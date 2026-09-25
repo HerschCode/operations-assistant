@@ -1,0 +1,14 @@
+[
+  {"id": "Q001", "human_score": 3, "note": "Correct tool (get_cycle_time), service down, graceful failure, no numbers"},
+  {"id": "Q002", "human_score": 2, "note": "Correct tool but arg_correctness=false (missing segment=category), plus service down"},
+  {"id": "Q003", "human_score": 3, "note": "Correct tool (get_supplier_performance), service down, graceful failure"},
+  {"id": "Q004", "human_score": 3, "note": "Correct tool (get_bottlenecks), service down, graceful failure"},
+  {"id": "Q005", "human_score": 3, "note": "Called correct tool + extra get_pipeline_status, service down, graceful failure"},
+  {"id": "Q006", "human_score": 3, "note": "Correct tool (get_pipeline_status), service down, graceful failure"},
+  {"id": "Q007", "human_score": 2, "note": "Correct tool but arg_correctness=false (missing segment=category), service down"},
+  {"id": "Q008", "human_score": 3, "note": "Correct tool (get_sla_metrics), service down, graceful failure"},
+  {"id": "Q009", "human_score": 2, "note": "Correct tool but arg_correctness=false (missing top_n=3), service down"},
+  {"id": "Q010", "human_score": 3, "note": "Correct tool (get_conformance), service down, graceful failure"},
+  {"id": "Q011", "human_score": 3, "note": "Correct tool (get_management_report), service down, graceful failure"},
+  {"id": "Q012", "human_score": 3, "note": "Correct tool (get_pipeline_status), service down, graceful failure"}
+]

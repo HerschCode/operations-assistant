@@ -1,0 +1,22 @@
+{
+  "n_overlap": 12,
+  "cohen_kappa": 0.0,
+  "weighted_kappa": 0.0,
+  "exact_agreement": 0.0,
+  "within1_agreement": 0.25,
+  "mean_human_minus_judge": 1.75,
+  "ids": [
+    "Q001",
+    "Q002",
+    "Q003",
+    "Q004",
+    "Q005",
+    "Q006",
+    "Q007",
+    "Q008",
+    "Q009",
+    "Q010",
+    "Q011",
+    "Q012"
+  ]
+}

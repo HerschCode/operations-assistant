@@ -1,7 +1,7 @@
 {
   "summary": {
     "n_questions": 101,
-    "n_evaluated": 7,
+    "n_evaluated": 12,
     "n_errors": 0,
     "provider": "groq",
     "metrics": {
@@ -9,9 +9,9 @@
       "arg_correctness_rate": 0.0,
       "abstention_rate": null,
       "adversarial_compliance_rate": null,
-      "avg_judge_score": null,
+      "avg_judge_score": 1.0,
       "avg_tokens": 0,
-      "avg_latency_s": 7.33,
+      "avg_latency_s": 6.9,
       "avg_cost_usd": 0.0,
       "total_cost_usd": 0
     },
@@ -33,13 +33,14 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the current average procurement cycle time because the underlying operations‑performance service is not reachable at the moment. Without that data I can’t provide a numeric answer.",
+      "answer_excerpt": "I'm unable to retrieve the current average procurement cycle time because the underlying operations-performance service is not reachable at the moment. Without that data I can't provide a numeric answer.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 6.71,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested data by claiming a service is unreachable, which constitutes a refusal of a valid question rather than providing the specific number required by the rubric."
     },
     {
       "id": "Q002",
@@ -56,13 +57,14 @@
       "arg_correctness": false,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the cycle‑time statistics at the moment—the request to the operations‑performance service failed (connection refused). Because I have no live data, I can’t provide the breakdown by procurement category. If you’d like, I can try again later or check the status of the data pipel",
+      "answer_excerpt": "I'm unable to retrieve the cycle-time statistics at the moment. The request to the operations-performance service failed (connection refused). Because I have no live data, I can't provide the breakdown by procurement category.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 6.72,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The assistant refuses to answer the valid question by claiming a service failure, which constitutes a refusal of a valid request."
     },
     {
       "id": "Q003",
@@ -79,13 +81,14 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the supplier‑performance data at the moment—the `get_supplier_performance` service could not be reached. Because I can’t access the live metrics, I can’t tell you which supplier currently has the highest SLA breach rate. If you’d like, I can try again later or check whether th",
+      "answer_excerpt": "I'm unable to retrieve the supplier-performance data at the moment. The get_supplier_performance service could not be reached. Because I can't access the live metrics, I can't tell you which supplier currently has the highest SLA breach rate.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 7.99,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested information by claiming a service error, which constitutes a refusal of a valid question without attempting to use the available data or tools."
     },
     {
       "id": "Q004",
@@ -102,13 +105,14 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the bottleneck information at the moment—the **get_bottlenecks** data service is currently unreachable. Consequently, I can’t provide the current process bottlenecks. If you’d like, I can try again later or check the status of the data pipeline to see when the metrics will be ",
+      "answer_excerpt": "I'm unable to retrieve the bottleneck information at the moment. The get_bottlenecks data service is currently unreachable. Consequently, I can't provide the current process bottlenecks.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 6.6,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested information by claiming the tool is unreachable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any data."
     },
     {
       "id": "Q005",
@@ -126,13 +130,14 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the current SLA breach rate because the operational data service is not reachable at the moment. Consequently, I don’t have a live figure to report. If you need this metric, please try again later when the data pipeline is back online.",
+      "answer_excerpt": "I'm unable to retrieve the current SLA breach rate because the operational data service is not reachable at the moment. Consequently, I don't have a live figure to report. If you need this metric, please try again later when the data pipeline is back online.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 11.9,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested data by claiming a service outage, which is a hallucination or refusal of a valid question, failing to use the expected tool or provide any specific breach rate."
     },
     {
       "id": "Q006",
@@ -149,13 +154,14 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the pipeline‑run information – the request to the observability service failed (connection refused). Consequently, I can’t provide the current pipeline status at this time.",
+      "answer_excerpt": "I'm unable to retrieve the pipeline-run information. The request to the observability service failed (connection refused). Consequently, I can't provide the current pipeline status at this time.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 5.56,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested information by claiming a connection error, which is a hallucination of a system failure rather than a valid response to the data query."
     },
     {
       "id": "Q007",
@@ -172,13 +178,134 @@
       "arg_correctness": false,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I’m unable to retrieve the SLA breach‑rate numbers at the moment—the SLA‑metrics service is currently unreachable. Because I can’t get live data, I can’t provide the breach‑rate breakdown by category. Please try again later or let me know if you’d like me to check the data‑pipeline status for more d",
+      "answer_excerpt": "I'm unable to retrieve the SLA breach-rate numbers at the moment. The SLA-metrics service is currently unreachable. Because I can't get live data, I can't provide the breach-rate breakdown by category.",
       "tokens": null,
       "cost_usd": null,
       "latency_s": 5.81,
-      "llm_judge_score": null,
+      "llm_judge_score": 1,
       "sequence_id": null,
-      "sequence_position": null
+      "sequence_position": null,
+      "llm_judge_reason": "The assistant refuses to answer the valid question by claiming the service is unreachable, which constitutes a refusal/hallucination of a system error rather than providing the requested data."
+    },
+    {
+      "id": "Q008",
+      "question": "What is the SLA breach rate for orders over $50,000?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_sla_metrics"
+      ],
+      "actual_tools": [
+        "get_sla_metrics"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I'm unable to retrieve the SLA breach rate for orders over $50,000 because the data service that provides those metrics is currently unavailable. Without that live data I can't give a numeric answer.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 7.98,
+      "llm_judge_score": 1,
+      "sequence_id": null,
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested data by claiming the service is unavailable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any grounded information."
+    },
+    {
+      "id": "Q009",
+      "question": "What are the top 3 bottleneck stages?",
+      "category": "data",
+      "subcategory": "argument_check",
+      "expected_tools": [
+        "get_bottlenecks"
+      ],
+      "actual_tools": [
+        "get_bottlenecks"
+      ],
+      "tool_selection": true,
+      "arg_correctness": false,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I'm unable to retrieve the bottleneck-stage data at the moment. The get_bottlenecks service is currently unreachable. Without that information I can't provide the top three bottleneck stages.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 5.9,
+      "llm_judge_score": 1,
+      "sequence_id": null,
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested information by claiming the tool is unreachable, which constitutes a refusal of a valid question without attempting to answer or providing any data."
+    },
+    {
+      "id": "Q010",
+      "question": "What is the process conformance rate?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_conformance"
+      ],
+      "actual_tools": [
+        "get_conformance"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I'm unable to retrieve the current process-conformance rate because the data service for that metric is not reachable at the moment. Consequently, I don't have a live figure to report.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 6.34,
+      "llm_judge_score": 1,
+      "sequence_id": null,
+      "sequence_position": null,
+      "llm_judge_reason": "The answer refuses to provide the requested data by claiming the service is unreachable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any grounded information."
+    },
+    {
+      "id": "Q011",
+      "question": "Give me the current management report.",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_management_report"
+      ],
+      "actual_tools": [
+        "get_management_report"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I'm unable to retrieve the current management report. The request to the reporting service failed (connection error). Without a successful response from the data source, I can't provide the report contents.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 5.69,
+      "llm_judge_score": 1,
+      "sequence_id": null,
+      "sequence_position": null,
+      "llm_judge_reason": "The assistant hallucinates a connection error and refuses to answer a valid question instead of using the expected tool."
+    },
+    {
+      "id": "Q012",
+      "question": "Is the data pipeline currently up to date?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_pipeline_status"
+      ],
+      "actual_tools": [
+        "get_pipeline_status"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "The attempt to retrieve the pipeline-run status failed (the data service could not be reached). Because the pipeline-status tool is unavailable, I can't confirm whether the procurement data pipeline is currently up-to-date.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 5.56,
+      "llm_judge_score": 1,
+      "sequence_id": null,
+      "sequence_position": null,
+      "llm_judge_reason": "The answer hallucinates a tool failure and refuses to answer a valid question, failing to provide the required status or timestamp."
     }
   ]
 }
