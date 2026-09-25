@@ -29,20 +29,58 @@ Subcategories that enable argument-level scoring: `argument_check` (4 questions 
 | **llm_judge_score** | 1–5 quality score from LLM judge (see judge prompt in eval script) |
 | **tokens / cost / latency** | from AgentResponse per question |
 
-## Results
+## Running the eval
 
-*This section is populated after running `python -m scripts.evaluate_agent_v2 --resume`.*
+```bash
+# Full run (101 questions, ~20 min on Groq free tier)
+python -m scripts.evaluate_agent_v2 --provider groq
 
-Run has not yet completed due to Groq free-tier daily token quota.  
-Resume command:
-```
+# Resume after a quota interruption
 python -m scripts.evaluate_agent_v2 --provider groq --resume
-```
 
-Add LLM judge scores after the run:
-```
+# Add LLM judge scores after the run
 python -m scripts.evaluate_agent_v2 --judge --judge-provider anthropic
 ```
+
+The script exits gracefully on Groq daily-quota exhaustion (`sys.exit(0)`) with a
+"re-run with --resume tomorrow" message, so partial results are always saved.
+Transient per-minute rate limits are retried with exponential back-off (15s → 30s → 60s).
+
+## Results
+
+**Status: in progress** — Groq daily quota exhausted at Q008. Re-run with `--resume` to continue.
+
+Partial results (7/101 questions, `data` category only):
+
+| Metric | Value | n |
+|---|:---:|:---:|
+| tool_selection_rate | 100% | 7 |
+| avg_latency_s | 7.3s | 7 |
+
+*Full results pending resumed run.*
+
+## Human–judge agreement (Cohen's kappa)
+
+After the eval run and judge pass complete:
+
+1. Manually score 40 questions (1–5 scale) and save to `data/evaluation/agent_labels.json`:
+
+```json
+[{"id": "Q001", "human_score": 5}, {"id": "Q002", "human_score": 4}, ...]
+```
+
+2. Compute kappa:
+
+```bash
+python -m scripts.compute_kappa data/evaluation/agent_labels.json
+```
+
+Outputs `data/evaluation/kappa_results.json` with Cohen's kappa (unweighted),
+linear-weighted kappa, exact agreement, within-1 agreement, and per-category breakdown.
+Requires ≥20 questions with both a human score and a judge score (raises a clear error otherwise).
+
+**Benchmark:** κ ≥ 0.61 ("substantial") is the target; κ < 0.41 ("moderate") would
+indicate the judge prompt needs tuning.
 
 ## LLM-as-judge setup
 
@@ -51,13 +89,6 @@ The judge prompt (`JUDGE_PROMPT` in `evaluate_agent_v2.py`) scores on a 1–5 sc
 - Whether the answer contains specific numbers (not vague)
 - Whether the answer matches the `judge_rubric` field
 - Citation accuracy
-
-**Human–judge agreement (Cohen's kappa):** to be measured after manual labeling of 40 questions.  
-Hand-label format: `data/evaluation/agent_labels.json`  
-```json
-[{"id": "Q001", "human_score": 5}, {"id": "Q002", "human_score": 4}, ...]
-```
-Kappa computation: `python -m scripts.compute_kappa data/evaluation/agent_labels.json`
 
 ## Per-category failure analysis
 

@@ -8,3 +8,7 @@ data/documents/*.pdf
 data/chroma/
 data/conversations.db
 logs/*.jsonl
+
+# Model weights — store on HF Hub, not in git
+models/
+chroma_db/

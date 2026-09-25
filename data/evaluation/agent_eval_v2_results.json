@@ -1,0 +1,184 @@
+{
+  "summary": {
+    "n_questions": 101,
+    "n_evaluated": 7,
+    "n_errors": 0,
+    "provider": "groq",
+    "metrics": {
+      "tool_selection_rate": 1.0,
+      "arg_correctness_rate": 0.0,
+      "abstention_rate": null,
+      "adversarial_compliance_rate": null,
+      "avg_judge_score": null,
+      "avg_tokens": 0,
+      "avg_latency_s": 7.33,
+      "avg_cost_usd": 0.0,
+      "total_cost_usd": 0
+    },
+    "status": "in_progress"
+  },
+  "rows": [
+    {
+      "id": "Q001",
+      "question": "What is the average procurement cycle time?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_cycle_time"
+      ],
+      "actual_tools": [
+        "get_cycle_time"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the current average procurement cycle time because the underlying operations‑performance service is not reachable at the moment. Without that data I can’t provide a numeric answer.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 6.71,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q002",
+      "question": "What is the cycle time broken down by procurement category?",
+      "category": "data",
+      "subcategory": "argument_check",
+      "expected_tools": [
+        "get_cycle_time"
+      ],
+      "actual_tools": [
+        "get_cycle_time"
+      ],
+      "tool_selection": true,
+      "arg_correctness": false,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the cycle‑time statistics at the moment—the request to the operations‑performance service failed (connection refused). Because I have no live data, I can’t provide the breakdown by procurement category. If you’d like, I can try again later or check the status of the data pipel",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 6.72,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q003",
+      "question": "Which supplier has the highest SLA breach rate?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_supplier_performance"
+      ],
+      "actual_tools": [
+        "get_supplier_performance"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the supplier‑performance data at the moment—the `get_supplier_performance` service could not be reached. Because I can’t access the live metrics, I can’t tell you which supplier currently has the highest SLA breach rate. If you’d like, I can try again later or check whether th",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 7.99,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q004",
+      "question": "What are the current process bottlenecks?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_bottlenecks"
+      ],
+      "actual_tools": [
+        "get_bottlenecks"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the bottleneck information at the moment—the **get_bottlenecks** data service is currently unreachable. Consequently, I can’t provide the current process bottlenecks. If you’d like, I can try again later or check the status of the data pipeline to see when the metrics will be ",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 6.6,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q005",
+      "question": "What is the overall SLA breach rate?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_sla_metrics"
+      ],
+      "actual_tools": [
+        "get_sla_metrics",
+        "get_pipeline_status"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the current SLA breach rate because the operational data service is not reachable at the moment. Consequently, I don’t have a live figure to report. If you need this metric, please try again later when the data pipeline is back online.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 11.9,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q006",
+      "question": "Show me the overall pipeline status.",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_pipeline_status"
+      ],
+      "actual_tools": [
+        "get_pipeline_status"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the pipeline‑run information – the request to the observability service failed (connection refused). Consequently, I can’t provide the current pipeline status at this time.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 5.56,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q007",
+      "question": "What is the SLA breach rate broken down by category?",
+      "category": "data",
+      "subcategory": "argument_check",
+      "expected_tools": [
+        "get_sla_metrics"
+      ],
+      "actual_tools": [
+        "get_sla_metrics"
+      ],
+      "tool_selection": true,
+      "arg_correctness": false,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I’m unable to retrieve the SLA breach‑rate numbers at the moment—the SLA‑metrics service is currently unreachable. Because I can’t get live data, I can’t provide the breach‑rate breakdown by category. Please try again later or let me know if you’d like me to check the data‑pipeline status for more d",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 5.81,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    }
+  ]
+}

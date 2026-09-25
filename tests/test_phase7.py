@@ -11,8 +11,13 @@ from pathlib import Path
 
 import pytest
 
-from scripts.prepare_generation_data import _build_answer, _stratified_split
+from scripts.prepare_generation_data import _build_answer, _stratified_split, _check_leakage
 from scripts.evaluate_generation import extract_keywords, keyword_recall
+from scripts.prepare_tool_selection_data import (
+    _build_examples, _add_agent_traces, _split_by_template,
+    _check_leakage as _check_tool_leakage, TEMPLATES,
+)
+from scripts.evaluate_tool_selection import _parse_tool_call, _normalise, _tools_from_normalised, bootstrap_ci
 
 
 # ── data preparation ──────────────────────────────────────────────────────────
@@ -166,3 +171,156 @@ class TestKeywordRecall:
     def test_empty_reference_returns_one(self):
         # No keywords to match → trivially correct
         assert keyword_recall("the a an", "anything") == 1.0
+
+
+# ── generation-data leakage check ────────────────────────────────────────────
+
+class TestGenerationLeakageCheck:
+    def _make_ex(self, answer: str, citation: str = "Doc A") -> dict:
+        return {
+            "messages": [
+                {"role": "system", "content": "sys"},
+                {"role": "user", "content": "q"},
+                {"role": "assistant", "content": answer},
+            ],
+            "meta": {"category": "lookup", "citation": citation},
+        }
+
+    def test_no_leakage_passes(self):
+        train = [self._make_ex("Answer A", "Doc A"), self._make_ex("Answer B", "Doc B")]
+        test = [self._make_ex("Answer C", "Doc C")]
+        _check_leakage(train, test)  # should not raise
+
+    def test_answer_leakage_raises(self):
+        train = [self._make_ex("Shared answer", "Doc A")]
+        test = [self._make_ex("Shared answer", "Doc B")]  # same answer text
+        with pytest.raises(ValueError, match="leakage"):
+            _check_leakage(train, test)
+
+    def test_citation_leakage_raises(self):
+        train = [self._make_ex("Answer A", "Doc X")]
+        test = [self._make_ex("Different answer", "Doc X")]  # same citation
+        with pytest.raises(ValueError, match="leakage"):
+            _check_leakage(train, test)
+
+    def test_existing_splits_have_leakage(self):
+        """Confirm the OLD row-split generation data has leakage (documented negative)."""
+        train_path = Path("data/finetune/train.jsonl")
+        test_path = Path("data/finetune/test.jsonl")
+        if not (train_path.exists() and test_path.exists()):
+            pytest.skip("generation splits not present")
+        train = [json.loads(l) for l in train_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+        test = [json.loads(l) for l in test_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+        def _answer(ex):
+            return next(m["content"] for m in ex["messages"] if m["role"] == "assistant")
+
+        train_answers = {_answer(e) for e in train}
+        leaked = [e for e in test if _answer(e) in train_answers]
+        # We expect significant leakage (>50%) in the old dataset
+        assert len(leaked) / len(test) > 0.5, (
+            f"Expected >50% leakage in old generation splits but got {len(leaked)}/{len(test)}"
+        )
+
+
+# ── tool-selection dataset ───────────────────────────────────────────────────
+
+class TestToolSelectionDataset:
+    def test_template_examples_at_least_400(self):
+        examples = _build_examples(TEMPLATES)
+        assert len(examples) >= 400, f"Expected ≥400 template examples, got {len(examples)}"
+
+    def test_total_with_agent_traces_at_least_500(self):
+        examples = _add_agent_traces(_build_examples(TEMPLATES))
+        assert len(examples) >= 500, f"Expected ≥500 total examples (templates + agent traces), got {len(examples)}"
+
+    def test_all_messages_have_three_roles(self):
+        examples = _build_examples(TEMPLATES)
+        for ex in examples[:20]:  # spot-check first 20
+            roles = [m["role"] for m in ex["messages"]]
+            assert roles == ["system", "user", "assistant"], f"Wrong roles: {roles}"
+
+    def test_assistant_content_is_valid_json(self):
+        examples = _build_examples(TEMPLATES)
+        invalid = []
+        for ex in examples:
+            answer = next(m["content"] for m in ex["messages"] if m["role"] == "assistant")
+            try:
+                json.loads(answer)
+            except json.JSONDecodeError:
+                invalid.append(answer[:80])
+        assert not invalid, f"Invalid JSON answers: {invalid[:3]}"
+
+    def test_template_split_has_no_leakage(self):
+        examples = _build_examples(TEMPLATES)
+        train, test = _split_by_template(examples, 0.8, seed=42)
+        _check_tool_leakage(train, test)  # should not raise
+
+    def test_split_by_template_no_overlap(self):
+        examples = _build_examples(TEMPLATES)
+        train, test = _split_by_template(examples, 0.8, seed=42)
+        train_ids = {ex["meta"]["template_id"] for ex in train}
+        test_ids = {ex["meta"]["template_id"] for ex in test}
+        assert not (train_ids & test_ids), "Templates appear in both splits"
+
+    def test_tool_jsonl_files_exist_and_valid(self):
+        train_path = Path("data/finetune/tool_train.jsonl")
+        test_path = Path("data/finetune/tool_test.jsonl")
+        if not (train_path.exists() and test_path.exists()):
+            pytest.skip("tool JSONL files not yet generated")
+        for path in (train_path, test_path):
+            for line in path.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    obj = json.loads(line)
+                    assert "messages" in obj
+                    assert "meta" in obj
+                    assert "template_id" in obj["meta"]
+
+
+# ── tool-selection evaluation helpers ────────────────────────────────────────
+
+class TestParseToolCall:
+    def test_single_tool(self):
+        raw = '{"tool": "get_cycle_time", "arguments": {}}'
+        parsed = _parse_tool_call(raw)
+        assert parsed is not None
+        assert parsed["tool"] == "get_cycle_time"
+
+    def test_multi_tool(self):
+        raw = '[{"tool": "get_cycle_time", "arguments": {}}, {"tool": "get_sla_metrics", "arguments": {}}]'
+        parsed = _parse_tool_call(raw)
+        assert isinstance(parsed, list)
+        assert len(parsed) == 2
+
+    def test_with_args(self):
+        raw = '{"tool": "get_cycle_time", "arguments": {"segment": "category"}}'
+        parsed = _parse_tool_call(raw)
+        assert parsed["arguments"]["segment"] == "category"
+
+    def test_invalid_json_returns_none(self):
+        assert _parse_tool_call("not json at all") is None
+
+    def test_strips_markdown_fence(self):
+        raw = "```json\n{\"tool\": \"get_sla_metrics\", \"arguments\": {}}\n```"
+        parsed = _parse_tool_call(raw)
+        assert parsed is not None
+        assert parsed["tool"] == "get_sla_metrics"
+
+
+class TestBootstrapCI:
+    def test_all_zeros(self):
+        lo, hi = bootstrap_ci([0.0] * 100)
+        assert lo == 0.0 and hi == 0.0
+
+    def test_all_ones(self):
+        lo, hi = bootstrap_ci([1.0] * 100)
+        assert lo == 1.0 and hi == 1.0
+
+    def test_interval_width_decreases_with_more_samples(self):
+        import random as _rng
+        _rng.seed(1)
+        small = [float(_rng.random() > 0.5) for _ in range(10)]
+        large = [float(_rng.random() > 0.5) for _ in range(200)]
+        lo_s, hi_s = bootstrap_ci(small)
+        lo_l, hi_l = bootstrap_ci(large)
+        assert (hi_s - lo_s) > (hi_l - lo_l)

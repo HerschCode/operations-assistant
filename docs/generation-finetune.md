@@ -1,18 +1,51 @@
 # Generation Fine-Tune: QLoRA Domain Adaptation
 
-## Goal
+> **Status: negative result — train/test leakage detected.**
+> The experiment documented here is preserved as a methodological record. The +17.9 pp
+> improvement shown in the evaluation table was driven by memorization, not
+> generalization. See [Leakage Analysis](#leakage-analysis) below and the corrected
+> experiment in [tool-selection-finetune.md](tool-selection-finetune.md).
+
+---
+
+## Goal (original)
 
 Fine-tune `Qwen2.5-0.5B-Instruct` on Northstar Manufacturing's P2P policy corpus so
 the model can answer procurement, SLA, and escalation questions **directly from its
-weights** without needing the live retrieval system. This demonstrates:
+weights** without needing the live retrieval system.
 
-1. **Domain adaptation via QLoRA** — 4-bit NF4 quantization + LoRA adapters make it
-   feasible to fine-tune a 1.5B model on a single 8GB GPU.
-2. **Data construction from a RAG corpus** — using the same retrieval stack as the live
-   assistant to ground every training example in retrieved policy text (no hallucinated
-   training labels, no separate LLM calls for data generation).
-3. **Honest before/after evaluation** — keyword-recall metric on a held-out test split
-   that the model never trained on.
+---
+
+## Leakage Analysis
+
+The 130 in-scope policy questions map onto only **~58 unique policy chunks** (many
+questions refer to the same section). A row-level 80/20 split assigns questions to
+train/test independently, so the same chunk text ends up in both splits.
+
+Result: **78.6% of test answers (22/28) are character-identical to a training
+answer**. The +17.9 pp gain reflects the model recognising text it memorised during
+training, not domain generalisation to new questions.
+
+The leakage check is now enforced in CI:
+
+```python
+# scripts/prepare_generation_data.py
+_check_leakage(train, test)   # raises ValueError if train and test share answers or citations
+```
+
+Running `python -m scripts.prepare_generation_data` will raise:
+
+```
+ValueError: Train/test leakage detected: 22 test answers and 28 test citations
+appear in the train set. Use a chunk-deduped split (split by citation) instead.
+```
+
+**Corrected number**: A valid generation fine-tune would require a citation-deduped
+split (split at the chunk level so every chunk appears in exactly one split). With
+only 58 unique chunks, this yields a test set of ~12 chunks / ~26 questions — too
+small for reliable estimates. The experiment was therefore re-framed to
+**tool-selection fine-tuning** where a template-ID split is leak-free by construction.
+See `docs/tool-selection-finetune.md`.
 
 ---
 
@@ -27,7 +60,7 @@ the highest-scoring chunk. The answer is formatted as:
 According to {citation}: {chunk_text}
 ```
 
-Split 80/20 stratified by category (see `data/finetune/stats.json`):
+Row-level split 80/20 stratified by category (**leaky — see above**):
 
 | Category             | Train | Test |
 |----------------------|------:|-----:|
@@ -38,10 +71,6 @@ Split 80/20 stratified by category (see `data/finetune/stats.json`):
 | paraphrase           |    13 |    4 |
 | ambiguous            |     8 |    3 |
 | **Total**            |**102**|**28**|
-
-No LLM API calls used for data generation. The training answers are directly grounded
-in retrieved policy chunks, so the fine-tuned model learns to produce the same
-content the RAG assistant would retrieve — without the retrieval step.
 
 ---
 
@@ -68,71 +97,58 @@ Trainable parameters: **4,399,104** (0.88% of 498M — LoRA adapter only, base m
 Training time: **129s**
 Final train loss: **1.78** (3.63 → 1.13 across 39 optimizer steps)
 
-Full training metrics: `models/generation_adapter/training_metrics.json`
-LoRA adapter weights: `models/generation_adapter/adapter/`
-
 ---
 
-## Evaluation
+## Evaluation (invalid — leaked split)
 
-Metric: **keyword recall** — for each test question, extract numbers, capitalized
-policy terms, and domain keywords from the reference answer; check what fraction
-appear in the model's generated response. A question is a "hit" if recall ≥ 0.50.
+Metric: **keyword recall** — fraction of reference keywords appearing in generated
+response. A question is a "hit" if recall ≥ 0.50.
 
-The base model (no fine-tuning) cannot answer Northstar's fictional policies from
-pre-training knowledge, so this is a clean domain-adaptation test: any improvement
-is directly attributable to the QLoRA fine-tuning.
-
-| Model       | Hit Rate | n |
-|-------------|:--------:|--:|
+| Model       | Hit Rate | n  |
+|-------------|:--------:|---:|
 | Base        |  32.1%   | 28 |
 | Fine-tuned  |  50.0%   | 28 |
-| Δ           | **+17.9pp** |  |
+| Δ           | **+17.9pp** ← **invalid; memorization artefact** | |
 
-Per-category breakdown:
+The improvement cannot be attributed to generalization because 22/28 test answers
+were seen verbatim during training. The corrected figure from a leak-free eval is
+reported in `docs/tool-selection-finetune.md`.
 
-| Category             | Base | Fine-tuned | Δ |
-|----------------------|-----:|-----------:|--:|
-| ambiguous            | 66.7% | 66.7%    |  0 |
-| lookup               | 66.7% | 33.3%    | −33 |
-| multi_hop            |  0.0% | 60.0%    | +60 |
-| numerical            | 40.0% | 60.0%    | +20 |
-| paraphrase           | 25.0% |  0.0%    | −25 |
-| policy_interpretation|  0.0% | 80.0%    | +80 |
-
-Full per-example detail: `data/evaluation/generation_finetune_results.json`.
+Full per-example detail (archived): `data/evaluation/generation_finetune_results.json`
 
 ---
 
-## Limitations and Caveats
+## What Was Learned
 
-- **Training set size**: 102 examples is small for instruction tuning. Multi-hop and
-  ambiguous categories are expected to generalise less than lookup/paraphrase.
-- **Metric conservatism**: keyword recall measures token presence, not semantic
-  correctness. A model that paraphrases correctly but uses different wording scores
-  lower than one that quotes verbatim.
-- **Answer quality**: training labels are formatted as "According to X: {raw chunk
-  text}" — the fine-tuned model learns to quote policy sections, not to synthesise
-  them into flowing prose. Adequate for domain retrieval; not natural conversation.
-- **Not a replacement for RAG**: the fine-tuned model is evaluated on questions whose
-  answers appear in the training distribution. Novel policy updates would require
-  re-training or a retrieval step.
-- **Category regressions**: lookup (66.7% → 33.3%) and paraphrase (25% → 0%) declined.
-  The fine-tuned model learned to produce policy-style verbatim text, which scores
-  poorly when the reference answer uses different wording for the same fact. The 102-
-  example training set is too small to prevent this overfitting on certain categories.
+1. **Row-level splits on a policy corpus are almost always leaky.** When many questions
+   reference the same document section, the correct split unit is the *chunk* (citation),
+   not the question row.
+
+2. **Knowledge-in-weights is the wrong objective when RAG exists.** Fine-tuning a model
+   to memorise retrieved text competes with the retrieval system. The correct
+   fine-tuning objective when RAG is in the loop is **tool selection / routing** — teach
+   the model *which tool to call and with what arguments*, not what the tool will return.
+
+3. **QLoRA + Qwen2.5-0.5B runs in 129s on an RTX 4060.** The infrastructure is sound;
+   only the task framing and split strategy needed correction.
 
 ---
 
 ## Reproduction
 
 ```bash
-# 1. Build training data (CPU only, no API keys)
+# Attempts to build the dataset — will raise ValueError due to leakage
 python -m scripts.prepare_generation_data
 
-# 2. Fine-tune (requires CUDA, ~8 GB VRAM)
-python -m scripts.finetune_generation
-
-# 3. Evaluate base vs. fine-tuned
+# To reproduce the (invalid) fine-tuned eval result from the archived adapter:
 python -m scripts.evaluate_generation
+```
+
+The corrected experiment (tool-selection fine-tuning with template-ID split) is
+reproduced via:
+
+```bash
+python -m scripts.prepare_tool_selection_data
+python -m scripts.finetune_tool_selection
+python -m scripts.evaluate_tool_selection
 ```

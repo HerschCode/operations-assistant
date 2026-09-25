@@ -71,6 +71,31 @@ def _stratified_split(items_by_category: dict[str, list], train_frac: float, see
     return train, test
 
 
+def _check_leakage(train: list, test: list) -> None:
+    """Fail loudly if any test answer or chunk citation appears in the train set.
+
+    130 policy questions map onto ~58 unique chunks, so a row-level split puts the same
+    chunk answer into both splits.  This function catches that before it can produce
+    inflated eval numbers.
+    """
+    def _answer(ex):
+        return next(m["content"] for m in ex["messages"] if m["role"] == "assistant")
+
+    train_answers = {_answer(e) for e in train}
+    train_citations = {e["meta"].get("citation", "") for e in train}
+
+    leaked_answer = [e for e in test if _answer(e) in train_answers]
+    leaked_citation = [e for e in test if e["meta"].get("citation", "") in train_citations
+                       and e["meta"].get("citation", "")]
+
+    if leaked_answer or leaked_citation:
+        raise ValueError(
+            f"Train/test leakage detected: {len(leaked_answer)} test answers and "
+            f"{len(leaked_citation)} test citations appear in the train set. "
+            "Use a chunk-deduped split (split by citation) instead of a row split."
+        )
+
+
 def build_dataset() -> dict:
     data = json.loads(EVAL_PATH.read_text(encoding="utf-8"))
     in_scope = [q for q in data if q.get("in_scope")]
@@ -105,6 +130,7 @@ def build_dataset() -> dict:
             print(f"  {i}/{len(in_scope)} done", flush=True)
 
     train, test = _stratified_split(by_category, TRAIN_FRACTION, RANDOM_SEED)
+    _check_leakage(train, test)
 
     stats = {
         "n_in_scope": len(in_scope),

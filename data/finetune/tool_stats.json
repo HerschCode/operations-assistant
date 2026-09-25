@@ -1,0 +1,19 @@
+{
+  "n_templates": 128,
+  "n_train": 388,
+  "n_train_templates": 102,
+  "n_test": 112,
+  "n_test_templates": 26,
+  "train_frac_templates": 0.797,
+  "tool_counts": {
+    "search_policy_documents": 127,
+    "get_sla_metrics": 95,
+    "get_cycle_time": 87,
+    "get_bottlenecks": 86,
+    "get_supplier_performance": 71,
+    "predict_sla_risk": 56,
+    "get_pipeline_status": 53,
+    "get_conformance": 50,
+    "get_management_report": 28
+  }
+}
