@@ -2,7 +2,7 @@
 
 ## Goal
 
-Fine-tune `Qwen2.5-1.5B-Instruct` on Northstar Manufacturing's P2P policy corpus so
+Fine-tune `Qwen2.5-0.5B-Instruct` on Northstar Manufacturing's P2P policy corpus so
 the model can answer procurement, SLA, and escalation questions **directly from its
 weights** without needing the live retrieval system. This demonstrates:
 
@@ -49,7 +49,7 @@ content the RAG assistant would retrieve — without the retrieval step.
 
 | Parameter           | Value                          |
 |---------------------|-------------------------------|
-| Base model          | Qwen/Qwen2.5-1.5B-Instruct    |
+| Base model          | Qwen/Qwen2.5-0.5B-Instruct    |
 | Quantisation        | 4-bit NF4 (bitsandbytes)      |
 | Compute dtype       | bfloat16                      |
 | LoRA rank r         | 8                             |
@@ -64,9 +64,9 @@ content the RAG assistant would retrieve — without the retrieval step.
 | Optimiser           | paged_adamw_8bit              |
 | Hardware            | NVIDIA RTX 4060 Laptop 8 GB   |
 
-Trainable parameters: **TBD** (LoRA adapter only — base model frozen)
-Training time: **TBD**s
-Final train loss: **TBD**
+Trainable parameters: **4,399,104** (0.88% of 498M — LoRA adapter only, base model frozen)
+Training time: **129s**
+Final train loss: **1.78** (3.63 → 1.13 across 39 optimizer steps)
 
 Full training metrics: `models/generation_adapter/training_metrics.json`
 LoRA adapter weights: `models/generation_adapter/adapter/`
@@ -85,11 +85,22 @@ is directly attributable to the QLoRA fine-tuning.
 
 | Model       | Hit Rate | n |
 |-------------|:--------:|--:|
-| Base        |   **TBD** | 28 |
-| Fine-tuned  |   **TBD** | 28 |
-| Δ           |   **TBD** |    |
+| Base        |  32.1%   | 28 |
+| Fine-tuned  |  50.0%   | 28 |
+| Δ           | **+17.9pp** |  |
 
-Per-category breakdown: see `data/evaluation/generation_finetune_results.json`.
+Per-category breakdown:
+
+| Category             | Base | Fine-tuned | Δ |
+|----------------------|-----:|-----------:|--:|
+| ambiguous            | 66.7% | 66.7%    |  0 |
+| lookup               | 66.7% | 33.3%    | −33 |
+| multi_hop            |  0.0% | 60.0%    | +60 |
+| numerical            | 40.0% | 60.0%    | +20 |
+| paraphrase           | 25.0% |  0.0%    | −25 |
+| policy_interpretation|  0.0% | 80.0%    | +80 |
+
+Full per-example detail: `data/evaluation/generation_finetune_results.json`.
 
 ---
 
@@ -106,6 +117,10 @@ Per-category breakdown: see `data/evaluation/generation_finetune_results.json`.
 - **Not a replacement for RAG**: the fine-tuned model is evaluated on questions whose
   answers appear in the training distribution. Novel policy updates would require
   re-training or a retrieval step.
+- **Category regressions**: lookup (66.7% → 33.3%) and paraphrase (25% → 0%) declined.
+  The fine-tuned model learned to produce policy-style verbatim text, which scores
+  poorly when the reference answer uses different wording for the same fact. The 102-
+  example training set is too small to prevent this overfitting on certain categories.
 
 ---
 

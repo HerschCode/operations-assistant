@@ -1,0 +1,15 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "lora_r": 8,
+  "lora_alpha": 16,
+  "epochs": 3,
+  "batch_size": 4,
+  "lr": 0.0002,
+  "max_length": 512,
+  "n_train": 102,
+  "train_loss": 1.7799,
+  "elapsed_seconds": 129.0,
+  "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "trainable_params": 4399104,
+  "total_params": 498431872
+}

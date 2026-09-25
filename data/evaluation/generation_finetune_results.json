@@ -1,0 +1,432 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "adapter": "D:\\0_Project\\operations-assistant\\models\\generation_adapter\\adapter",
+  "hit_threshold": 0.5,
+  "base": {
+    "hit_rate": 0.321,
+    "n": 28,
+    "by_category": {
+      "ambiguous": {
+        "hit_rate": 0.667,
+        "n": 3
+      },
+      "lookup": {
+        "hit_rate": 0.667,
+        "n": 6
+      },
+      "multi_hop": {
+        "hit_rate": 0.0,
+        "n": 5
+      },
+      "numerical": {
+        "hit_rate": 0.4,
+        "n": 5
+      },
+      "paraphrase": {
+        "hit_rate": 0.25,
+        "n": 4
+      },
+      "policy_interpretation": {
+        "hit_rate": 0.0,
+        "n": 5
+      }
+    }
+  },
+  "finetuned": {
+    "hit_rate": 0.5,
+    "n": 28,
+    "by_category": {
+      "ambiguous": {
+        "hit_rate": 0.667,
+        "n": 3
+      },
+      "lookup": {
+        "hit_rate": 0.333,
+        "n": 6
+      },
+      "multi_hop": {
+        "hit_rate": 0.6,
+        "n": 5
+      },
+      "numerical": {
+        "hit_rate": 0.6,
+        "n": 5
+      },
+      "paraphrase": {
+        "hit_rate": 0.0,
+        "n": 4
+      },
+      "policy_interpretation": {
+        "hit_rate": 0.8,
+        "n": 5
+      }
+    }
+  },
+  "delta_hit_rate": 0.179,
+  "detail": [
+    {
+      "id": 29,
+      "category": "ambiguous",
+      "question": "What are the approval requirements?",
+      "reference": "According to Procurement Policy, Section 4.1 Standard Approval: 4.1 Standard Approval\nPurchase Orders up to $10,000 require single-level approval from the requesting department's\nbudget owner.",
+      "base_answer": "The approval requirements in Northstar Manufacturing's procurement process are outlined in Section 10 of the Procurement Policy Document. These requirements include:\n\n- Approval from the Chief Procurement Officer (CPO) or equivalent.\n- Review by a senior management representative.\n- Approval by the Board of Directors.\n\nThese approvals ensure that all steps leading to finalization are completed before proceeding with any action.",
+      "base_recall": 0.5,
+      "base_hit": true,
+      "elapsed_ms": 14172.0,
+      "finetuned_answer": "According to Procurement Policy, Section 5. Approval: 5. Approval\nApproval is required for all new orders, except those that have been\napproved in previous cycles or require a manual review (Section 6). A\nsupplier must be approved by the Operations Director before any order\nis placed.",
+      "finetuned_recall": 0.667,
+      "finetuned_hit": true
+    },
+    {
+      "id": 30,
+      "category": "ambiguous",
+      "question": "When is an SLA breach reported?",
+      "reference": "According to SLA Policy, Section 4. Breach Reporting: 4. Breach Reporting\nAny case whose cycle time exceeds its category's target is reported as an SLA breach in the\nweekly operations management report. A single breach does not trigger automatic escalation --\nsee the Escalation Procedure for when escalation is required.",
+      "base_answer": "An SLA (Standardized Low-Level Agreement) breach is typically reported to the supplier or vendor immediately upon discovery of the breach. The reporting period varies based on the type of agreement but generally starts as soon as it becomes known.\n\nFor example:\n- **Vendor Onboarding:** Vendor onboarding processes often include a requirement for reporting breaches to the supplier.\n- **Vendor Onboarding:** Vendor onboarding may also have a specified timeframe for reporting breaches, such as within 24 hours after the initial report.\n\nThe specific reporting requirements can be found in the vendor onboarding documentation or by referring to the vendor's own policies and procedures.",
+      "base_recall": 0.538,
+      "base_hit": true,
+      "elapsed_ms": 22593.0,
+      "finetuned_answer": "According to Vendor Onboarding Procedure, Section 2. Reporting: 2. Reporting\nAny supplier who fails a pre-approval review or has any other issue with the purchasing\nprocess should be reported immediately to their account manager via email or phone.\nThe SLA breach reporting procedure is found in Procurement Policy, Section 4. Reporting\nany breach of SLA policy (e.g., a 10-day overdue order) should be done within 3 business days\nafter discovery.",
+      "finetuned_recall": 0.846,
+      "finetuned_hit": true
+    },
+    {
+      "id": 159,
+      "category": "ambiguous",
+      "question": "What are the inspection requirements?",
+      "reference": "According to Quality Control Procedure, Section 2. Incoming Inspection: 2. Incoming Inspection\nEvery delivery is inspected against the Purchase Order specification before the receiving dock\nmarks it complete. Inspection is sampling-based: a 10% sample for standard orders, 100% inspection\nfor any order from a supplier under Manual Credit Review (Procurement Policy Section 5) or any\nsupplier still in the Vendor Onboarding trial-order stage.",
+      "base_answer": "Inspection requirements can vary depending on the type of product or service being procured but generally they include:\n\n1. **Product Quality**: Inspection of raw materials, components, and finished products to ensure compliance with quality standards.\n2. **Manufacturing Process**: Verification of production lines, equipment, and processes to ensure consistency and adherence to specifications.\n3. **Packaging**: Checking packaging materials and methods used in shipment to prevent damage and contamination.\n\nThe specific requirements may be outlined in the company's procurement policy, which is typically found in the \"Procurement Policy\" section within the company's internal documents. This policy should detail the types of inspections that will be conducted, the frequency of these inspections, and any additional checks that must be performed.",
+      "base_recall": 0.304,
+      "base_hit": false,
+      "elapsed_ms": 27829.0,
+      "finetuned_answer": "According to Procurement Quality Control Procedure, Section 2. Inspection: 2. Inspection\nAll new orders must undergo a full, unannounced internal inspection by a designated\nquality control officer before receiving payment. This is done once per order cycle,\nnoting any issues found during that cycle in the next cycle's order approval.",
+      "finetuned_recall": 0.435,
+      "finetuned_hit": false
+    },
+    {
+      "id": 43,
+      "category": "lookup",
+      "question": "What is the dollar threshold below which a buyer may self-approve a purchase without Procurement review?",
+      "reference": "According to Procurement Policy, Section 3. Purchase Requisition: 3. Purchase Requisition\nAll purchases must originate from an approved Purchase Requisition. Requisitions below $500 may\nbe self-approved by the requesting department manager. Requisitions above $500 require Procurement\nreview before a Purchase Order is issued.",
+      "base_answer": "The dollar threshold below which a buyer may self-approve a purchase without Procurement review is typically set at 50% of the total value of the item or service being purchased. This threshold ensures that if there is no agreement from the supplier, it will be escalated to the Procurement team for further consideration. The specific policy document and section related to this threshold can vary depending on the organization but is generally found in the Procurement Management Manual or similar documents within the company.",
+      "base_recall": 0.5,
+      "base_hit": true,
+      "elapsed_ms": 15437.0,
+      "finetuned_answer": "According to Contract Renewal Policy, Section 4. Renewals: 4. Renewals\nA supplier can request a renewal if they have not received a credit approval\nfrom Procurement within 30 days of placing their order or if they have\nnot been in business with the company for more than 12 months. A renewal\ndoes not count against the 12-month credit limit requirement.",
+      "finetuned_recall": 0.583,
+      "finetuned_hit": true
+    },
+    {
+      "id": 3,
+      "category": "lookup",
+      "question": "What is the SLA target for Consignment orders?",
+      "reference": "According to Inventory Management Policy, Section 2. Reorder Point Calculation: 2. Reorder Point Calculation\nEach SKU's reorder point is set at (average daily usage x supplier lead time) + safety stock.\nLead time is the supplier's category-level SLA target from the SLA Policy, not the supplier's\nhistorical average -- using the SLA target keeps reorder points aligned with what Procurement is\ncontractually expecting, not what has merely been observed.",
+      "base_answer": "The SLA (Standardized Level of Agreement) target for consignment orders is typically set at 90% to 100%. This means that if a supplier delivers goods to a customer in a consignment arrangement, they must deliver them within 90 days from the date of delivery. The goal is to ensure timely delivery while maintaining quality standards and minimizing risk.",
+      "base_recall": 0.176,
+      "base_hit": false,
+      "elapsed_ms": 3813.0,
+      "finetuned_answer": "According to SLA Policy, Section 3. Target: 3. Target\nAll business transactions must be completed within 2 business days\nof order receipt. This includes both inbound and outbound\norders. The target applies to all departments, not just Operations.\nConsignment orders are excluded from this time frame because they\nare typically handled by a different department or have a longer\nprocessing cycle before reaching the customer.",
+      "finetuned_recall": 0.412,
+      "finetuned_hit": false
+    },
+    {
+      "id": 1,
+      "category": "lookup",
+      "question": "What is the approval target for standard purchase orders?",
+      "reference": "According to Procurement Policy, Section 4.1 Standard Approval: 4.1 Standard Approval\nPurchase Orders up to $10,000 require single-level approval from the requesting department's\nbudget owner.",
+      "base_answer": "The approval target for standard purchase orders in Northstar Manufacturing's procurement policy is typically set at 100%. This means that all approved standard purchase orders will be reviewed by a senior manager or designated approver to ensure they meet all necessary criteria such as cost-effectiveness, quality standards, and compliance with applicable laws and regulations. The goal is to streamline the purchasing process while maintaining high levels of transparency and accountability throughout the organization.",
+      "base_recall": 0.667,
+      "base_hit": true,
+      "elapsed_ms": 17718.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Approval: 3. Approval\nStandard purchase orders require a separate approval step from\nstandard SLA-risk-reduction order approvals. The approved order is then\nprocessed as if it were a new order, with all usual SLA risk\nreduction steps applied.",
+      "finetuned_recall": 0.833,
+      "finetuned_hit": true
+    },
+    {
+      "id": 2,
+      "category": "lookup",
+      "question": "What is the SLA target for 3-way match category orders?",
+      "reference": "According to SLA Policy, Section 2. Targets by Category: 2. Targets by Category\n| Category | Target (business days) |\n|---|---|\n| 3-way match | 10 |\n| Consignment | 14 |\n| Standard | 10 (default) |\n\nThese map directly to `config/sla.yaml` in the operations-performance project -- if this table\nand that file ever disagree, the file is authoritative for what the system actually enforces;\nthis document should be updated to match, not the other way around.",
+      "base_answer": "The SLA (Standardized Level Agreement) target for 3-way match category orders in Northstar Manufacturing's procurement policy is typically set at a level that ensures timely delivery of goods to customers while maintaining quality standards. This target is often referred to as the \"SLA\" or Standard Level Agreement.\n\nFor 3-way match category orders, the SLA target can vary based on factors such as:\n\n1. **Order Volume**: Orders with high order volumes may require more aggressive SLAs.\n2. **Customer Requirements**: Orders from large-value customers might have stricter SLAs.\n3. **Vendor Performance**: Suppliers who consistently meet SLAs tend to receive higher rates.\n\nIn general, the SLA target for 3-way match category orders could be set at:\n\n- **50%** - This means that suppliers must deliver 50% of their capacity within 7 days.\n- **60%** - This indicates that suppliers should deliver 60% of their capacity within 9",
+      "base_recall": 0.5,
+      "base_hit": true,
+      "elapsed_ms": 36782.0,
+      "finetuned_answer": "According to SLA Policy, Section 2. Target Revisions: 2. Target Revisions\nAny order that falls outside of a previously approved SLA target will trigger a\ntarget revision. The new target must be higher than the old one by at least 10%,\nand no more than 5 percentage points.",
+      "finetuned_recall": 0.444,
+      "finetuned_hit": false
+    },
+    {
+      "id": 50,
+      "category": "lookup",
+      "question": "What document must be submitted retroactively after an emergency purchase is made?",
+      "reference": "According to Vendor Onboarding Procedure, Section 5. Emergency Onboarding Exception: 5. Emergency Onboarding Exception\nA supplier may be conditionally approved for a single Emergency Purchase (Exception Handling\nProcedure Section 2) without completing all three qualification stages, but the conditional\napproval expires after that one order -- full qualification is still required before any\nsubsequent order.",
+      "base_answer": "To determine what document must be submitted retroactively after an emergency purchase is made, it is important to understand the procurement policy of Northstar Manufacturing. Typically, such policies involve a detailed procedure that includes:\n\n1. **Emergency Purchase**: This refers to any purchase that occurs during a time when there is no regular or planned procurement schedule.\n2. **SLA Targets**: These are specified performance standards or requirements that suppliers must meet in order to receive payment.\n\nThe specific steps and documents involved can vary based on the type of emergency purchase, but generally, the following steps would typically be taken:\n\n- **Review SLAs**: The company will review the supplier's supply chain agreements (SLAs) to ensure they align with the emergency purchase.\n  \n- **Emergency Procurement Request**: An emergency procurement request is initiated by the purchasing team to make an urgent purchase without prior notice.\n\n- **Vendor Onboarding**: The supplier is provided with all necessary documentation and instructions to prepare their products or services according to the emergency purchase",
+      "base_recall": 0.571,
+      "base_hit": true,
+      "elapsed_ms": 37500.0,
+      "finetuned_answer": "According to Emergency Procurement Policy, Section 2. Emergency Purchase: 2. Emergency Purchase\nAn emergency purchase requires a separate Procurement Request Form with a special approval\nstep before it can proceed. A new Purchase Order is not required if the emergency purchase is\napproved by the Operations Director or vice president in the case of a major incident.",
+      "finetuned_recall": 0.429,
+      "finetuned_hit": false
+    },
+    {
+      "id": 101,
+      "category": "lookup",
+      "question": "What is the maximum number of business days the policy allows for approving a high-value purchase order?",
+      "reference": "According to Procurement Policy, Section 7. Service Level Targets: 7. Service Level Targets\nStandard Purchase Orders are targeted for approval within 5 business days of requisition\nsubmission. High-value orders requiring secondary approval are targeted for 10 business days.\nThese targets are business goals, not contractual guarantees to suppliers.",
+      "base_answer": "The policy allows up to 14 business days for approving a high-value purchase order (e.g., more than $500,000). This timeframe ensures that suppliers have ample time to prepare their products or services before the final decision is made.",
+      "base_recall": 0.333,
+      "base_hit": false,
+      "elapsed_ms": 10281.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Business Days: 3. Business Days\nApproval time for any single order (including re-ordering) exceeds 5 business days\nis considered a non-compliance event under Procurement Procedure -- it must be escalated\nto Operations Management before the next approval cycle begins.",
+      "finetuned_recall": 0.444,
+      "finetuned_hit": false
+    },
+    {
+      "id": 20,
+      "category": "multi_hop",
+      "question": "A case has breached its SLA target by 6 business days. What action does policy require?",
+      "reference": "According to Procurement Escalation Procedure, Section 1. When to Escalate: 1. When to Escalate\nA case should be escalated to Operations leadership when any of the following apply:\n- The case has breached its SLA target (see SLA Policy) by more than 5 business days\n- The case has undergone more than 2 rounds of PO Change Approval\n- A supplier is unresponsive for more than 3 business days during Manual Credit Review",
+      "base_answer": "Policy requires that a case must be escalated to the senior management team within 24 hours of breach. This escalation is necessary because it indicates that the issue is not resolved quickly enough and could have significant impact on the company's financial performance or reputation. The escalation procedure should include detailed documentation outlining the actions taken, the reasons for the delay, and any corrective measures planned.",
+      "base_recall": 0.308,
+      "base_hit": false,
+      "elapsed_ms": 14219.0,
+      "finetuned_answer": "According to Case Management Procedure, Section 3. Escalation: 3. Escalation\nAny case that exceeds a critical threshold (e.g., 10 business days' SLA breach,\nor 20% increase in order value) should be escalated immediately to Operations Leadership\nvia standard escalation procedure.",
+      "finetuned_recall": 0.577,
+      "finetuned_hit": true
+    },
+    {
+      "id": 72,
+      "category": "multi_hop",
+      "question": "An emergency purchase is made from a supplier with zero prior completed orders. In what order must the required processes be completed?",
+      "reference": "According to Exception Handling Procedure, Section 2. Emergency Purchases: 2. Emergency Purchases\nAn emergency purchase (production-stopping shortage) may bypass standard requisition approval\nwith verbal authorization from a department manager, but must have a retroactive Purchase\nRequisition filed within 2 business days. Emergency purchases are still subject to Manual Credit\nReview if the supplier meets the criteria in Procurement Policy Section 5.",
+      "base_answer": "To complete an emergency purchase from a supplier with zero prior completed orders, the following steps should be followed in the specified order:\n\n1. **Review the Supplier's Prior Orders**: Begin by reviewing the supplier's previous orders to ensure that they have not been fulfilled or canceled within the last 30 days.\n\n2. **Identify Potential Issues**: Look at any issues identified during the review of the supplier's prior orders, such as delays, cancellations, or non-compliance with contractual terms.\n\n3. **Assess Risk**: Assess the risk associated with the emergency purchase based on the identified issues and potential impacts on the company's supply chain and financial health.\n\n4. **Evaluate Vendor Performance**: Evaluate the performance of the supplier over the past few months, including their ability to meet the current needs of the company while maintaining good relations with other suppliers.\n\n5. **Consider Procurement Policies**: Consult the company's procurement policies and SLAs (Standardized List Agreements) to determine if there are any",
+      "base_recall": 0.381,
+      "base_hit": false,
+      "elapsed_ms": 38437.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Emergency Purchase: 3. Emergency Purchase\nAn emergency purchase requires the following steps:\n- The Procurement Director approves the purchase before any other steps are taken.\n- The Procurement Director reviews the supplier's credit history before approving any new orders from that supplier.\n- The Procurement Director negotiates terms with the supplier before final approval.",
+      "finetuned_recall": 0.524,
+      "finetuned_hit": true
+    },
+    {
+      "id": 149,
+      "category": "multi_hop",
+      "question": "If a data-entry error in a record is corrected, is the original erroneous entry deleted?",
+      "reference": "According to Exception Handling Procedure, Section 4. Data Corrections: 4. Data Corrections\nIf a case's recorded activity sequence contains an obvious data-entry error (e.g. a duplicate\nApproval event from a system glitch, not an actual second approval), Operations may flag it for\nmanual correction in the source system. This procedure does not authorize retroactively changing\nwhat actually happened -- only correcting erroneous records of what happened.",
+      "base_answer": "No, if a data-entry error in a record is corrected, it is not typically deleted; instead, it is recorded as a correction or update to the record. The correct procedure would involve updating the record with the new information while maintaining the integrity of the system by ensuring that no errors have been introduced during this phase. This ensures consistency and accuracy throughout the entire process.",
+      "base_recall": 0.167,
+      "base_hit": false,
+      "elapsed_ms": 14063.0,
+      "finetuned_answer": "According to Data Entry Policy, Section 2. Corrections: 2. Corrections\nAny data entry error that cannot be corrected (e.g., entering a zero instead of a non-zero value,\nentering a string longer than 60 characters, etc.) must be corrected immediately by a new record.\nThe correction replaces the original erroneous record with a new one containing no errors. The\noriginal record remains intact until it has been fully reviewed and approved by its department head or\nits superior vice president.",
+      "finetuned_recall": 0.333,
+      "finetuned_hit": false
+    },
+    {
+      "id": 75,
+      "category": "multi_hop",
+      "question": "A supplier dispute is raised on a case already 3 days past its SLA target. Does the dispute hold pause the SLA clock from that point forward?",
+      "reference": "According to Quality Control Procedure, Section 4. Rework vs. Return: 4. Rework vs. Return\nA Minor or Major defect may be reworked on-site if the supplier agrees to cover rework cost and\nthe rework can complete within 3 business days without affecting the case's SLA target. Otherwise\nthe delivery is returned and treated as a Supplier Dispute under Exception Handling Procedure\nSection 3 -- the SLA hold provisions there apply identically to a quality-driven dispute.",
+      "base_answer": "Yes, if the supplier disputes have been raised on a case with a SLA target of 3 days or less, it would typically hold the SLA clock in effect until the dispute resolution period ends. This means that the supplier will not be able to continue receiving goods/services until the dispute has been resolved according to the SLA provisions.\n\nHowever, there may be some flexibility depending on the specific circumstances:\n\n1. **Vendor Onboarding Process**: If the supplier was onboarding a new vendor, they might have a grace period during which they can receive goods/services without violating the SLA. The duration of this grace period could vary based on the vendor's performance and the company's policies.\n\n2. **Contract Renewal Procedures**: In cases where the supplier disputes were handled through negotiation, the SLA clock should be paused until the final agreement is reached. This ensures that all parties involved follow the agreed-upon terms.\n\nIt's important to note that the specific outcome depends on the details of the dispute",
+      "base_recall": 0.381,
+      "base_hit": false,
+      "elapsed_ms": 39718.0,
+      "finetuned_answer": "According to Procurement Policy, Section 4. Dispute Handling: 4. Dispute Handling\nA supplier dispute is handled according to standard Procurement Procedure -- Section 5. Escalation\n- The supplier's representative must be called in immediately after the initial meeting with the\nsupplier's vice president or equivalent leadership role. If the supplier does not attend,\nthe case is automatically closed without going through normal Procurement Procedure steps.\n- The case remains open until the supplier's representative returns, at which point the case\nis processed normally under Procurement Policy Section 2.",
+      "finetuned_recall": 0.429,
+      "finetuned_hit": false
+    },
+    {
+      "id": 22,
+      "category": "multi_hop",
+      "question": "What approval steps apply to a $15,000 purchase order from an established supplier?",
+      "reference": "According to Procurement Policy, Section 3. Purchase Requisition: 3. Purchase Requisition\nAll purchases must originate from an approved Purchase Requisition. Requisitions below $500 may\nbe self-approved by the requesting department manager. Requisitions above $500 require Procurement\nreview before a Purchase Order is issued.",
+      "base_answer": "To ensure that a $15,000 purchase order is approved by the purchasing department, it must go through several approval steps:\n\n1. **Review of the Request**: The purchasing team reviews the request to confirm its necessity and completeness.\n\n2. **Vendor Approval**: If the request is not approved by the vendor, it goes to the vendor manager or vice versa.\n\n3. **Vendor Review**: The vendor manager reviews the vendor's response to ensure it meets all requirements.\n\n4. **Vendor Approval**: The vendor manager approves the purchase order based on their review.\n\n5. **Vendor Confirmation**: The vendor confirms receipt of the purchase order with their signature.\n\n6. **Vendor Approval**: The vendor manager approves the purchase order again.\n\n7. **Vendor Review**: The vendor manager reviews the vendor's response to ensure it meets all requirements.\n\n8. **Vendor Approval**: The vendor manager approves the purchase order again.\n\n9. **Vendor Review**: The vendor manager reviews the vendor's response to ensure it",
+      "base_recall": 0.333,
+      "base_hit": false,
+      "elapsed_ms": 40313.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Approval: 3. Approval\nAn approved order is subject to the same approval requirements as any other\npurchase. A second-order request or a change in order terms requires separate\napproval from the original order's approver.",
+      "finetuned_recall": 0.667,
+      "finetuned_hit": true
+    },
+    {
+      "id": 128,
+      "category": "numerical",
+      "question": "What defect rate over a rolling 90 days triggers an out-of-cycle vendor risk review?",
+      "reference": "According to Quality Control Procedure, Section 5. Defect Rate and Vendor Risk: 5. Defect Rate and Vendor Risk\nA supplier whose Critical or Major defect rate exceeds 2% of deliveries in a rolling 90-day window\ntriggers an out-of-cycle Vendor Risk Score review (Vendor Onboarding Procedure Section 6), separate\nfrom and in addition to the cycle-time-based trigger described there.",
+      "base_answer": "The defect rate over a rolling 90-day period triggers an out-of-cycle vendor risk review under the following policy:\n\n**Section: Out-of-Cycle Vendor Risk Review**\n\nOut-of-cycle vendor risk reviews are conducted to assess the likelihood of significant defects or issues arising from a vendor's performance during a specified time frame (e.g., 90 days). The criteria for triggering such a review include:\n\n1. **Defect Rate Over 5%:** This threshold is set to identify vendors with a high probability of experiencing multiple defects within a short period.\n\n2. **Number of Defects Per Unit Time:** A vendor must have experienced at least one defect per unit time over the 90-day period.\n\n3. **Vendor Performance Rating:** The vendor's performance rating should be below the industry average or acceptable in the region.\n\n4. **Vendor Onboarding:** The vendor has not been onboarding as expected or has had any significant changes in its supplier base since the last review.\n\nBy",
+      "base_recall": 0.556,
+      "base_hit": true,
+      "elapsed_ms": 38109.0,
+      "finetuned_answer": "According to Procurement Risk Management Procedure, Section 3. Out-of-Cycle Vendor Risk Review: 3. Out-of-Cycle Vendor Risk Review\nWhen a defect rate exceeds 1% over a rolling 90-day period, a full-out-of-cycle vendor risk review is required.",
+      "finetuned_recall": 0.444,
+      "finetuned_hit": false
+    },
+    {
+      "id": 57,
+      "category": "numerical",
+      "question": "What is the exact dollar amount at which a purchase may be self-approved without Procurement team involvement?",
+      "reference": "According to Procurement Policy, Section 3. Purchase Requisition: 3. Purchase Requisition\nAll purchases must originate from an approved Purchase Requisition. Requisitions below $500 may\nbe self-approved by the requesting department manager. Requisitions above $500 require Procurement\nreview before a Purchase Order is issued.",
+      "base_answer": "The exact dollar amount at which a purchase may be self-approved without the Procurement team involvement varies depending on the organization's policies and procedures but typically does not exceed 10% of the total value of the purchase order. This threshold ensures that if there is no acceptable alternative supplier or if the cost exceeds this limit, it will be escalated to the Procurement team for further review and approval.",
+      "base_recall": 0.417,
+      "base_hit": false,
+      "elapsed_ms": 14438.0,
+      "finetuned_answer": "According to Procurement Approval Policy, Section 3. Self-Approval: 3. Self-Approval\nAny purchase over $10,000 requires approval from the Procurement Team; any purchase under\n$10,000 but above $5,000 requires approval from the Operations Director.",
+      "finetuned_recall": 0.583,
+      "finetuned_hit": true
+    },
+    {
+      "id": 122,
+      "category": "numerical",
+      "question": "What is the maximum dollar value of a supplier's trial order?",
+      "reference": "According to Vendor Onboarding Procedure, Section 4. Trial Order Requirements: 4. Trial Order Requirements\nThe trial order (Stage 3) must be fulfilled on time and pass incoming Quality Control inspection\n(see Quality Control Procedure Section 2) before the supplier is added to the approved vendor\nlist. A failed or late trial order requires a 90-day waiting period before re-application.",
+      "base_answer": "The maximum dollar value of a supplier's trial order under the Supplier Management System (SMS) at Northstar Manufacturing is 10% of the total purchase amount. This threshold ensures that suppliers have the opportunity to demonstrate their commitment to the company while also providing flexibility in case of unforeseen circumstances.",
+      "base_recall": 0.188,
+      "base_hit": false,
+      "elapsed_ms": 10609.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Supplier Onboarding: 3. Supplier Onboarding\nAny new supplier must undergo a 10-day onboarding period before being approved as a supplier.\nOnboarding is not required if the supplier has been in business with Northstar for at least\ntwo years or has a history of positive credit ratings from major credit bureaus.",
+      "finetuned_recall": 0.312,
+      "finetuned_hit": false
+    },
+    {
+      "id": 10,
+      "category": "numerical",
+      "question": "How many rounds of PO Change Approval trigger escalation?",
+      "reference": "According to Procurement Escalation Procedure, Section 1. When to Escalate: 1. When to Escalate\nA case should be escalated to Operations leadership when any of the following apply:\n- The case has breached its SLA target (see SLA Policy) by more than 5 business days\n- The case has undergone more than 2 rounds of PO Change Approval\n- A supplier is unresponsive for more than 3 business days during Manual Credit Review",
+      "base_answer": "To determine how many rounds of PO Change Approval triggers escalate to escalation, we need to understand the typical escalation processes in a company's purchasing policies. Typically, companies have multiple levels of approval before finalizing orders or contracts.\n\nFor instance, if there is one round of PO Change Approval (e.g., due to changes in specifications, terms, or delivery methods), it would typically trigger the next level of approval, which could be another round of PO Change Approval, and so on. This process continues until all approvals are exhausted.\n\nThe number of rounds of PO Change Approval that might trigger escalation can vary based on the company's internal policies and the complexity of its business operations. However, generally, this process is designed to ensure transparency and efficiency in managing supply chain risks.\n\nIn summary, while I cannot provide a definitive answer without access to detailed policy documents, it is common practice to have at least one round of PO Change Approval triggering escalation as part of the standard escalation procedure.",
+      "base_recall": 0.385,
+      "base_hit": false,
+      "elapsed_ms": 34641.0,
+      "finetuned_answer": "According to Procurement Escalation Procedure, Section 4. When to Escalate: 4. When to Escalate\nWhen a supplier is in violation of our Quality Policy (e.g., multiple unqualified suppliers, repeated\npoouts within 30 days, etc.) we escalate the case to our Operations Director before proceeding with\nanother order. This is not a standard procedure; it is only done when necessary.",
+      "finetuned_recall": 0.5,
+      "finetuned_hit": true
+    },
+    {
+      "id": 56,
+      "category": "numerical",
+      "question": "How many business days does each level of the escalation path have to act before the next level is engaged?",
+      "reference": "According to Procurement Escalation Procedure, Section 2. Escalation Path: 2. Escalation Path\nRequesting department manager -> Procurement Team Lead -> Operations Director. Each level has\n2 business days to act before automatic escalation to the next level.",
+      "base_answer": "The escalation path in Northstar Manufacturing's procurement process typically follows a 3-step hierarchy:\n\n1. **Request for Proposal (RFP) - Request for Information**: This is where suppliers submit their proposals based on the specifications provided by the client.\n2. **Proposal Review - Selection Committee**: The RFP review committee evaluates the proposals and selects the best options.\n3. **Selection Decision - Procurement Team**: The selected supplier receives approval from the selection decision team.\n\nEach level has a defined number of business days to act before the next level can engage. Here\u2019s how it works:\n\n- **Request for Proposal (RFP)**: Each proposal must be reviewed within 3 business days of its submission.\n- **Proposal Review - Selection Committee**: Within 5 business days after the RFP review, the selection committee will evaluate the proposals and select the winning supplier.\n- **Selection Decision - Procurement Team**: Within 7 business days after the selection committee's evaluation, the procurement team will finalize the",
+      "base_recall": 0.562,
+      "base_hit": true,
+      "elapsed_ms": 38453.0,
+      "finetuned_answer": "According to Procurement Escalation Procedure, Section 4. Business Days: 4. Business Days\nEach level of the escalation path has a specified number of business days to act before\nthe next level is engaged. The maximum is 10 business days, but this can be extended by\napproval from the Operations Director if necessary.",
+      "finetuned_recall": 0.75,
+      "finetuned_hit": true
+    },
+    {
+      "id": 130,
+      "category": "paraphrase",
+      "question": "When can a supplier fix a defective delivery on-site instead of taking it back?",
+      "reference": "According to Quality Control Procedure, Section 4. Rework vs. Return: 4. Rework vs. Return\nA Minor or Major defect may be reworked on-site if the supplier agrees to cover rework cost and\nthe rework can complete within 3 business days without affecting the case's SLA target. Otherwise\nthe delivery is returned and treated as a Supplier Dispute under Exception Handling Procedure\nSection 3 -- the SLA hold provisions there apply identically to a quality-driven dispute.",
+      "base_answer": "In the procurement policy, suppliers are required to follow a set of standards that dictate how they should handle defects in their deliveries. The policy specifies that if a supplier identifies a defect during the delivery process, they must either:\n\n1. Fix the defect themselves or:\n2. Provide a replacement item to the customer without causing any harm.\n\nThe supplier is not allowed to take the defective item back to the supplier's warehouse or store. Instead, they must notify the customer via email or phone within 7 days of receiving the notification from the supplier. This ensures transparency and prevents potential damage to inventory due to delayed returns.",
+      "base_recall": 0.143,
+      "base_hit": false,
+      "elapsed_ms": 24500.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Supplier Onboarding: 3. Supplier Onboarding\nAny new supplier must undergo a pre-approval review by Operations before being\nconsidered for purchase. This includes a site visit to understand their business model,\ncustomer service procedures, SLA targets, and any other critical factors. If approved,\nthe supplier is given a one-week lead time to make necessary changes before production\ncan proceed without disrupting customer orders.",
+      "finetuned_recall": 0.381,
+      "finetuned_hit": false
+    },
+    {
+      "id": 27,
+      "category": "paraphrase",
+      "question": "What shields a case from being marked a breach when the vendor is contesting the order terms?",
+      "reference": "According to Exception Handling Procedure, Section 3. Supplier Disputes: 3. Supplier Disputes\nIf a supplier disputes an order's terms after PO release, the case is held (not cancelled) pending\nresolution, and does not count toward SLA breach metrics during the hold period -- this is the one\ndocumented exception to the SLA Policy's Section 3 rule that all process time counts.",
+      "base_answer": "To shield a case from being marked as a breach when the vendor is contesting the order terms, the procurement policy specifies that:\n\n1. **Vendor Onboarding**: The vendor must be fully vetted by the company to ensure they meet all necessary criteria before proceeding with the purchase.\n2. **SLA Targets**: The supplier's performance against these targets should be reviewed regularly to ensure compliance.\n\nThe specific section in the procurement policy that addresses this issue is:\n\n**Section 5: Supplier Performance Review**\n\nThis section outlines the steps required to ensure suppliers meet their obligations under the contract and comply with the company's standards of conduct. It includes provisions for:\n\n- **Performance Reviews**: Regular checks to assess supplier performance against established standards.\n- **Escalation Procedures**: A mechanism for addressing any issues or concerns raised by suppliers without escalating them to higher levels within the organization.\n- **Contractual Obligations**: Specific requirements for supplier behavior, including adherence to contractual commitments and non-disclosure agreements.\n\nBy following",
+      "base_recall": 0.571,
+      "base_hit": true,
+      "elapsed_ms": 42188.0,
+      "finetuned_answer": "According to Contract Renewal Policy, Section 4. Vendor Onboarding: 4. Vendor Onboarding\nAny new supplier must undergo a rigorous onboarding process before they can be added to\nNorthstar's Procurement System. This includes verifying their credit history, obtaining\napproval in advance of any contract renewal, and ensuring that they have received all required\ndocumentation before proceeding with a new order.",
+      "finetuned_recall": 0.357,
+      "finetuned_hit": false
+    },
+    {
+      "id": 25,
+      "category": "paraphrase",
+      "question": "When does a vendor's risk profile trigger an additional review step?",
+      "reference": "According to Quality Control Procedure, Section 5. Defect Rate and Vendor Risk: 5. Defect Rate and Vendor Risk\nA supplier whose Critical or Major defect rate exceeds 2% of deliveries in a rolling 90-day window\ntriggers an out-of-cycle Vendor Risk Score review (Vendor Onboarding Procedure Section 6), separate\nfrom and in addition to the cycle-time-based trigger described there.",
+      "base_answer": "To determine when a vendor's risk profile triggers an additional review step, it is typically necessary to consider several factors including:\n\n1. **Vendor Performance**: The performance of the vendor in terms of quality, delivery timelines, customer satisfaction, and compliance with standards.\n\n2. **Market Conditions**: Changes in market conditions or regulatory requirements that may impact the vendor's ability to deliver services effectively.\n\n3. **Compliance**: Compliance with applicable laws, regulations, and industry standards.\n\n4. **Financial Stability**: The financial stability of the vendor as reflected by their current financial statements and credit ratings.\n\n5. **Operational Risk**: Any identified operational risks that have not been addressed through standard risk management processes.\n\n6. **External Factors**: External factors such as changes in government policies, economic indicators, or competitive landscape.\n\n7. **Internal Processes**: Internal processes and controls that were not implemented correctly during the previous period.\n\n8. **Vendor Management**: The overall effectiveness of the vendor management team in ensuring compliance and delivering high",
+      "base_recall": 0.389,
+      "base_hit": false,
+      "elapsed_ms": 40062.0,
+      "finetuned_answer": "According to Procurement Risk Management Procedure, Section 4. Review: 4. Review\nA vendor's risk profile triggers an additional review step if it is higher than the\nthreshold specified in the Vendor Credit Policy (Section 2. Vendor Credit) or\nthe threshold specified in the Supplier Onboarding Procedure (Section 3. Supplier\nOnboarding).",
+      "finetuned_recall": 0.444,
+      "finetuned_hit": false
+    },
+    {
+      "id": 81,
+      "category": "paraphrase",
+      "question": "What triggers a formal review of a supplier's creditworthiness when a new purchase order is submitted?",
+      "reference": "According to Procurement Policy, Section 5. Manual Credit Review: 5. Manual Credit Review\nOrders from a new supplier (fewer than 3 prior completed orders) or from a supplier with a\nbelow-threshold vendor risk score automatically route to Manual Credit Review regardless of order\nvalue. Manual Credit Review is performed by the Vendor Risk team and is not bound by the standard\napproval SLA in Section 7.",
+      "base_answer": "When a new purchase order is submitted, a formal review of a supplier's creditworthiness should be triggered by several factors:\n\n1. **Credit Rating**: The supplier's credit rating should be reviewed to ensure it meets the company's standards or industry guidelines.\n\n2. **Financial Performance**: Credit ratings often include financial performance metrics such as debt-to-equity ratio, current ratios, and profitability indicators.\n\n3. **Operational Risk**: Suppliers with high operational risk scores may have more frequent payment issues or other financial challenges.\n\n4. **Regulatory Compliance**: Suppliers who are subject to regulatory requirements (e.g., anti-dumping, countervailing duties) should be evaluated based on their compliance history.\n\n5. **Market Positioning**: Suppliers in different industries or regions might require different levels of creditworthiness.\n\n6. **Vendor Onboarding Process**: If the supplier has been onboarding for a while, they may need to demonstrate continued good standing.\n\n7. **Supplier Onboarding Review**: Any changes made",
+      "base_recall": 0.421,
+      "base_hit": false,
+      "elapsed_ms": 39954.0,
+      "finetuned_answer": "According to Procurement Policy, Section 4. Credit Review: 4. Credit Review\nCreditworthiness is reviewed by a third-party credit officer before a purchase order is approved. A\nnegative credit score triggers a standard 30-day credit freeze, but a positive score allows a supplier to\ncontinue with the order after 90 days if they meet all other requirements.",
+      "finetuned_recall": 0.474,
+      "finetuned_hit": false
+    },
+    {
+      "id": 63,
+      "category": "policy_interpretation",
+      "question": "Does the escalation process allow the Operations Director to waive the secondary approval requirement for high-value orders?",
+      "reference": "According to Procurement Policy, Section 4.2 Secondary Approval: 4.2 Secondary Approval\nPurchase Orders above $10,000, or any order flagged as high-risk by the credit/vendor risk\nscreening, require a second approval from Procurement leadership before the order is released to\nthe supplier. This is the primary source of processing delay for high-value orders -- see the\ncompanion operations-performance project's SLA-breach driver analysis.",
+      "base_answer": "No, the escalation process does not allow the Operations Director to waive the secondary approval requirement for high-value orders. The escalation procedure is designed to ensure that critical decisions are made quickly when necessary, but it does not include the ability to bypass the secondary approval step in cases of urgent or significant requirements. This would require a more detailed review by senior management before making such decisions.",
+      "base_recall": 0.25,
+      "base_hit": false,
+      "elapsed_ms": 13984.0,
+      "finetuned_answer": "According to Procurement Escalation Procedure, Section 3. Waiving Secondary Approval: 3. Waiving Secondary Approval\nIf a supplier is in default on a payment or if the order exceeds its credit limit by more than 10% of the purchase amount,\nthe case must be escalated to the Operations Director before any further action can be taken. The new escalation request\nmust include a justification for the waiver, which includes the reason for the delay (e.g., supplier breach) and how it will\nbe addressed in future procurements.",
+      "finetuned_recall": 0.625,
+      "finetuned_hit": true
+    },
+    {
+      "id": 17,
+      "category": "policy_interpretation",
+      "question": "Does a supplier dispute pause the SLA clock?",
+      "reference": "According to Exception Handling Procedure, Section 3. Supplier Disputes: 3. Supplier Disputes\nIf a supplier disputes an order's terms after PO release, the case is held (not cancelled) pending\nresolution, and does not count toward SLA breach metrics during the hold period -- this is the one\ndocumented exception to the SLA Policy's Section 3 rule that all process time counts.",
+      "base_answer": "No, a supplier dispute does not typically pause the SLA clock. The SLA (Standardized Procurement Language) is designed to ensure that suppliers meet their commitments under the contract without any delays or penalties. If there is a dispute, it should be resolved through standard negotiation processes within the contract terms rather than by pausing the SLA clock. Suppliers have the right to negotiate with suppliers in good faith to resolve disputes as needed.",
+      "base_recall": 0.357,
+      "base_hit": false,
+      "elapsed_ms": 13109.0,
+      "finetuned_answer": "According to Supplier Disputes Policy, Section 3. 3: 3. 3. Procurement Disputes\nA supplier dispute is considered a breach of contract unless it can be resolved within\nthe specified SLA timeout period (Section 4). A supplier dispute may also trigger a\nVendor Onboarding Procedure if the supplier has not been in good standing with Northstar\nfor more than 90 days or if its credit rating drops below a certain threshold (Section 5).\nThe same policy applies to contract renewal; a supplier who breaches their contract\nwithout paying the overdue penalty triggers a Contract Renewal Reconsideration Procedure,\nwhich requires a new contract renewal even if the supplier's credit rating improves after\nthe original contract expires (Section 6).",
+      "finetuned_recall": 0.786,
+      "finetuned_hit": true
+    },
+    {
+      "id": 106,
+      "category": "policy_interpretation",
+      "question": "If a PO goes through exactly 2 rounds of Change Approval without resolution, has the escalation threshold been met?",
+      "reference": "According to Procurement Escalation Procedure, Section 1. When to Escalate: 1. When to Escalate\nA case should be escalated to Operations leadership when any of the following apply:\n- The case has breached its SLA target (see SLA Policy) by more than 5 business days\n- The case has undergone more than 2 rounds of PO Change Approval\n- A supplier is unresponsive for more than 3 business days during Manual Credit Review",
+      "base_answer": "Yes, if a PO (Purchase Order) goes through exactly 2 rounds of Change Approval without resolution, the escalation threshold has been met according to the company's procurement policy. The escalation threshold is typically set at 3 changes before it triggers the next round of change approval or any further escalation steps. This ensures that all necessary approvals are in place before moving forward with more complex processes or adjustments.",
+      "base_recall": 0.423,
+      "base_hit": false,
+      "elapsed_ms": 2703.0,
+      "finetuned_answer": "According to Procurement Escalation Procedure, Section 3. Escalation Threshold: 3. Escalation Threshold\nAny PO that goes through more than one round of Change Approval before being approved by Change Control\nLeadership or is not resolved within 10 business days after change approval must be escalated to\nChief Procurement Officer (CPO) via Standard Procurement Approval Process.",
+      "finetuned_recall": 0.615,
+      "finetuned_hit": true
+    },
+    {
+      "id": 129,
+      "category": "policy_interpretation",
+      "question": "What happens to a delivery that contains a Critical defect?",
+      "reference": "According to Quality Control Procedure, Section 3. Defect Classification: 3. Defect Classification\nDefects are classified Minor, Major, or Critical. A Critical defect (safety risk or complete\nnon-conformance to spec) triggers an automatic hold on the entire delivery and a Safety Incident\nReport if the defect could have reached the production line undetected -- see Safety Incident\nReporting Procedure Section 2.",
+      "base_answer": "When a delivery is found to contain a critical defect, it typically goes through a series of steps to ensure compliance with the company's quality control policies and standards. Here\u2019s what usually happens:\n\n1. **Review by Quality Control**: The first step in this process is a review by the Quality Assurance (QA) team or a designated person within the organization. This ensures that the defect has not been corrected during the previous phase.\n\n2. **Defect Identification**: Once identified as a defect, the defect must be documented and reported to the appropriate department responsible for defect management.\n\n3. **Escalation to Senior Management**: If the defect is severe enough to require immediate attention, it should be escalated to senior management. This could involve:\n   - Reviewing the defect report with other stakeholders.\n   - Conducting a meeting with key personnel involved in the product development cycle.\n   - Implementing corrective actions based on the findings.\n\n4. **Vendor Onboarding**: After the defect is identified and reviewed,",
+      "base_recall": 0.412,
+      "base_hit": false,
+      "elapsed_ms": 9610.0,
+      "finetuned_answer": "According to Procurement Defect Handling Procedure, Section 4. Delivery with a Critical Defect: 4. Delivery with a Critical Defect\nA critical defect is one that could cause product failure or safety violations if not addressed in time. A supplier may be required to return the item at no cost,\nor even receive a full refund if the defect was caused by a supplier's own mistake.",
+      "finetuned_recall": 0.353,
+      "finetuned_hit": false
+    },
+    {
+      "id": 67,
+      "category": "policy_interpretation",
+      "question": "Does Manual Credit Review apply only to new suppliers, or can it also be triggered for established suppliers?",
+      "reference": "According to Procurement Policy, Section 5. Manual Credit Review: 5. Manual Credit Review\nOrders from a new supplier (fewer than 3 prior completed orders) or from a supplier with a\nbelow-threshold vendor risk score automatically route to Manual Credit Review regardless of order\nvalue. Manual Credit Review is performed by the Vendor Risk team and is not bound by the standard\napproval SLA in Section 7.",
+      "base_answer": "Manual credit review is a standard procedure in the procurement process that applies to both new and existing suppliers. It involves reviewing supplier performance against predefined criteria to ensure they meet specified standards before approving their contracts. This ensures transparency and accountability within the organization.",
+      "base_recall": 0.316,
+      "base_hit": false,
+      "elapsed_ms": 1562.0,
+      "finetuned_answer": "According to Procurement Policy, Section 3. Credit Review: 3. Credit Review\nCredit review is a manual step that must be performed by a Human Resources representative\nbefore any order is approved. It applies to both new and existing suppliers, but not to\nany supplier who has never been reviewed before.",
+      "finetuned_recall": 0.526,
+      "finetuned_hit": true
+    }
+  ]
+}

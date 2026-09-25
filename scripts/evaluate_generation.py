@@ -27,7 +27,7 @@ ROOT = Path(__file__).parent.parent
 DEFAULT_ADAPTER = ROOT / "models/generation_adapter/adapter"
 DEFAULT_TEST = ROOT / "data/finetune/test.jsonl"
 DEFAULT_OUT = ROOT / "data/evaluation/generation_finetune_results.json"
-DEFAULT_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
+DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
 
 
 def parse_args():

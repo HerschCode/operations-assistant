@@ -29,7 +29,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
-DEFAULT_MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
+DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
 DEFAULT_TRAIN = ROOT / "data/finetune/train.jsonl"
 DEFAULT_OUT = ROOT / "models/generation_adapter"
 
@@ -77,9 +77,8 @@ def load_dataset(jsonl_path: str, tokenizer, max_length: int):
             max_length=max_length,
             padding=False,
         )
-        # Full-sequence loss: train on system+user+assistant together.
-        # For response-only loss masking, use trl's DataCollatorForCompletionOnlyLM.
-        tokenized["labels"] = [list(ids) for ids in tokenized["input_ids"]]
+        # DataCollatorForLanguageModeling(mlm=False) copies input_ids → labels
+        # and masks padding positions with -100 automatically.
         return tokenized
 
     return dataset.map(_tokenize, batched=True, remove_columns=["text", "meta"])
@@ -166,7 +165,7 @@ def main():
         gradient_accumulation_steps=2,           # effective batch = batch_size × 2
         learning_rate=args.lr,
         lr_scheduler_type="cosine",
-        warmup_ratio=0.05,
+        warmup_steps=4,
         weight_decay=0.01,
         fp16=use_cuda and not torch.cuda.is_bf16_supported(),
         bf16=use_cuda and torch.cuda.is_bf16_supported(),
