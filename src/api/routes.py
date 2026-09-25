@@ -391,7 +391,7 @@ async def upload_document(file: UploadFile = File(...)):
 
 
 @router.post("/chat/hitl", response_model=HITLChatResponse)
-def chat_hitl(request: ChatRequest):
+def chat_hitl(http_req: Request, request: ChatRequest):
     """Agent turn with human-in-the-loop approval gate.
 
     If the model calls propose_intervention, the graph pauses and this endpoint
@@ -404,8 +404,11 @@ def chat_hitl(request: ChatRequest):
     """
     from src.agent.hitl_agent import start_hitl_turn
 
+    client_obj = getattr(http_req.state, "api_client", None)
+    initiated_by = client_obj.name if client_obj is not None else None
+
     try:
-        result = start_hitl_turn(request.question)
+        result = start_hitl_turn(request.question, initiated_by=initiated_by)
     except Exception as exc:
         raise _agent_error_response(exc)
 
@@ -447,18 +450,29 @@ def get_intervention_status(intervention_id: str):
         priority=record.priority,
         status=record.status,
         thread_id=record.thread_id,
+        initiated_by=record.initiated_by,
+        approved_by=record.approved_by,
         execution_note=record.execution_note,
     )
 
 
 @router.post("/interventions/{intervention_id}/approve", response_model=InterventionResumeResponse)
-def approve_intervention_endpoint(intervention_id: str):
+def approve_intervention_endpoint(
+    intervention_id: str,
+    http_req: Request,
+    _role: None = Depends(require_role("operator")),
+):
     """Approve a pending intervention and resume the paused HITL agent turn.
 
+    Requires the 'operator' role. The approver cannot be the same API client that
+    initiated the intervention (separation of duties).
     The agent generates a final answer reflecting the approval outcome.
     """
-    from src.tools.interventions import get_intervention
+    from src.tools.interventions import get_intervention, set_intervention_approved_by
     from src.agent.hitl_agent import resume_hitl_turn
+
+    client_obj = getattr(http_req.state, "api_client", None)
+    approved_by = client_obj.name if client_obj is not None else None
 
     record = get_intervention(intervention_id)
     if record is None:
@@ -467,6 +481,10 @@ def approve_intervention_endpoint(intervention_id: str):
         raise HTTPException(status_code=409, detail=f"Intervention is already {record.status!r}")
     if record.thread_id is None:
         raise HTTPException(status_code=409, detail="No active HITL session for this intervention")
+    if approved_by and record.initiated_by and approved_by == record.initiated_by:
+        raise HTTPException(status_code=403, detail="Cannot approve your own intervention")
+
+    set_intervention_approved_by(intervention_id, approved_by)
 
     try:
         result = resume_hitl_turn(record.thread_id, decision="approved")
@@ -484,13 +502,22 @@ def approve_intervention_endpoint(intervention_id: str):
 
 
 @router.post("/interventions/{intervention_id}/reject", response_model=InterventionResumeResponse)
-def reject_intervention_endpoint(intervention_id: str, body: RejectRequest = RejectRequest()):
+def reject_intervention_endpoint(
+    intervention_id: str,
+    http_req: Request,
+    body: RejectRequest = RejectRequest(),
+    _role: None = Depends(require_role("operator")),
+):
     """Reject a pending intervention and resume the paused HITL agent turn.
 
+    Requires the 'operator' role.
     The agent generates a final answer reflecting the rejection.
     """
-    from src.tools.interventions import get_intervention
+    from src.tools.interventions import get_intervention, set_intervention_approved_by
     from src.agent.hitl_agent import resume_hitl_turn
+
+    client_obj = getattr(http_req.state, "api_client", None)
+    rejected_by = client_obj.name if client_obj is not None else None
 
     record = get_intervention(intervention_id)
     if record is None:
@@ -499,6 +526,8 @@ def reject_intervention_endpoint(intervention_id: str, body: RejectRequest = Rej
         raise HTTPException(status_code=409, detail=f"Intervention is already {record.status!r}")
     if record.thread_id is None:
         raise HTTPException(status_code=409, detail="No active HITL session for this intervention")
+
+    set_intervention_approved_by(intervention_id, rejected_by)
 
     decision = body.reason if body.reason else "rejected"
     try:

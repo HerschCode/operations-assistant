@@ -99,6 +99,8 @@ class InterventionStatusResponse(BaseModel):
     priority: str
     status: str
     thread_id: str | None = None
+    initiated_by: str | None = None
+    approved_by: str | None = None
     execution_note: str | None = None
 
 

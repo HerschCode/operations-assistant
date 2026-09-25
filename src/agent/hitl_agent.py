@@ -50,6 +50,7 @@ from src.tools.interventions import (
     propose_intervention,
     reject_intervention,
     set_intervention_thread,
+    set_intervention_initiated_by,
 )
 from src.tools.registry import call_tool
 
@@ -236,6 +237,7 @@ def start_hitl_turn(
     thread_id: str | None = None,
     client: Any | None = None,
     history: list[dict] | None = None,
+    initiated_by: str | None = None,
 ) -> dict:
     """Start a new HITL agent turn. Returns either a completed AgentResponse or a
     dict with status='awaiting_approval' when the graph pauses at propose_intervention.
@@ -245,6 +247,7 @@ def start_hitl_turn(
         thread_id: LangGraph thread ID for checkpointing (generated if not given).
         client: Injectable LangChain model (for testing).
         history: Prior conversation turns.
+        initiated_by: API client name that started this turn (for separation of duties).
 
     Returns:
         dict with one of:
@@ -291,6 +294,8 @@ def start_hitl_turn(
             interrupt_value = interrupts[0].value
             intervention_id = interrupt_value.get("intervention_id", "")
             set_intervention_thread(intervention_id, thread_id)
+            if initiated_by:
+                set_intervention_initiated_by(intervention_id, initiated_by)
             logger.info("hitl paused", extra={"thread_id": thread_id, "intervention": intervention_id})
             return {
                 "status": "awaiting_approval",

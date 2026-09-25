@@ -19,6 +19,8 @@ from src.tools.interventions import (
     get_intervention,
     propose_intervention,
     reject_intervention,
+    set_intervention_initiated_by,
+    set_intervention_approved_by,
 )
 from src.agent.hitl_agent import get_graph, start_hitl_turn, resume_hitl_turn, HITLAgentState
 from src.api.main import app
@@ -230,3 +232,89 @@ def test_reject_endpoint_with_reason(api_client):
     # No thread_id set → 409
     resp = api_client.post(f"/interventions/{iv_id}/reject", json={"reason": "Not needed"})
     assert resp.status_code == 409
+
+
+# ── Fix 4: separation of duties ───────────────────────────────────────────────
+
+class TestSeparationOfDuties:
+    """Operator role gate and self-approval prevention."""
+
+    def setup_method(self):
+        _STORE.clear()
+
+    def test_initiated_by_stored_on_propose(self):
+        result = propose_intervention("escalate_case", "C1", "test")
+        iv_id = result["intervention_id"]
+        set_intervention_initiated_by(iv_id, "analyst-alice")
+        assert get_intervention(iv_id).initiated_by == "analyst-alice"
+
+    def test_approved_by_stored_on_set(self):
+        result = propose_intervention("flag_supplier", "ACME", "test")
+        iv_id = result["intervention_id"]
+        set_intervention_approved_by(iv_id, "operator-bob")
+        assert get_intervention(iv_id).approved_by == "operator-bob"
+
+    def test_initiated_by_in_status_response(self, api_client):
+        result = propose_intervention("flag_supplier", "ACME", "test", priority="high")
+        iv_id = result["intervention_id"]
+        set_intervention_initiated_by(iv_id, "analyst-alice")
+        resp = api_client.get(f"/interventions/{iv_id}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["initiated_by"] == "analyst-alice"
+        assert data["approved_by"] is None
+
+    def test_approve_endpoint_self_approval_blocked(self, api_client, monkeypatch):
+        """Same API client that initiated cannot approve."""
+        import os
+        monkeypatch.setenv("API_KEYS", "alice:key-alice:operator")
+
+        result = propose_intervention("escalate_case", "C99", "breach")
+        iv_id = result["intervention_id"]
+        set_intervention_initiated_by(iv_id, "alice")
+        # Give it a fake thread_id so we pass the earlier 409 checks
+        from src.tools.interventions import set_intervention_thread
+        set_intervention_thread(iv_id, "fake-thread-for-test")
+
+        resp = api_client.post(
+            f"/interventions/{iv_id}/approve",
+            headers={"X-API-Key": "key-alice"},
+        )
+        assert resp.status_code == 403
+        assert "own" in resp.json()["detail"].lower()
+
+    def test_approve_endpoint_operator_role_required(self, api_client, monkeypatch):
+        """A reader-role key cannot approve."""
+        monkeypatch.setenv("API_KEYS", "reader-dan:key-dan:reader")
+
+        result = propose_intervention("escalate_case", "C100", "test")
+        iv_id = result["intervention_id"]
+
+        resp = api_client.post(
+            f"/interventions/{iv_id}/approve",
+            headers={"X-API-Key": "key-dan"},
+        )
+        assert resp.status_code == 403
+
+    def test_reject_endpoint_operator_role_required(self, api_client, monkeypatch):
+        """A reader-role key cannot reject."""
+        monkeypatch.setenv("API_KEYS", "reader-eve:key-eve:reader")
+
+        result = propose_intervention("flag_supplier", "ACME", "test")
+        iv_id = result["intervention_id"]
+
+        resp = api_client.post(
+            f"/interventions/{iv_id}/reject",
+            json={"reason": "no"},
+            headers={"X-API-Key": "key-eve"},
+        )
+        assert resp.status_code == 403
+
+    def test_start_hitl_turn_records_initiated_by(self):
+        """initiated_by is stored on the intervention when graph pauses."""
+        _STORE.clear()
+        client = _fake_client_propose_then_done([])
+        result = start_hitl_turn("Escalate C42", client=client, initiated_by="analyst-carol")
+        assert result["status"] == "awaiting_approval"
+        iv_id = result["intervention"]["intervention_id"]
+        assert get_intervention(iv_id).initiated_by == "analyst-carol"

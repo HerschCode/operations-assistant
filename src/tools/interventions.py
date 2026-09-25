@@ -71,6 +71,8 @@ class InterventionRecord:
     status: str          # "pending_approval" | "rejected" | "executed"
     created_at: float
     thread_id: str | None = None   # HITL thread to resume on approval
+    initiated_by: str | None = None  # API client name that proposed the intervention
+    approved_by: str | None = None   # API client name that approved or rejected it
     resolved_at: float | None = None
     execution_note: str | None = None
 
@@ -119,6 +121,16 @@ def get_intervention(intervention_id: str) -> InterventionRecord | None:
 def set_intervention_thread(intervention_id: str, thread_id: str) -> None:
     if intervention_id in _STORE:
         _STORE[intervention_id].thread_id = thread_id
+
+
+def set_intervention_initiated_by(intervention_id: str, initiated_by: str) -> None:
+    if intervention_id in _STORE:
+        _STORE[intervention_id].initiated_by = initiated_by
+
+
+def set_intervention_approved_by(intervention_id: str, approved_by: str) -> None:
+    if intervention_id in _STORE:
+        _STORE[intervention_id].approved_by = approved_by
 
 
 def approve_intervention(intervention_id: str) -> dict:
