@@ -19,6 +19,7 @@ willing to say "insufficient data" rather than guess.
 | Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
 | Faithfulness gate — avg faith of passing answers | **89.7%** (at `t=0.5`, 34% of in-domain answers pass; 100% of OOD questions gated) | NLI scoring via `cross-encoder/nli-deberta-v3-small`; see calibration analysis below |
 | Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
+| Semantic cache false-hit rate | **0%** at t=0.97; paraphrase recall 0% (cache is an exact-repeat gate at this threshold) | 15 hand-written question pairs; see [`docs/cache-calibration.md`](docs/cache-calibration.md) |
 | Provider count | **5** | Anthropic, Groq, Gemini, LangChain, LangGraph — one interface |
 
 The distinguishing piece is the **faithfulness gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, NLI scoring decides whether the LLM's answer is entailed by the retrieved chunks. If not, the gate fires and returns "insufficient information" rather than a hallucinated answer. This directly addresses the paraphrase-question failure mode (0% faithfulness without gating) and is evaluated at multiple thresholds with real numbers.

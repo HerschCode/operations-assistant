@@ -1,0 +1,150 @@
+{
+  "threshold": 0.97,
+  "model": "all-MiniLM-L6-v2",
+  "total_pairs": 15,
+  "paraphrase_pairs": 3,
+  "different_intent_pairs": 12,
+  "true_positives": 0,
+  "false_positives": 0,
+  "true_negatives": 12,
+  "false_negatives": 3,
+  "false_hit_rate": 0.0,
+  "paraphrase_recall": 0.0,
+  "pairs": [
+    {
+      "anchor": "What is the current SLA target?",
+      "probe": "What are our SLA targets?",
+      "cosine_similarity": 0.8124,
+      "cache_hit": false,
+      "expected_same_answer": true,
+      "outcome": "FN",
+      "rationale": "paraphrase \u2014 same metric"
+    },
+    {
+      "anchor": "How many purchase orders are late?",
+      "probe": "What is the count of late purchase orders?",
+      "cosine_similarity": 0.9316,
+      "cache_hit": false,
+      "expected_same_answer": true,
+      "outcome": "FN",
+      "rationale": "paraphrase \u2014 same metric"
+    },
+    {
+      "anchor": "Who are the top 3 bottleneck suppliers?",
+      "probe": "Which 3 suppliers cause the most delays?",
+      "cosine_similarity": 0.6847,
+      "cache_hit": false,
+      "expected_same_answer": true,
+      "outcome": "FN",
+      "rationale": "paraphrase \u2014 same metric"
+    },
+    {
+      "anchor": "What is the SLA target for approval?",
+      "probe": "What is the SLA target for invoicing?",
+      "cosine_similarity": 0.6593,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same domain, different stage \u2014 different numbers"
+    },
+    {
+      "anchor": "How many POs are late this week?",
+      "probe": "How many POs were late last month?",
+      "cosine_similarity": 0.8311,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same metric, different time window \u2014 different numbers"
+    },
+    {
+      "anchor": "What is Supplier A's on-time rate?",
+      "probe": "What is Supplier B's on-time rate?",
+      "cosine_similarity": 0.8755,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same metric, different entity \u2014 different numbers"
+    },
+    {
+      "anchor": "What is the cycle time for IT?",
+      "probe": "What is the cycle time for Facilities?",
+      "cosine_similarity": 0.6556,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same metric, different category \u2014 different numbers"
+    },
+    {
+      "anchor": "What does the approval policy say?",
+      "probe": "What does the escalation policy say?",
+      "cosine_similarity": 0.5038,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "policy lookup, different document section"
+    },
+    {
+      "anchor": "Is the pipeline up to date?",
+      "probe": "Are there any SLA breaches right now?",
+      "cosine_similarity": 0.2795,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "different tools: get_pipeline_status vs get_sla_metrics"
+    },
+    {
+      "anchor": "What caused the SLA breach for order 4?",
+      "probe": "What caused the SLA breach for order 12?",
+      "cosine_similarity": 0.8839,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same question shape, different order ID \u2014 different root cause"
+    },
+    {
+      "anchor": "What is the overall conformance rate?",
+      "probe": "What is the conformance rate for IT orders?",
+      "cosine_similarity": 0.7869,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "overall vs segment \u2014 numbers differ"
+    },
+    {
+      "anchor": "How many cases are in the approval stage?",
+      "probe": "How many cases are in the invoicing stage?",
+      "cosine_similarity": 0.6348,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same metric, different pipeline stage"
+    },
+    {
+      "anchor": "What is the average cycle time?",
+      "probe": "What is the 90th-percentile cycle time?",
+      "cosine_similarity": 0.6904,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same dimension, different aggregation"
+    },
+    {
+      "anchor": "Which supplier has the worst SLA performance?",
+      "probe": "Which category has the worst SLA performance?",
+      "cosine_similarity": 0.7943,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "same question, different dimension (supplier vs category)"
+    },
+    {
+      "anchor": "Can I raise an emergency purchase order?",
+      "probe": "What is the threshold for emergency purchases?",
+      "cosine_similarity": 0.6106,
+      "cache_hit": false,
+      "expected_same_answer": false,
+      "outcome": "TN",
+      "rationale": "policy lookup \u2014 different question intent despite similar words"
+    }
+  ]
+}
