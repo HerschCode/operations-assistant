@@ -29,7 +29,12 @@ import os
 from dataclasses import dataclass, field
 
 GROUNDED_GATE_ENABLED = os.environ.get("GROUNDED_GATE_ENABLED", "true").lower() in ("true", "1", "yes")
-FAITHFULNESS_GATE_THRESHOLD = float(os.environ.get("FAITHFULNESS_GATE_THRESHOLD", "0.05"))  # calibrated 2026-09-24; see reports/gate-calibration.md
+FAITHFULNESS_GATE_THRESHOLD = float(os.environ.get("FAITHFULNESS_GATE_THRESHOLD", "0.05"))
+# GATE_METHOD: "support" (default since 2026-09-26) = lexical claim-support check (src/evaluation/claim_support.py);
+# "nli" = the original NLI gate. On a labeled set (reports/gate_labeled_eval.json) the NLI gate passed correct,
+# wrong-fact and off-context answers at the SAME rate (18.8% each on held-out questions) -- it did not discriminate.
+GATE_METHOD = os.environ.get("GATE_METHOD", "support").lower()
+SUPPORT_MIN_RECALL = float(os.environ.get("SUPPORT_MIN_RECALL", "0.65"))   # chosen on odd question ids only  # calibrated 2026-09-24; see reports/gate-calibration.md
 INSUFFICIENT_DATA_MSG = (
     "The retrieved documents do not contain sufficient information to answer "
     "this question faithfully. Please consult the relevant policy documents directly "
@@ -81,9 +86,21 @@ def grounded_answer(
 
     raw_answer = llm_fn(question, chunk_texts)
 
-    result = score_faithfulness(raw_answer, chunk_texts)
+    if GATE_METHOD == "support":
+        from src.evaluation.claim_support import answer_supported, split_sentences
 
-    gated = GROUNDED_GATE_ENABLED and result.faithfulness_score < threshold
+        ok, detail = answer_supported(raw_answer, chunk_texts, SUPPORT_MIN_RECALL)
+        n_ok = sum(d["numbers_supported"] and d["key_terms_supported"] and d["content_recall"] >= SUPPORT_MIN_RECALL
+                   for d in detail)
+        from src.evaluation.faithfulness import FaithfulnessResult
+
+        result = FaithfulnessResult(faithfulness_score=round(n_ok / len(detail), 3) if detail else 0.0,
+                                    contradiction_rate=0.0, backend_used="support",
+                                    n_sentences=len(detail), n_grounded=n_ok)
+        gated = GROUNDED_GATE_ENABLED and not ok
+    else:
+        result = score_faithfulness(raw_answer, chunk_texts)
+        gated = GROUNDED_GATE_ENABLED and result.faithfulness_score < threshold
     final_answer = INSUFFICIENT_DATA_MSG if gated else raw_answer
 
     with gate_span(result.faithfulness_score, gated, threshold):

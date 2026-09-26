@@ -6,7 +6,9 @@
 
 ## What the gate does
 
-Before every RAG answer is shown to the user, the faithfulness gate checks whether
+> **Superseded 2026-09-26** -- see "Labeled evaluation (2026-09-26)" at the end. The NLI gate described below did not discriminate correct from wrong answers, the hard-negative typing was circular, and the OOD set was empty answers. Kept for the record.
+
+Before a `grounded_answer()` answer is returned, the faithfulness gate checks whether
 the answer's sentences are supported by the retrieved context, using NLI
 (`cross-encoder/nli-deberta-v3-small`). A sentence is *grounded* if its max
 entailment probability across all retrieved chunks exceeds 0.5. If fewer sentences
@@ -134,3 +136,45 @@ python -m scripts.analyze_hard_negatives
 
 Both scripts are offline (no API calls, no torch reloading — faithfulness scores
 are pre-computed in `faithfulness_results.json`).
+
+
+## Labeled evaluation (2026-09-26) -- the gate is replaced
+
+Reproduce: `python -m scripts.gate_labeled_eval` (raw rows: `reports/gate_labeled_eval.json`).
+
+**Three problems with everything above:**
+1. **The "hallucinations" were correct answers.** All 32 in-domain answers were checked by hand against
+   `data/documents/*.md` (`data/evaluation/gate_labels.json`): **all 32 are correct**. The examples the hard-negative
+   analysis called hallucinations -- "10 business days" (3-way match), "Vendor Risk team", "quarterly" -- are exactly
+   what the SLA and Procurement policies say. The typing used the NLI contradiction score as its label, so it could only
+   ever confirm the NLI model. NLI gives these correct sentences contradiction probabilities near 1.
+2. **The OOD test never exercised NLI.** All 35 SQuAD answers in `ood_abstention_results.json` are empty strings; the
+   "100% OOD rejection" came entirely from the empty-answer rule.
+3. **"Before every RAG answer" was not true.** The gate lives in `grounded_answer()`; the live `/demo/chat` agent never
+   calls it.
+
+**Labeled set.** 96 answers: the 32 correct ones; the same 32 with one fact mutated deterministically (a number, a
+team, a cadence, a yes/no); and the 32 correct answers scored against the chunks retrieved for a different question
+(off-context). Chunks come from the live retrieval index. The one tuned parameter (content-word recall `r`) was chosen
+on odd question ids only; results below are on the even ids. Labels are by the project author (not independent).
+
+| Gate (held-out even ids, 16 questions x 3) | Correct passed | Wrong fact passed | Off-context passed |
+|---|---|---|---|
+| NLI, t = 0.05 (was deployed) | 18.8% | 18.8% | 18.8% |
+| NLI, t = 0.5 | 18.8% | 18.8% | 18.8% |
+| **Claim support, r = 0.65 (now default)** | **68.8%** | **18.8%** | **6.2%** |
+| No gate | 100% | 100% | 100% |
+
+On all 32 questions: support passes 68.8% correct, 21.9% wrong-fact, 3.1% off-context; NLI 37.5% / 31.2% / 21.9%.
+
+**The claim-support gate** (`src/evaluation/claim_support.py`) requires, per sentence: every number to appear in the
+chunks with the same unit nearby (section numbers and list markers ignored), every key term (mid-sentence capitalised
+name/team/role, frequency word) to appear, and >= 65% of content words to appear. It is deterministic, adds no model,
+and says *why* it blocked (missing number claim / key term / words).
+
+**What it still gets wrong.** All 7 wrong facts that pass are polarity flips (Yes<->No, included<->excluded, "cancelled"
+where the evidence says "not cancelled") -- a lexical check cannot see them. The correct answers it blocks are mostly
+long paraphrased or multi-step answers whose wording drifts from the documents (content recall < 0.65). 16 questions per
+held-out cell is small; treat differences under ~15 points as noise.
+
+`GATE_METHOD=nli` restores the old gate; `SUPPORT_MIN_RECALL` sets r.

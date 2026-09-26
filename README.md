@@ -17,12 +17,12 @@ willing to say "insufficient data" rather than guess.
 |---|---|---|
 | Hybrid retrieval Hit@1 | **66.2%** | 130 in-scope questions over a 10-document corpus, section-level match, deployed config |
 | Hybrid retrieval MRR | **0.756** | same eval set; with optional cross-encoder reranker: Hit@1 77.7%, MRR 0.832 |
-| Faithfulness gate — avg faith of passing answers | **89.7%** (at `t=0.5`, 34% of in-domain answers pass; 100% of OOD questions gated) | NLI scoring via `cross-encoder/nli-deberta-v3-small`; see calibration analysis below |
-| Agent tool-selection | **25/25 (100%)** | 25 hand-written questions, 6 categories, mechanical evaluation |
+| Answer gate on a labeled set (held-out questions) | **passes 69% of correct answers, 6% of off-context answers, 19% of planted wrong facts** (the previous NLI gate: 19% / 19% / 19%, i.e. no discrimination) | 32 hand-checked correct answers + 32 with one fact changed + 32 scored against unrelated evidence; [`docs/gate-calibration.md`](docs/gate-calibration.md) |
+| Agent tool-selection | **25/25 (100%) on a 25-question smoke test** | hand-written by the author and used while fixing the prompt, so it is a regression check, not a generalization estimate; the larger v2 set is in [`docs/agent-eval.md`](docs/agent-eval.md) |
 | Semantic cache false-hit rate | **0%** at t=0.97; paraphrase recall 0% (cache is an exact-repeat gate at this threshold) | 15 hand-written question pairs; see [`docs/cache-calibration.md`](docs/cache-calibration.md) |
 | Provider count | **5** | Anthropic, Groq, Gemini, LangChain, LangGraph — one interface |
 
-The distinguishing piece is the **faithfulness gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, NLI scoring decides whether the LLM's answer is entailed by the retrieved chunks. If not, the gate fires and returns "insufficient information" rather than a hallucinated answer. This directly addresses the paraphrase-question failure mode (0% faithfulness without gating) and is evaluated at multiple thresholds with real numbers.
+The distinguishing piece is the **answer gate** ([§Grounded answer gate](#grounded-answer-gate-srcretrievalgrounded_searchpy)): after retrieval and generation, it checks that every number (with its unit), every named team/role/cadence and most content words of each answer sentence appear in the retrieved chunks, and returns "insufficient information" otherwise. It replaced an NLI gate that, measured on labeled answers, blocked correct and wrong answers at the same rate. **Scope:** the gate runs in `grounded_answer()` (document Q&A); the live `/demo/chat` agent does not pass through it, because its answers mix live P1 figures that are not in the documents. It cannot see polarity flips (Yes/No, included/excluded); see the calibration doc.
 
 Consumes the data model and analytics built in [`operations-performance`](../operations-performance)
 via a small set of controlled tools rather than re-implementing that logic.
@@ -197,6 +197,8 @@ Run `python scripts/evaluate_faithfulness.py` (requires `GROQ_API_KEY`).
 **What the low scores actually mean:** NLI faithfulness scoring with a strict entailment threshold is a deliberately conservative measure. A sentence like "Purchases over $10,000 need secondary approval" scores as contradiction if the chunk says "purchases exceeding ten thousand dollars" — the semantic content is identical but NLI reads surface divergence. The 32.1% score is a lower bound on real faithfulness; it correctly identifies cases where the LLM uses outside knowledge (paraphrase category: 0%), while penalizing legitimate paraphrase. **The real finding is the paraphrase category at 0%** — those answers consistently drift beyond the retrieved context, which is the failure mode faithfulness evaluation was designed to surface. Source: `data/evaluation/faithfulness_results.json`.
 
 ### Grounded answer gate (`src/retrieval/grounded_search.py`)
+
+> **Updated 2026-09-26:** the NLI gate described in this section was measured on labeled answers and did not discriminate (it passed correct, wrong and off-context answers at the same 18.8% rate on held-out questions); the "hallucinations" it caught were correct answers, and the 100% OOD figure came from empty answers. It is replaced by a claim-support check. The text below is the original analysis, kept for the record; current numbers: [`docs/gate-calibration.md`](docs/gate-calibration.md#labeled-evaluation-2026-09-26----the-gate-is-replaced).
 
 The faithfulness evaluation finding (paraphrase 0%) drives a concrete fix: a faithfulness gate that refuses to return an unfaithful answer and instead falls back to a structured "insufficient information" response.
 
