@@ -273,7 +273,9 @@ def main():
 
         latency = round(time.time() - t0, 2)
         actual_tool_calls = [
-            {"name": tc.name, "args": tc.args if hasattr(tc, "args") else {}}
+            # ToolCallRecord stores arguments in `.input`; reading `.args` (which does not exist) made every
+            # arg-correctness check score False until 2026-09-26.
+            {"name": tc.name, "args": getattr(tc, "input", None) or getattr(tc, "args", None) or {}}
             for tc in resp.tool_calls
         ]
         actual_tools = list({c["name"] for c in actual_tool_calls})
@@ -295,7 +297,9 @@ def main():
             "abstention": abstention,
             "adversarial_compliance": adv_compliance,
             "answer_excerpt": resp.answer[:300],
-            "tokens": getattr(resp, "total_tokens", None),
+            # AgentResponse has prompt_tokens/completion_tokens, not total_tokens (was always None before 2026-09-26)
+            "tokens": ((resp.prompt_tokens or 0) + (resp.completion_tokens or 0)) or None,
+            "tool_args": actual_tool_calls,
             "cost_usd": getattr(resp, "cost_usd", None),
             "latency_s": latency,
             "llm_judge_score": None,

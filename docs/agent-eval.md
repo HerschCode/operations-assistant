@@ -146,3 +146,15 @@ a complete 101-question run to roughly 10 days of daily resumes.
 
 For a production eval, use `--provider anthropic` (Claude Haiku 4.5) which has much
 higher throughput. The infrastructure handles both providers identically.
+
+## Status (2026-09-26): partial, and the earlier numbers were invalid
+- **The 12 rows previously committed were run with P1 unreachable** (`OPS_PERFORMANCE_API_URL` pointed at a
+  localhost with nothing running): every data answer was "I'm unable to retrieve…", yet tool selection scored 100%
+  because the agent *called* the right tool before it failed. Tool-selection rate alone cannot catch that.
+- **Two scoring bugs, fixed:** tool arguments were read from `tc.args`, which does not exist (the record stores
+  `.input`), so `arg_correctness_rate` was 0.0 regardless of behaviour; tokens were read from a non-existent
+  `total_tokens`, so `avg_tokens` was 0. Regression test: `tests/test_agent_eval_scoring.py`.
+- **Current file:** 26/101 questions run against a live local P1 before Groq's daily quota ran out. Tool selection
+  26/26; the 3 argument checks in it were scored with the bug above, so ignore `arg_correctness` in this partial file.
+- **To finish:** run `python -m scripts.evaluate_agent_v2 --provider groq` (not `--resume`, so every row is scored with
+  the fixed code) with P1 reachable, then `--judge`. Until then the README's 25/25 is a smoke test, not a result.

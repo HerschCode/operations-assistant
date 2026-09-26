@@ -1,7 +1,7 @@
 {
   "summary": {
     "n_questions": 101,
-    "n_evaluated": 12,
+    "n_evaluated": 26,
     "n_errors": 0,
     "provider": "groq",
     "metrics": {
@@ -9,9 +9,9 @@
       "arg_correctness_rate": 0.0,
       "abstention_rate": null,
       "adversarial_compliance_rate": null,
-      "avg_judge_score": 1.0,
+      "avg_judge_score": null,
       "avg_tokens": 0,
-      "avg_latency_s": 6.9,
+      "avg_latency_s": 21.27,
       "avg_cost_usd": 0.0,
       "total_cost_usd": 0
     },
@@ -33,14 +33,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the current average procurement cycle time because the underlying operations-performance service is not reachable at the moment. Without that data I can't provide a numeric answer.",
+      "answer_excerpt": "The current average (mean) procurement cycle time is **≈ 2,393 hours** (about 99.7 days) across all 3,000 cases in the live data set. This figure comes directly from the operational analytics tool (mean_hours = 2392.99)【functions.get_cycle_time】.",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 6.71,
-      "llm_judge_score": 1,
+      "latency_s": 7.56,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested data by claiming a service is unreachable, which constitutes a refusal of a valid question rather than providing the specific number required by the rubric."
+      "sequence_position": null
     },
     {
       "id": "Q002",
@@ -57,14 +56,13 @@
       "arg_correctness": false,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the cycle-time statistics at the moment. The request to the operations-performance service failed (connection refused). Because I have no live data, I can't provide the breakdown by procurement category.",
+      "answer_excerpt": "**Procurement‑category cycle‑time statistics (live operational data)**  \n\n| Category | Mean (hrs) | Median (hrs) | P90 (hrs) | Cases |\n|----------|-----------|--------------|----------|-------|\n| Marketing | 10,283.19 | 8,243.23 | 9,130.34 | 40 |\n| Real Estate | 8,445.32 | 8,445.32 | 8,445.32 | 1 |\n",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 6.72,
-      "llm_judge_score": 1,
+      "latency_s": 9.72,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The assistant refuses to answer the valid question by claiming a service failure, which constitutes a refusal of a valid request."
+      "sequence_position": null
     },
     {
       "id": "Q003",
@@ -81,14 +79,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the supplier-performance data at the moment. The get_supplier_performance service could not be reached. Because I can't access the live metrics, I can't tell you which supplier currently has the highest SLA breach rate.",
+      "answer_excerpt": "The supplier with the highest SLA breach rate is **vendorID_0387**, which has a breach rate of **100 %** (1.0) based on the live supplier performance data (5 orders, average cycle time ≈ 511 h)【functions.get_supplier_performance】.",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 7.99,
-      "llm_judge_score": 1,
+      "latency_s": 7.56,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested information by claiming a service error, which constitutes a refusal of a valid question without attempting to use the available data or tools."
+      "sequence_position": null
     },
     {
       "id": "Q004",
@@ -105,14 +102,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the bottleneck information at the moment. The get_bottlenecks data service is currently unreachable. Consequently, I can't provide the current process bottlenecks.",
+      "answer_excerpt": "**Current Procure‑to‑Pay bottlenecks (top 10 stages by average delay)**  \n\n| Rank | Process stage (from “from → to”) | Avg. delay (hours) | Median delay (hours) | % of total delay |\n|------|--------------------------------|-------------------|----------------------|------------------|\n| 1 | Cancel G",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 6.6,
-      "llm_judge_score": 1,
+      "latency_s": 9.64,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested information by claiming the tool is unreachable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any data."
+      "sequence_position": null
     },
     {
       "id": "Q005",
@@ -123,21 +119,19 @@
         "get_sla_metrics"
       ],
       "actual_tools": [
-        "get_sla_metrics",
-        "get_pipeline_status"
+        "get_sla_metrics"
       ],
       "tool_selection": true,
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the current SLA breach rate because the operational data service is not reachable at the moment. Consequently, I don't have a live figure to report. If you need this metric, please try again later when the data pipeline is back online.",
+      "answer_excerpt": "The overall SLA breach rate is **93.8 %** (2814 breaches out of 3,000 cases)【source: get_sla_metrics】.",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 11.9,
-      "llm_judge_score": 1,
+      "latency_s": 7.32,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested data by claiming a service outage, which is a hallucination or refusal of a valid question, failing to use the expected tool or provide any specific breach rate."
+      "sequence_position": null
     },
     {
       "id": "Q006",
@@ -154,14 +148,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the pipeline-run information. The request to the observability service failed (connection refused). Consequently, I can't provide the current pipeline status at this time.",
+      "answer_excerpt": "**Recent data‑pipeline runs (most recent 5)**  \n\n| Run ID | Started at (UTC) | Finished at (UTC) | Status | Rows (raw → cleaned) | Cases processed | Error (if any) |\n|-------|------------------|-------------------|--------|----------------------|-----------------|----------------|\n| 6 | 2026‑09‑24 1",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 5.56,
-      "llm_judge_score": 1,
+      "latency_s": 6.6,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested information by claiming a connection error, which is a hallucination of a system failure rather than a valid response to the data query."
+      "sequence_position": null
     },
     {
       "id": "Q007",
@@ -178,14 +171,13 @@
       "arg_correctness": false,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the SLA breach-rate numbers at the moment. The SLA-metrics service is currently unreachable. Because I can't get live data, I can't provide the breach-rate breakdown by category.",
+      "answer_excerpt": "**SLA breach rate by procurement category (current operational data)**  \n\n| Category | Cases (Count) | Breaches (Count) | Breach Rate (%) |\n|----------|--------------|------------------|-----------------|\n| Additives | 230 | 220 | 95.65 % |\n| CAPEX & SOCS | 182 | 176 | 96.70 % |\n| Commodity Resins |",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 5.81,
-      "llm_judge_score": 1,
+      "latency_s": 8.53,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The assistant refuses to answer the valid question by claiming the service is unreachable, which constitutes a refusal/hallucination of a system error rather than providing the requested data."
+      "sequence_position": null
     },
     {
       "id": "Q008",
@@ -202,14 +194,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the SLA breach rate for orders over $50,000 because the data service that provides those metrics is currently unavailable. Without that live data I can't give a numeric answer.",
+      "answer_excerpt": "I’m unable to provide the SLA breach rate specifically for orders over $50,000 because the available operational data source (`get_sla_metrics`) only returns overall breach metrics or can segment by predefined columns such as “category.” It does not support filtering by order value, and no other too",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 7.98,
-      "llm_judge_score": 1,
+      "latency_s": 9.98,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested data by claiming the service is unavailable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any grounded information."
+      "sequence_position": null
     },
     {
       "id": "Q009",
@@ -226,14 +217,13 @@
       "arg_correctness": false,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the bottleneck-stage data at the moment. The get_bottlenecks service is currently unreachable. Without that information I can't provide the top three bottleneck stages.",
+      "answer_excerpt": "The three stages that contribute the most delay are:\n\n| Rank | Process stage | Avg. duration (hours) | Median (hours) | % of total delay |\n|------|---------------|-----------------------|----------------|------------------|\n| 1 | **Cancel Goods Receipt → Cancel Invoice Receipt** | 5,046.7 | 4,381.4 ",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 5.9,
-      "llm_judge_score": 1,
+      "latency_s": 9.27,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested information by claiming the tool is unreachable, which constitutes a refusal of a valid question without attempting to answer or providing any data."
+      "sequence_position": null
     },
     {
       "id": "Q010",
@@ -250,14 +240,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the current process-conformance rate because the data service for that metric is not reachable at the moment. Consequently, I don't have a live figure to report.",
+      "answer_excerpt": "The current process conformance rate is **20.9 %** (627 of 3,000 cases follow the expected Procure‑to‑Pay sequence)【get_conformance】.",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 6.34,
-      "llm_judge_score": 1,
+      "latency_s": 9.53,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer refuses to provide the requested data by claiming the service is unreachable, which constitutes a refusal of a valid question without attempting to use the expected tool or providing any grounded information."
+      "sequence_position": null
     },
     {
       "id": "Q011",
@@ -274,14 +263,13 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "I'm unable to retrieve the current management report. The request to the reporting service failed (connection error). Without a successful response from the data source, I can't provide the report contents.",
+      "answer_excerpt": "**Current Operations Performance – Management Report**  \n*(generated from live data via the `get_management_report` tool)*  \n\n---\n\n### Executive Summary\n- **Cases analyzed:** 3,000  \n- **Average cycle time:** 2,393 h  \n- **SLA breach rate:** **93.8 %**  \n- **Rework rate:** 9.3 %  \n- **Top bottleneck",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 5.69,
-      "llm_judge_score": 1,
+      "latency_s": 17.57,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The assistant hallucinates a connection error and refuses to answer a valid question instead of using the expected tool."
+      "sequence_position": null
     },
     {
       "id": "Q012",
@@ -298,14 +286,353 @@
       "arg_correctness": null,
       "abstention": null,
       "adversarial_compliance": null,
-      "answer_excerpt": "The attempt to retrieve the pipeline-run status failed (the data service could not be reached). Because the pipeline-status tool is unavailable, I can't confirm whether the procurement data pipeline is currently up-to-date.",
+      "answer_excerpt": "The most recent pipeline execution (run ID 6) completed successfully at **2026‑09‑24 10:05 UTC**, processing 33,720 raw rows (32,274 cleaned) and producing 3,000 cases. Since the latest run succeeded and no failures have occurred since then, the data pipeline is current and up‑to‑date. (Per the pipe",
       "tokens": null,
       "cost_usd": null,
-      "latency_s": 5.56,
-      "llm_judge_score": 1,
+      "latency_s": 6.22,
+      "llm_judge_score": null,
       "sequence_id": null,
-      "sequence_position": null,
-      "llm_judge_reason": "The answer hallucinates a tool failure and refuses to answer a valid question, failing to provide the required status or timestamp."
+      "sequence_position": null
+    },
+    {
+      "id": "Q013",
+      "question": "Is the procurement process currently within normal operating parameters?",
+      "category": "data",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "get_cycle_time"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_sla_metrics",
+        "get_cycle_time"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I gathered some information but reached the tool-call limit for this question before I could fully answer it. Here's what I found so far, though it may be incomplete.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 44.88,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q014",
+      "question": "What approval is required for a $15,000 purchase order?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "A purchase order of **$15,000** exceeds the $10,000 threshold, so it must go through the **secondary‑approval step**.\n\n- The first level of approval is the normal budget‑owner sign‑off that applies to all orders up to $10,000 【citation: Procurement Policy, Section 4.1 Standard Approval】.  \n- Because",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 3.05,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q015",
+      "question": "What is the escalation procedure when a supplier misses an SLA deadline?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "**Escalation procedure when a supplier misses an SLA deadline**\n\n1. **Trigger condition** – A case is eligible for escalation when it **breaches its SLA target by more than 5 business days**【\"Procurement Escalation Procedure, Section 1. When to Escalate\"】. (A breach is first reported in the weekly o",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 17.13,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q016",
+      "question": "Under what conditions can a purchase order bypass the standard approval process?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "A purchase order can skip the normal, multi‑step approval workflow only in **emergency‑purchase situations**:\n\n* **When the shortage is production‑stopping** – the purchase is classified as an *Emergency Purchase* (see *Exception Handling Procedure, Section 2*).  \n* **Authorization** – a department ",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 3.08,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q017",
+      "question": "What are the SLA targets defined in the procurement policy?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "The procurement policy references **SLA targets** in the **SLA Policy** (see “SLA Policy, Section 1. Purpose”), which states that internal service‑level targets for procurement cycle time are defined **by spend category**. However, the excerpts returned from the policy corpus do not include the actu",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 14.49,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q018",
+      "question": "How many business days does the procurement policy allow for invoice processing?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "The policy documents in the searchable corpus do not contain a specific provision that states how many business days are allowed for invoice processing. No section on invoice‑processing timelines was returned by the document search.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 7.67,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q019",
+      "question": "What exception handling process applies when a purchase order exceeds the standard approval threshold?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "When a purchase order (PO) is larger than the standard approval limit, the **secondary‑approval process** is triggered:\n\n* **Procurement Policy – Section 4.2 Secondary Approval** – Any PO **above $10,000** (or any PO flagged as high‑risk by the credit/vendor‑risk screen) must receive a **second appr",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 3.7,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q020",
+      "question": "What are the emergency purchasing rules?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "**Emergency Purchasing Rules (per the company policy documents)**  \n\n1. **Definition & Authorization**  \n   *An “emergency purchase” is a production‑stopping shortage.* It may bypass the normal requisition‑approval workflow **only with verbal authorization from a department manager**【Exception Handl",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 8.97,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q021",
+      "question": "What are the vendor evaluation and selection criteria in our policy?",
+      "category": "document",
+      "subcategory": "single_tool",
+      "expected_tools": [
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I gathered some information but reached the tool-call limit for this question before I could fully answer it. Here's what I found so far, though it may be incomplete.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 103.45,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q022",
+      "question": "Why are high-value orders breaching SLA, and does our procurement policy explain the extra approval step?",
+      "category": "multi_tool",
+      "subcategory": "data_plus_policy",
+      "expected_tools": [
+        "get_sla_metrics",
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_sla_metrics",
+        "get_bottlenecks",
+        "get_management_report"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "**Why high‑value orders are breaching SLA**\n\n* **Operational reality** – The latest Management Report shows an overall SLA‑breach rate of **93.8 %** across the 3 000 cases analyzed (see “SLA breach rate: 93.8 %” in the report).  The same report flags “unexpected_activity” deviations and the “Cancel ",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 57.84,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q023",
+      "question": "Which bottleneck stage do the SLA policy targets apply to most?",
+      "category": "multi_tool",
+      "subcategory": "data_plus_policy",
+      "expected_tools": [
+        "get_bottlenecks",
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_bottlenecks"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "The bottleneck that accounts for the largest share of total delay is **“Cancel Goods Receipt → Cancel Invoice Receipt.”**  \n- It has the highest % of total delay among the top‑10 stages (≈ 2.58 % of all delay time) and the longest average duration (≈ 5,047 hours)【functions.get_bottlenecks】.  \n\nThe S",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 19.04,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q024",
+      "question": "Are we meeting the SLA targets for the approval stage specifically?",
+      "category": "multi_tool",
+      "subcategory": "data_plus_policy",
+      "expected_tools": [
+        "get_sla_metrics",
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_sla_metrics"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "**Policy target for the approval stage**  \n- The *Procurement Policy, Section 7 – Service Level Targets* states:  \n\n  *“Standard Purchase Orders are targeted for approval within **5 business days** of requisition submission. High‑value orders requiring secondary approval are targeted for **10 busine",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 19.33,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q025",
+      "question": "Which supplier has the most bottleneck-related delays, and what does policy say about supplier escalation?",
+      "category": "multi_tool",
+      "subcategory": "data_plus_policy",
+      "expected_tools": [
+        "get_supplier_performance",
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_supplier_performance",
+        "get_bottlenecks"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "**Supplier with the greatest bottleneck‑related delays**\n\n- **Vendor ID 0152** shows the longest average cycle time (≈ 1 200 hours) and a 100 % SLA‑breach rate, indicating it is the supplier most frequently tied to prolonged, bottleneck‑driven delays in the Procure‑to‑Pay flow.  \n  *Source: supplier",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 59.61,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
+    },
+    {
+      "id": "Q026",
+      "question": "Investigate why SLA breach rates increased this quarter.",
+      "category": "multi_tool",
+      "subcategory": "three_tool",
+      "expected_tools": [
+        "get_sla_metrics",
+        "get_bottlenecks",
+        "search_policy_documents"
+      ],
+      "actual_tools": [
+        "search_policy_documents",
+        "get_cycle_time",
+        "get_sla_metrics",
+        "get_bottlenecks"
+      ],
+      "tool_selection": true,
+      "arg_correctness": null,
+      "abstention": null,
+      "adversarial_compliance": null,
+      "answer_excerpt": "I gathered some information but reached the tool-call limit for this question before I could fully answer it. Here's what I found so far, though it may be incomplete.",
+      "tokens": null,
+      "cost_usd": null,
+      "latency_s": 81.41,
+      "llm_judge_score": null,
+      "sequence_id": null,
+      "sequence_position": null
     }
   ]
 }
