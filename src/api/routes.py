@@ -130,16 +130,29 @@ def demo_chat(request: ChatRequest, http_request: Request):
             detail="Demo rate limit reached (5 questions per 10 minutes) -- please try again shortly.",
         )
 
+    from src.agent.agent import load_agent_config
+    from src.evaluation.cost_estimator import calculate_cost
+    cfg = load_agent_config()
+
+    # Provider switcher: demo visitors can pick gemini/groq/anthropic per-request.
+    # Validated against the allowed set so the field can't be used to inject arbitrary
+    # provider strings into the config dict.
+    _DEMO_PROVIDERS = {
+        "gemini": ("gemini", "gemini-2.0-flash"),
+        "groq":   ("groq",   "llama-3.3-70b-versatile"),
+        "anthropic": ("anthropic", cfg.get("model", "claude-haiku-4-5-20251001")),
+    }
+    if request.provider and request.provider in _DEMO_PROVIDERS:
+        prov, mdl = _DEMO_PROVIDERS[request.provider]
+        cfg = {**cfg, "provider": prov, "model": mdl}
+
     t0 = time.monotonic()
     try:
-        result = run_agent(request.question)
+        result = run_agent(request.question, config_override=cfg)
     except Exception as exc:
         raise _agent_error_response(exc)
     latency_ms = round((time.monotonic() - t0) * 1000, 1)
 
-    from src.agent.agent import load_agent_config
-    from src.evaluation.cost_estimator import calculate_cost
-    cfg = load_agent_config()
     raw_model = cfg.get("model", "")
     model_display = raw_model.split("/")[-1] if "/" in raw_model else raw_model
 
@@ -182,7 +195,7 @@ def demo_chat(request: ChatRequest, http_request: Request):
 
 
 @health_router.get("/demo/chat/stream")
-def demo_chat_stream(question: str, http_request: Request):
+def demo_chat_stream(question: str, http_request: Request, provider: str | None = None):
     """SSE endpoint — streams real-time tool-call events then the final answer.
     Uses the same agent and rate-limiting as /demo/chat; clients should use an
     EventSource to consume the stream.
@@ -217,12 +230,20 @@ def demo_chat_stream(question: str, http_request: Request):
         t0 = time.monotonic()
         try:
             on_event({"type": "thinking"})
-            result = run_agent(question, event_cb=on_event)
-            latency_ms = round((time.monotonic() - t0) * 1000, 1)
-
             from src.agent.agent import load_agent_config
             from src.evaluation.cost_estimator import calculate_cost
             cfg = load_agent_config()
+            _DEMO_PROVIDERS_STREAM = {
+                "gemini": ("gemini", "gemini-2.0-flash"),
+                "groq":   ("groq",   "llama-3.3-70b-versatile"),
+                "anthropic": ("anthropic", cfg.get("model", "claude-haiku-4-5-20251001")),
+            }
+            if provider and provider in _DEMO_PROVIDERS_STREAM:
+                prov, mdl = _DEMO_PROVIDERS_STREAM[provider]
+                cfg = {**cfg, "provider": prov, "model": mdl}
+            result = run_agent(question, config_override=cfg, event_cb=on_event)
+            latency_ms = round((time.monotonic() - t0) * 1000, 1)
+
             raw_m = cfg.get("model", "")
             disp_m = raw_m.split("/")[-1] if "/" in raw_m else raw_m
             cost_usd: float | None = None

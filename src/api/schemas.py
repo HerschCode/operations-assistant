@@ -13,6 +13,10 @@ class ChatRequest(BaseModel):
         default=None,
         description="Reuse across turns for follow-up questions with context (see Phase 18).",
     )
+    provider: str | None = Field(
+        default=None,
+        description="Override the server's default provider for this request: 'gemini', 'groq', or 'anthropic'. Demo endpoint only; ignored on authenticated /chat.",
+    )
 
 
 class SourceCitation(BaseModel):

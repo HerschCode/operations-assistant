@@ -237,6 +237,13 @@
   }
   .resp-meta-icon { opacity: 0.7; }
 
+  /* Provider selector */
+  .provider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+  .provider-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .provider-btn { font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .provider-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .provider-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
   /* Input form */
   form { display: flex; gap: 8px; }
   input[type=text] {
@@ -354,7 +361,7 @@
 <!-- Quota / free-tier notice bar -->
 <div class="notice-bar" id="noticeBar">
   <span class="notice-bar-text">
-    <strong>Free-tier demo</strong> — runs on Groq's free tier: <strong>5 questions / 10 min</strong> per visitor.
+    <strong>Free-tier demo</strong> — defaults to Gemini Flash (free). Switch between Gemini / Groq / Claude with the model selector. <strong>5 questions / 10 min</strong> per visitor.
     If you see a <em>"provider rate-limited"</em> error, the daily token quota may be exhausted — try again after midnight UTC.
   </span>
   <button class="notice-dismiss" id="noticeDismiss" title="Dismiss notice" aria-label="Dismiss notice">×</button>
@@ -509,6 +516,12 @@
       </div>
     </div>
 
+    <div class="provider-row">
+      <span class="provider-label">Model</span>
+      <button class="provider-btn active" data-provider="gemini" title="Gemini 2.0 Flash — Google free tier">⚡ Gemini Flash</button>
+      <button class="provider-btn" data-provider="groq" title="Llama 3.3 70B via Groq — free tier">🦙 Groq Llama</button>
+      <button class="provider-btn" data-provider="anthropic" title="Claude Haiku — Anthropic (requires ANTHROPIC_API_KEY)">🤖 Claude</button>
+    </div>
     <form id="form">
       <input id="question" type="text" placeholder="Ask about cycle time, SLA breaches, suppliers, or procurement policy…" autocomplete="off" />
       <button id="send" type="submit">Ask</button>
@@ -552,6 +565,16 @@ const rateLabel = document.getElementById('rateLabel');
 const rateWarn  = document.getElementById('rateWarn');
 const emptyState = document.getElementById('emptyState');
 const guidePanel = document.getElementById('guidePanel');
+
+// ── Provider selector ──
+let selectedProvider = 'gemini';
+document.querySelectorAll('.provider-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedProvider = btn.dataset.provider;
+    document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
 const guideBody  = document.getElementById('guideBody');
 const guideCollapseBtn = document.getElementById('guideCollapseBtn');
 const guideHeader      = document.getElementById('guideHeader');
@@ -766,7 +789,7 @@ async function askBatch(question, pair) {
     const res = await fetch('/demo/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ question, provider: selectedProvider })
     });
     const data = await res.json();
     const elapsed = Date.now() - t0;
@@ -795,7 +818,7 @@ function askStream(question, pair) {
     const toolsUsed = [];
     let toolBadgeEl = null;
 
-    const url = '/demo/chat/stream?question=' + encodeURIComponent(question);
+    const url = '/demo/chat/stream?question=' + encodeURIComponent(question) + '&provider=' + encodeURIComponent(selectedProvider);
     const es = new EventSource(url);
 
     es.onmessage = e => {
