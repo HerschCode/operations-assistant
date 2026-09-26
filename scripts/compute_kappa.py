@@ -35,6 +35,10 @@ def _load_judge_scores(results_path: Path) -> dict[str, int]:
 
 def _load_human_scores(labels_path: Path) -> dict[str, int]:
     labels = json.loads(labels_path.read_text(encoding="utf-8"))
+    # Kappa is only meaningful against a person's judgement of the actual answer. Pre-written
+    # expectations (agent_expected_outcomes.json, notes tagged "[oracle]") are refused.
+    if not isinstance(labels, list) or any(str(e.get("note", "")).startswith("[oracle]") for e in labels):
+        raise ValueError(f"{labels_path} is not a human-label file (expected a list with no [oracle] entries)")
     return {entry["id"]: int(entry["human_score"]) for entry in labels}
 
 

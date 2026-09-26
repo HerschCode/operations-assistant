@@ -117,6 +117,7 @@ The finding shows the judge rubric needs an explicit grace-period clause for ser
 failures before the kappa benchmark (κ ≥ 0.61 target) is meaningful.
 
 Human labels saved in `data/evaluation/agent_labels.json`.  
+A previous commit padded that file from 12 to 52 entries with 40 pre-written "oracle" expectations (the score a correct run *should* get). Those are not judgements of real answers, so they were moved to `data/evaluation/agent_expected_outcomes.json` and `compute_kappa` now refuses them. The 12 remaining labels were made against rows where operations-performance was unreachable and are due to be redone on a valid run.  
 Kappa results saved in `data/evaluation/kappa_results.json`.
 
 ```bash

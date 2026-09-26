@@ -1,0 +1,205 @@
+{
+  "_about": "Expected scores for a correct agent run, written in advance from the question design. These are NOT human judgements of real answers and must never be used as the human rater in compute_kappa.",
+  "expected": [
+    {
+      "id": "Q013",
+      "expected_score": 5,
+      "note": "data: expects get_pipeline_status + get_sla_metrics; correct if P1 up and answer confirms normal ops or highlights issues"
+    },
+    {
+      "id": "Q014",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('approval threshold $15,000'); correct if answer cites policy section with approval authority level"
+    },
+    {
+      "id": "Q015",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('supplier SLA escalation'); correct if answer describes escalation steps from Escalation Procedure doc"
+    },
+    {
+      "id": "Q016",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('bypass approval emergency'); correct if answer cites Exception Handling Procedure conditions"
+    },
+    {
+      "id": "Q017",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('SLA targets'); correct if answer quotes specific day-count targets from SLA Policy"
+    },
+    {
+      "id": "Q018",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('invoice processing days'); correct if answer gives specific number of business days from policy"
+    },
+    {
+      "id": "Q019",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('exception handling approval threshold'); correct if answer describes exception process from policy"
+    },
+    {
+      "id": "Q020",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('emergency purchasing'); correct if answer describes emergency procurement rules from policy"
+    },
+    {
+      "id": "Q021",
+      "expected_score": 5,
+      "note": "document: expects search_policy_documents('vendor evaluation selection criteria'); correct if answer lists criteria from Procurement Policy"
+    },
+    {
+      "id": "Q022",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics + search_policy_documents; 4 not 5 because synthesis across two sources is harder — judge deduct for shallow policy cite"
+    },
+    {
+      "id": "Q023",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_bottlenecks + search_policy_documents; correct if answer maps bottleneck stage to SLA target from policy"
+    },
+    {
+      "id": "Q024",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics(segment='category') + search_policy_documents; correct if answer compares real breach rate vs policy target for approval stage"
+    },
+    {
+      "id": "Q025",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_supplier_performance + search_policy_documents('supplier escalation'); correct if worst supplier named and policy escalation trigger cited"
+    },
+    {
+      "id": "Q026",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics + get_bottlenecks + possibly pipeline check; correct if root cause analysis cites real data not generic text"
+    },
+    {
+      "id": "Q027",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_bottlenecks + search_policy_documents; correct if agent names specific stage and quotes relevant policy guidance"
+    },
+    {
+      "id": "Q028",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_management_report (or get_sla_metrics+get_bottlenecks+get_supplier_performance); correct if answer gives structured risk view"
+    },
+    {
+      "id": "Q029",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_cycle_time(segment='category') + search_policy_documents; correct if worst category named with real numbers + policy cited"
+    },
+    {
+      "id": "Q030",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_supplier_performance + search_policy_documents('SLA thresholds'); correct if supplier rates compared to policy thresholds with names"
+    },
+    {
+      "id": "Q031",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_pipeline_status; correct if agent checks pipeline timestamp and answers whether data is current (straightforward single tool)"
+    },
+    {
+      "id": "Q032",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_conformance; correct if answer gives conformance rate and deviation breakdown from tool result"
+    },
+    {
+      "id": "Q033",
+      "expected_score": 5,
+      "note": "multi_tool: expects search_policy_documents('process conformance target'); correct if answer cites policy requirement for conformance below threshold"
+    },
+    {
+      "id": "Q034",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_cycle_time + get_sla_metrics + search_policy_documents; correct if all three covered with real numbers"
+    },
+    {
+      "id": "Q035",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics + search_policy_documents; correct if most-at-risk category identified and policy breach consequence cited"
+    },
+    {
+      "id": "Q036",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_supplier_performance + search_policy_documents('SLA'); correct if supplier cycle times compared to policy targets with numbers"
+    },
+    {
+      "id": "Q037",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_pipeline_status; correct if answer explains pipeline lag impact on metric reliability"
+    },
+    {
+      "id": "Q038",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_bottlenecks + get_supplier_performance; correct if bottleneck supplier named with order count and delay duration"
+    },
+    {
+      "id": "Q039",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_management_report or multi-tool; correct if answer gives prioritized action list grounded in real metrics"
+    },
+    {
+      "id": "Q040",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_bottlenecks + get_conformance; correct if stages with both high delay and low conformance identified from real data"
+    },
+    {
+      "id": "Q041",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_management_report or multi-tool sweep; correct if audit items grounded in real metrics not generic advice"
+    },
+    {
+      "id": "Q042",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics + get_bottlenecks + get_supplier_performance; correct if root cause named with data support not just hypotheses"
+    },
+    {
+      "id": "Q043",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_management_report or equivalent; correct if briefing has specific numbers for key finding, SLA, and top bottleneck"
+    },
+    {
+      "id": "Q044",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_cycle_time + get_cycle_time(segment='category'); correct if per-category numbers compared to overall average"
+    },
+    {
+      "id": "Q045",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_supplier_performance + get_sla_metrics(segment='category'); correct if cross-category comparison uses real data not generic answer"
+    },
+    {
+      "id": "Q046",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_sla_metrics + search_policy_documents; correct if highest-risk stage identified first then policy requirements quoted"
+    },
+    {
+      "id": "Q047",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_supplier_performance + search_policy_documents('escalation'); correct if specific suppliers named with breach rates triggering escalation criteria"
+    },
+    {
+      "id": "Q048",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_pipeline_status; correct if answer explains freshness → confidence relationship with real timestamp data"
+    },
+    {
+      "id": "Q049",
+      "expected_score": 4,
+      "note": "multi_tool: expects get_conformance + get_sla_metrics; correct if deviations ranked by SLA risk with data support"
+    },
+    {
+      "id": "Q050",
+      "expected_score": 5,
+      "note": "multi_tool: expects get_management_report or full sweep; correct if risk picture covers SLA, bottlenecks, pipeline health, and conformance"
+    },
+    {
+      "id": "Q051",
+      "expected_score": 5,
+      "note": "unanswerable: expects graceful refusal — agent should say revenue data is outside its scope; any tool call on this is wrong"
+    },
+    {
+      "id": "Q052",
+      "expected_score": 5,
+      "note": "unanswerable: expects graceful refusal — stock price is outside procurement scope; agent should not hallucinate a number"
+    }
+  ]
+}
