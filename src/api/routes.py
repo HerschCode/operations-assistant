@@ -139,8 +139,8 @@ def demo_chat(request: ChatRequest, http_request: Request):
     # provider strings into the config dict.
     _DEMO_PROVIDERS = {
         "gemini": ("gemini", "gemini-2.0-flash"),
-        "groq":   ("groq",   "llama-3.3-70b-versatile"),
-        "anthropic": ("anthropic", cfg.get("model", "claude-haiku-4-5-20251001")),
+        "groq":   ("groq",   "openai/gpt-oss-120b"),  # the model the agent evals ran on
+        "anthropic": ("anthropic", "claude-haiku-4-5-20251001"),  # pinned: agent.yaml's default is a pricier model
     }
     if request.provider and request.provider in _DEMO_PROVIDERS:
         prov, mdl = _DEMO_PROVIDERS[request.provider]
@@ -235,8 +235,8 @@ def demo_chat_stream(question: str, http_request: Request, provider: str | None 
             cfg = load_agent_config()
             _DEMO_PROVIDERS_STREAM = {
                 "gemini": ("gemini", "gemini-2.0-flash"),
-                "groq":   ("groq",   "llama-3.3-70b-versatile"),
-                "anthropic": ("anthropic", cfg.get("model", "claude-haiku-4-5-20251001")),
+                "groq":   ("groq",   "openai/gpt-oss-120b"),  # the model the agent evals ran on
+                "anthropic": ("anthropic", "claude-haiku-4-5-20251001"),  # pinned: agent.yaml's default is a pricier model
             }
             if provider and provider in _DEMO_PROVIDERS_STREAM:
                 prov, mdl = _DEMO_PROVIDERS_STREAM[provider]

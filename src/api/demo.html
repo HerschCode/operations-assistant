@@ -361,7 +361,7 @@
 <!-- Quota / free-tier notice bar -->
 <div class="notice-bar" id="noticeBar">
   <span class="notice-bar-text">
-    <strong>Free-tier demo</strong> — defaults to Gemini Flash (free). Switch between Gemini / Groq / Claude with the model selector. <strong>5 questions / 10 min</strong> per visitor.
+    <strong>Free-tier demo</strong> — defaults to Groq (gpt-oss-120b, the model the evaluations used). Switch between Groq / Gemini / Claude with the model selector. <strong>5 questions / 10 min</strong> per visitor.
     If you see a <em>"provider rate-limited"</em> error, the daily token quota may be exhausted — try again after midnight UTC.
   </span>
   <button class="notice-dismiss" id="noticeDismiss" title="Dismiss notice" aria-label="Dismiss notice">×</button>
@@ -518,8 +518,8 @@
 
     <div class="provider-row">
       <span class="provider-label">Model</span>
-      <button class="provider-btn active" data-provider="gemini" title="Gemini 2.0 Flash — Google free tier">⚡ Gemini Flash</button>
-      <button class="provider-btn" data-provider="groq" title="Llama 3.3 70B via Groq — free tier">🦙 Groq Llama</button>
+      <button class="provider-btn" data-provider="gemini" title="Gemini 2.0 Flash — Google free tier">⚡ Gemini Flash</button>
+      <button class="provider-btn active" data-provider="groq" title="gpt-oss-120b via Groq — free tier">🦙 Groq</button>
       <button class="provider-btn" data-provider="anthropic" title="Claude Haiku — Anthropic (requires ANTHROPIC_API_KEY)">🤖 Claude</button>
     </div>
     <form id="form">
@@ -567,7 +567,7 @@ const emptyState = document.getElementById('emptyState');
 const guidePanel = document.getElementById('guidePanel');
 
 // ── Provider selector ──
-let selectedProvider = 'gemini';
+let selectedProvider = 'groq';
 document.querySelectorAll('.provider-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     selectedProvider = btn.dataset.provider;
