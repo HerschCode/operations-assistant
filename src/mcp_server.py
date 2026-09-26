@@ -37,6 +37,7 @@ from src.tools.prediction import predict_sla_risk as _predict_sla_risk
 from src.tools.database import get_pipeline_status as _get_pipeline_status
 from src.tools.documents import search_policy_documents as _search_policy_documents
 from src.tools.process import get_conformance as _get_conformance
+from src.tools.interventions import propose_intervention as _propose_intervention
 from src.tools.client import OpsPerformanceUnavailable
 
 mcp = MCPServer(
@@ -166,6 +167,28 @@ def search_policy_documents(query: str) -> str:
 def get_conformance() -> str:
     with _tool_errors():
         return _json(_get_conformance())
+
+
+@mcp.tool(
+    description=(
+        "Propose a human-in-the-loop intervention for a procurement action that requires "
+        "operator approval before execution. Returns an intervention_id that an operator "
+        "must approve via the REST API (POST /interventions/{id}/approve). "
+        "Valid actions: escalate_case, flag_supplier, notify_manager, request_approval, mark_exception. "
+        "Valid priorities: low, normal, high, urgent. "
+        "roi_estimate is optional; include it to document expected value (e.g. '2h saved, prevents SLA breach')."
+    )
+)
+def propose_intervention(
+    action: str,
+    target: str,
+    reason: str,
+    priority: str = "normal",
+    roi_estimate: str | None = None,
+) -> str:
+    with _tool_errors():
+        full_reason = reason if not roi_estimate else f"{reason} [ROI: {roi_estimate}]"
+        return _json(_propose_intervention(action=action, target=target, reason=full_reason, priority=priority))
 
 
 def main():

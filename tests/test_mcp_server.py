@@ -28,11 +28,12 @@ EXPECTED_TOOL_NAMES = {
     "get_pipeline_status",
     "search_policy_documents",
     "get_conformance",
+    "propose_intervention",
 }
 
 
 @pytest.mark.asyncio
-async def test_all_nine_tools_registered():
+async def test_all_ten_tools_registered():
     tools = await mcp.list_tools()
     names = {t.name for t in tools}
     assert names == EXPECTED_TOOL_NAMES
@@ -128,3 +129,62 @@ async def test_get_conformance_no_args():
     with patch("src.mcp_server._get_conformance", return_value=payload):
         result = await mcp.call_tool("get_conformance", {})
     assert json.loads(result.content[0].text)["conformance_rate"] == 0.87
+
+
+@pytest.mark.asyncio
+async def test_propose_intervention_delegates():
+    fake_result = {
+        "intervention_id": "inv_abc12345",
+        "status": "pending_approval",
+        "action": "escalate_case",
+        "target": "C1001",
+        "reason": "SLA at risk",
+        "priority": "high",
+        "message": "awaiting approval",
+    }
+    with patch("src.mcp_server._propose_intervention", return_value=fake_result) as mock_fn:
+        result = await mcp.call_tool(
+            "propose_intervention",
+            {"action": "escalate_case", "target": "C1001", "reason": "SLA at risk", "priority": "high"},
+        )
+    mock_fn.assert_called_once_with(action="escalate_case", target="C1001", reason="SLA at risk", priority="high")
+    assert json.loads(result.content[0].text)["intervention_id"] == "inv_abc12345"
+
+
+@pytest.mark.asyncio
+async def test_propose_intervention_appends_roi():
+    fake_result = {
+        "intervention_id": "inv_roi1234",
+        "status": "pending_approval",
+        "action": "flag_supplier",
+        "target": "Acme",
+        "reason": "Late deliveries [ROI: prevents 2h delay]",
+        "priority": "normal",
+        "message": "awaiting approval",
+    }
+    with patch("src.mcp_server._propose_intervention", return_value=fake_result) as mock_fn:
+        await mcp.call_tool(
+            "propose_intervention",
+            {"action": "flag_supplier", "target": "Acme", "reason": "Late deliveries", "roi_estimate": "prevents 2h delay"},
+        )
+    call_kwargs = mock_fn.call_args.kwargs
+    assert "ROI: prevents 2h delay" in call_kwargs["reason"]
+
+
+@pytest.mark.asyncio
+async def test_propose_intervention_invalid_action_raises():
+    with pytest.raises(ToolError, match="Unknown action"):
+        await mcp.call_tool(
+            "propose_intervention",
+            {"action": "nuke_everything", "target": "C1001", "reason": "test"},
+        )
+
+
+@pytest.mark.asyncio
+async def test_propose_intervention_required_params():
+    tools = await mcp.list_tools()
+    schemas = {t.name: t.input_schema for t in tools}
+    required = schemas["propose_intervention"].get("required", [])
+    assert "action" in required
+    assert "target" in required
+    assert "reason" in required
