@@ -176,7 +176,7 @@ def get_conformance() -> str:
         "must approve via the REST API (POST /interventions/{id}/approve). "
         "Valid actions: escalate_case, flag_supplier, notify_manager, request_approval, mark_exception. "
         "Valid priorities: low, normal, high, urgent. "
-        "roi_estimate is optional; include it to document expected value (e.g. '2h saved, prevents SLA breach')."
+        "ROI context is attached server-side from operations-performance; do not estimate it."
     )
 )
 def propose_intervention(
@@ -184,11 +184,9 @@ def propose_intervention(
     target: str,
     reason: str,
     priority: str = "normal",
-    roi_estimate: str | None = None,
 ) -> str:
     with _tool_errors():
-        full_reason = reason if not roi_estimate else f"{reason} [ROI: {roi_estimate}]"
-        return _json(_propose_intervention(action=action, target=target, reason=full_reason, priority=priority))
+        return _json(_propose_intervention(action=action, target=target, reason=reason, priority=priority))
 
 
 def main():

@@ -152,23 +152,14 @@ async def test_propose_intervention_delegates():
 
 
 @pytest.mark.asyncio
-async def test_propose_intervention_appends_roi():
-    fake_result = {
-        "intervention_id": "inv_roi1234",
-        "status": "pending_approval",
-        "action": "flag_supplier",
-        "target": "Acme",
-        "reason": "Late deliveries [ROI: prevents 2h delay]",
-        "priority": "normal",
-        "message": "awaiting approval",
-    }
-    with patch("src.mcp_server._propose_intervention", return_value=fake_result) as mock_fn:
-        await mcp.call_tool(
-            "propose_intervention",
-            {"action": "flag_supplier", "target": "Acme", "reason": "Late deliveries", "roi_estimate": "prevents 2h delay"},
-        )
-    call_kwargs = mock_fn.call_args.kwargs
-    assert "ROI: prevents 2h delay" in call_kwargs["reason"]
+async def test_propose_intervention_arguments_match_gateway_policy():
+    # llm-security-gateway's config/tool_policies.yaml is default-deny on arguments it does not
+    # list, so an extra argument here would get every proposal blocked at the gateway.
+    tools = {t.name: t for t in await mcp.list_tools()}
+    tool = tools["propose_intervention"]
+    schema = getattr(tool, "inputSchema", None) or getattr(tool, "input_schema")  # name differs across mcp versions
+    props = set(schema["properties"])
+    assert props == {"action", "target", "reason", "priority"}
 
 
 @pytest.mark.asyncio

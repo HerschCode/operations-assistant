@@ -75,6 +75,7 @@ class InterventionRecord:
     approved_by: str | None = None   # API client name that approved or rejected it
     resolved_at: float | None = None
     execution_note: str | None = None
+    roi_context: dict | None = None  # fetched from operations-performance, never written by the model
 
 
 _STORE: dict[str, InterventionRecord] = {}
@@ -89,6 +90,7 @@ def propose_intervention(action: str, target: str, reason: str, priority: str = 
         priority = "normal"
 
     intervention_id = f"inv_{uuid.uuid4().hex[:8]}"
+    roi_context = _fetch_roi_context()
     record = InterventionRecord(
         intervention_id=intervention_id,
         action=action,
@@ -97,6 +99,7 @@ def propose_intervention(action: str, target: str, reason: str, priority: str = 
         priority=priority,
         status="pending_approval",
         created_at=time.time(),
+        roi_context=roi_context,
     )
     _STORE[intervention_id] = record
     return {
@@ -106,12 +109,37 @@ def propose_intervention(action: str, target: str, reason: str, priority: str = 
         "target": target,
         "reason": reason,
         "priority": priority,
+        "roi_context": roi_context,
         "message": (
             f"Intervention '{action}' on '{target}' has been proposed and is awaiting human approval. "
             f"A reviewer must call POST /interventions/{intervention_id}/approve to execute it, "
             f"or POST /interventions/{intervention_id}/reject to cancel."
         ),
     }
+
+
+def _fetch_roi_context() -> dict | None:
+    """ROI figures for the reviewer, taken from operations-performance's GET /roi/summary.
+
+    The model never supplies these: an LLM-written "ROI estimate" would put invented numbers
+    into the audit record. P1's figures are simulation outputs under stated assumptions, so
+    the label travels with them. Returns None if P1 is unreachable or the shape is unexpected;
+    proposing still works without it.
+    """
+    try:
+        from src.tools.client import get as ops_get  # noqa: PLC0415
+        summary = ops_get("/roi/summary")
+        if not isinstance(summary, dict):
+            return None
+        assumptions = summary.get("assumptions") or {}
+        return {
+            "label": summary.get("label"),
+            "break_even_effect": summary.get("break_even_effect_simulated"),
+            "breach_cost": assumptions.get("breach_cost"),
+            "source": "operations-performance GET /roi/summary",
+        }
+    except Exception:
+        return None
 
 
 def get_intervention(intervention_id: str) -> InterventionRecord | None:
