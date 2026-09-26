@@ -2,9 +2,9 @@
   "n_total": 32,
   "type_counts": {
     "ambiguous": 7,
+    "blocked_neutral": 7,
     "correct": 5,
-    "halluc_caught": 13,
-    "halluc_missed": 7
+    "halluc_caught": 13
   },
   "type_stats": {
     "ambiguous": {
@@ -21,6 +21,22 @@
         22,
         29,
         31
+      ]
+    },
+    "blocked_neutral": {
+      "n": 7,
+      "pct": 21.9,
+      "gate_rate_at_0_5": 1.0,
+      "mean_max_entailment": 0.009,
+      "mean_max_contradiction": 0.042,
+      "ids": [
+        3,
+        11,
+        12,
+        14,
+        19,
+        26,
+        28
       ]
     },
     "correct": {
@@ -58,27 +74,11 @@
         27,
         30
       ]
-    },
-    "halluc_missed": {
-      "n": 7,
-      "pct": 21.9,
-      "gate_rate_at_0_5": 1.0,
-      "mean_max_entailment": 0.009,
-      "mean_max_contradiction": 0.042,
-      "ids": [
-        3,
-        11,
-        12,
-        14,
-        19,
-        26,
-        28
-      ]
     }
   },
   "gate_threshold": 0.5,
-  "gate_precision": 0.9524,
-  "gate_recall_over_hallucinations": 1.0,
-  "false_positive_rate_over_correct": 0.0,
-  "finding": "Of 32 in-domain answers, 13 hallucinations are caught by contradiction detection (precision 95.2%), 7 are missed (neutral NLI score — gate blind to these). 0/5 correct answers are incorrectly gated (false-positive rate 0.0%), confirming the DeBERTa domain-mismatch problem from calibrate_gate.py."
+  "gate_coverage_in_domain": 0.3438,
+  "nli_signal_rate_of_blocked": 0.619,
+  "caveat": "Precision/recall against ground truth cannot be computed: the subtypes are derived from NLI scores, not independent human labels. nli_signal_rate describes whether the gate had NLI evidence for its blocking decision, not whether the blocked answer was actually wrong.",
+  "finding": "Of 32 in-domain answers, 21 were blocked by the gate (coverage 34%). Of those, 13 had an NLI contradiction signal (62% of blocked). The remaining 7 (blocked_neutral) were blocked because faithfulness=0 with no contradiction signal — NLI assigned near-zero scores in both directions (domain mismatch on procurement numbers). 5 answers passed cleanly; 7 passed despite mixed NLI signals (entailed AND contradicted)."
 }

@@ -154,8 +154,8 @@ class TestHardNegativeClassifier:
     def test_halluc_caught_classified(self):
         assert self._classify(self._make_result(0.0, 1.0)) == "halluc_caught"
 
-    def test_halluc_missed_classified(self):
-        assert self._classify(self._make_result(0.0, 0.0)) == "halluc_missed"
+    def test_blocked_neutral_classified(self):
+        assert self._classify(self._make_result(0.0, 0.0)) == "blocked_neutral"
 
     def test_empty_sentences_classified(self):
         assert self._classify(self._make_result(0.0, 0.0, n_sentences=0)) == "empty"
@@ -165,7 +165,7 @@ class TestHardNegativeClassifier:
         r = self._make_result(1.0, 0.0)
         assert r["faithfulness_score"] >= 0.5
 
-    def test_halluc_always_gated(self):
+    def test_blocked_types_have_low_faithfulness(self):
         for faith, contra in [(0.0, 1.0), (0.0, 0.0)]:
             r = self._make_result(faith, contra)
             assert r["faithfulness_score"] < 0.5

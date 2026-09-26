@@ -1,19 +1,26 @@
 """
-Gate hard-negative analysis: classify faithfulness_results by answer type and
-quantify gate precision/recall per subtype.
+Gate hard-negative analysis: classify faithfulness_results by NLI signal pattern
+and describe the detection mechanism for each subtype.
 
 Four subtypes derived from (faithfulness_score, contradiction_rate):
-  correct      — faithfulness_score > 0  (grounded by NLI)
-  halluc_caught— faithfulness=0 + contradiction_rate > 0  (NLI detected contradiction)
-  halluc_missed— faithfulness=0 + contradiction_rate = 0  (neutral: neither entailed nor contradicted)
-  ambiguous    — faithfulness=1 + contradiction_rate > 0  (entailed AND contradicted simultaneously)
+  correct        — faithfulness_score > 0  (NLI: grounded, gate passes)
+  ambiguous      — faithfulness > 0 + contradiction_rate > 0  (NLI: both entailed AND contradicted, gate passes)
+  halluc_caught  — faithfulness=0 + contradiction_rate > 0   (NLI: explicit contradiction signal, gate blocks)
+  blocked_neutral— faithfulness=0 + contradiction_rate = 0   (NLI: no signal in either direction, gate still blocks)
 
-"Hard negatives" in gate calibration terms are the halluc_missed cases:
-plausible-sounding answers that contain wrong or unsupported claims without
-directly contradicting the source text.  The NLI gate cannot catch these because
-the DeBERTa model assigns low entailment AND low contradiction to both the wrong
-claim and the correct one (domain mismatch — procurement numbers don't appear in
-MNLI/SNLI training data).
+IMPORTANT — what this analysis can and cannot measure:
+  It characterises HOW the gate makes each blocking decision (which NLI signal
+  triggered it). It does NOT measure gate accuracy against independent ground truth
+  because "hallucination vs. correct answer" labels are not available here. Without
+  those labels, precision/recall cannot be computed non-circularly. What we report
+  instead is nli_signal_rate: of all blocked answers, what fraction had an NLI
+  contradiction signal backing the block?
+
+The subtypes are defined by NLI output, not by whether the answer is factually wrong.
+"blocked_neutral" answers are blocked by the faithfulness threshold even though
+DeBERTa assigned near-zero scores to BOTH entailment AND contradiction — the model
+has no signal, not a positive "wrong" signal. These are the true hard negatives for
+the gate: correct answers that look the same to NLI as wrong ones.
 
 Run:
     python -m scripts.analyze_hard_negatives
@@ -47,7 +54,7 @@ def _classify(result: dict) -> str:
         return "ambiguous"
     if faith == 0 and contra > 0:
         return "halluc_caught"
-    return "halluc_missed"
+    return "blocked_neutral"  # faithfulness=0, no contradiction signal — gate blocks but NLI is blind
 
 
 def main() -> None:
@@ -89,33 +96,20 @@ def main() -> None:
 
     n_correct = len(by_type.get("correct", []))
     n_halluc_caught = len(by_type.get("halluc_caught", []))
-    n_halluc_missed = len(by_type.get("halluc_missed", []))
+    n_blocked_neutral = len(by_type.get("blocked_neutral", []))
     n_ambiguous = len(by_type.get("ambiguous", []))
 
-    # Gate precision: of the gated answers, what fraction were actually hallucinations?
-    n_gated = sum(1 for r in results if r["faithfulness_score"] < ENTAILMENT_THRESHOLD)
-    n_gated_halluc = sum(
-        1 for t in ("halluc_caught", "halluc_missed")
-        for r in by_type.get(t, [])
-        if r["faithfulness_score"] < ENTAILMENT_THRESHOLD
-    )
-    gate_precision = round(n_gated_halluc / n_gated, 4) if n_gated else 0.0
+    # How many answers did the gate block?
+    n_blocked = sum(1 for r in results if r["faithfulness_score"] < ENTAILMENT_THRESHOLD)
+    # How many passed?
+    n_passed = total - n_blocked
+    gate_coverage = round(n_passed / total, 4) if total else 0.0
 
-    # Gate recall: of the hallucinations, what fraction did the gate catch?
-    n_halluc_total = n_halluc_caught + n_halluc_missed
-    n_halluc_gated = sum(
-        1 for t in ("halluc_caught", "halluc_missed")
-        for r in by_type.get(t, [])
-        if r["faithfulness_score"] < ENTAILMENT_THRESHOLD
-    )
-    gate_recall = round(n_halluc_gated / n_halluc_total, 4) if n_halluc_total else 0.0
-
-    # False-positive rate: fraction of correct answers incorrectly gated
-    n_correct_gated = sum(
-        1 for r in by_type.get("correct", [])
-        if r["faithfulness_score"] < ENTAILMENT_THRESHOLD
-    )
-    false_positive_rate = round(n_correct_gated / n_correct, 4) if n_correct else 0.0
+    # Of blocked answers, what fraction had a contradiction signal backing the block?
+    # This is a non-circular metric: it describes whether NLI had evidence for the block,
+    # independent of any "is this answer correct?" ground truth we don't have.
+    n_blocked_with_signal = n_halluc_caught  # faithfulness=0 + contradiction>0
+    nli_signal_rate = round(n_blocked_with_signal / n_blocked, 4) if n_blocked else 0.0
 
     print(f"\nHard-Negative Analysis — {total} in-domain answers")
     print(f"  {'Type':<20} {'n':>4} {'%':>6}  gate_rate  mean_entail  mean_contra")
@@ -128,31 +122,40 @@ def main() -> None:
             f"{s['mean_max_contradiction']:>11.3f}"
         )
     print()
-    print(f"Gate performance at threshold=0.5 (over hallucinations only):")
-    print(f"  Precision (gated = true hallucination):  {gate_precision:.1%}")
-    print(f"  Recall    (hallucinations gated):        {gate_recall:.1%}")
-    print(f"  False-positive rate (correct answers gated): {false_positive_rate:.1%}")
+    print(f"Gate coverage (in-domain answers that pass): {gate_coverage:.1%} ({n_passed}/{total})")
+    print(f"NLI signal rate (blocked answers with contradiction evidence): {nli_signal_rate:.1%}")
+    print()
+    print("Note: precision/recall against ground truth cannot be computed —")
+    print("  independent 'correct vs. hallucinated' labels are not available.")
+    print("  This analysis characterises the NLI MECHANISM, not gate ACCURACY.")
     print()
     print("Finding:")
-    print(f"  halluc_caught ({n_halluc_caught}): gate works via contradiction detection")
-    print(f"  halluc_missed ({n_halluc_missed}): gate blind — low entailment AND low contradiction")
-    print(f"  ambiguous     ({n_ambiguous}): entailed + contradicted simultaneously (gate passes but flagged)")
-    print(f"  correct       ({n_correct}): {n_correct_gated} incorrectly gated (false positives)")
+    print(f"  halluc_caught   ({n_halluc_caught}): gate blocks AND NLI has contradiction evidence")
+    print(f"  blocked_neutral ({n_blocked_neutral}): gate blocks but NLI is blind (low entailment, low contradiction)")
+    print(f"  ambiguous       ({n_ambiguous}): NLI says entailed + contradicted simultaneously; gate passes")
+    print(f"  correct         ({n_correct}): NLI says grounded; gate passes")
 
     analysis = {
         "n_total": total,
         "type_counts": {t: s["n"] for t, s in type_stats.items()},
         "type_stats": type_stats,
         "gate_threshold": ENTAILMENT_THRESHOLD,
-        "gate_precision": gate_precision,
-        "gate_recall_over_hallucinations": gate_recall,
-        "false_positive_rate_over_correct": false_positive_rate,
+        "gate_coverage_in_domain": gate_coverage,
+        "nli_signal_rate_of_blocked": nli_signal_rate,
+        "caveat": (
+            "Precision/recall against ground truth cannot be computed: the subtypes are derived "
+            "from NLI scores, not independent human labels. nli_signal_rate describes whether the "
+            "gate had NLI evidence for its blocking decision, not whether the blocked answer was "
+            "actually wrong."
+        ),
         "finding": (
-            f"Of {total} in-domain answers, {n_halluc_caught} hallucinations are caught by "
-            f"contradiction detection (precision {gate_precision:.1%}), {n_halluc_missed} are missed "
-            f"(neutral NLI score — gate blind to these). {n_correct_gated}/{n_correct} correct answers "
-            f"are incorrectly gated (false-positive rate {false_positive_rate:.1%}), confirming the "
-            f"DeBERTa domain-mismatch problem from calibrate_gate.py."
+            f"Of {total} in-domain answers, {n_blocked} were blocked by the gate "
+            f"(coverage {gate_coverage:.0%}). Of those, {n_halluc_caught} had an NLI contradiction "
+            f"signal ({nli_signal_rate:.0%} of blocked). The remaining {n_blocked_neutral} "
+            f"(blocked_neutral) were blocked because faithfulness=0 with no contradiction signal — "
+            f"NLI assigned near-zero scores in both directions (domain mismatch on procurement "
+            f"numbers). {n_correct} answers passed cleanly; {n_ambiguous} passed despite mixed "
+            f"NLI signals (entailed AND contradicted)."
         ),
     }
     OUT.write_text(json.dumps(analysis, indent=2, ensure_ascii=False), encoding="utf-8")

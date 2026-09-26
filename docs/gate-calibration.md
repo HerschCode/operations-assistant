@@ -45,76 +45,78 @@ using (faithfulness_score, contradiction_rate):
 | correct | 5 | 15.6% | 0.0% | 0.864 | 0.083 |
 | ambiguous | 7 | 21.9% | 14.3% | 0.917 | 0.972 |
 | halluc_caught | 13 | 40.6% | 100.0% | 0.011 | 0.928 |
-| halluc_missed | 7 | 21.9% | 100.0% | 0.009 | 0.042 |
+| blocked_neutral | 7 | 21.9% | 100.0% | 0.009 | 0.042 |
 
 ### Types explained
 
-- **correct** — faithfulness > 0, no contradiction: well-grounded factual answers.
-  Examples: "within 5 business days", "Manual Credit Review time is included in cycle time."
-  
-- **ambiguous** — faithfulness > 0 AND contradiction > 0: answer contains both a correct
-  entailed fact and an incorrect contradicted fact. The gate passes these (86%) because the
-  faithfulness_score is positive. These represent hallucination *mixed into* a correct answer.
+- **correct** — faithfulness > 0, no contradiction: NLI says grounded, gate passes.
 
-- **halluc_caught** — faithfulness=0, contradiction > 0 (max_contradiction ≥ 0.4):
-  answer directly contradicts the source. Examples: wrong SLA targets ("10 business days"),
-  wrong teams ("Vendor Risk team"), wrong review frequency ("quarterly").
+- **ambiguous** — faithfulness > 0 AND contradiction > 0: NLI finds both entailment and
+  contradiction simultaneously. Gate passes (86%) because faithfulness_score is positive.
 
-- **halluc_missed** — faithfulness=0, contradiction = 0 (max_contradiction < 0.4):
-  answer contains a specific claim that the NLI model cannot verify either way.
+- **halluc_caught** — faithfulness=0, contradiction > 0: NLI found an explicit contradiction.
+  Gate blocks AND has an NLI signal to back the block. Examples: wrong SLA targets
+  ("10 business days"), wrong teams ("Vendor Risk team"), wrong review frequency ("quarterly").
+
+- **blocked_neutral** — faithfulness=0, contradiction = 0: NLI assigns near-zero scores in
+  BOTH directions. Gate blocks because faithfulness=0, but NLI has no signal as to why.
   Example: "3 business days of supplier unresponsiveness triggers escalation" —
-  the correct number is in the policy but the NLI model assigns near-zero scores
-  (entailment=0.003, contradiction=0.13). These are true hard negatives: the gate
-  blocks them only because faithfulness=0, not because it recognises the wrong value.
+  the NLI model assigns near-zero scores to both the wrong claim and the correct one
+  (entailment=0.003, contradiction=0.13). These are the gate's true hard negatives:
+  blocked for the right outcome but the wrong reason.
 
-## Revised finding: gate precision and the LLM accuracy problem
+## What the analysis can and cannot measure
 
-| Gate metric (at threshold=0.5) | Value |
-|---|:---:|
-| Precision (gated = true hallucination) | **95.2%** |
-| Recall (hallucinations gated) | **100.0%** |
-| False-positive rate (correct answers gated) | **0.0%** |
+**What we can measure from NLI scores alone:**
+- Gate coverage: 34.4% of in-domain answers pass (11/32)
+- NLI signal rate: 61.9% of blocked answers had an NLI contradiction signal backing the block
 
-The gate performs well. The *true* cause of 37.5% coverage is that
-**the LLM hallucinated 84.4% of its in-domain answers** (20/32 = halluc_caught +
-halluc_missed + most ambiguous). The gate is not over-triggering on correct answers —
-it is correctly blocking wrong answers.
+**What we cannot measure without independent human labels:**
+- Gate precision (are the blocked answers actually wrong?)
+- Gate recall (does the gate catch all wrong answers?)
 
-The "DeBERTa domain mismatch" explanation is only partially correct:
+The earlier version of this analysis reported "Precision 95.2%, Recall 100%" — those
+numbers were circular: the subtypes were defined by NLI scores, then gate performance
+was scored against those same NLI-derived labels. Recall=1.0 is guaranteed by
+construction (every answer classified as a "hallucination" has faithfulness<0.5, and
+the gate fires when faithfulness<0.5). Reverted to the honest non-circular metrics above.
 
-1. For *halluc_missed* (7 answers): the NLI model assigns near-zero scores to both the
-   wrong claim and what the correct answer would be. The gate still blocks these
-   (faithfulness=0) but cannot explain *why* the answer is wrong. If a future LLM were
-   more accurate, these cases could produce false negatives.
+To measure true precision/recall: hand-label 32 answers (correct/incorrect) and
+compare against the gate's block/pass decisions. That is the missing eval.
 
-2. For *correct* answers (5): mean entailment=0.864 — NLI works fine for factual
-   claims the model gets right. No false positives.
+## What the 34.4% coverage means
 
-## Hard negatives as a stress test
+34.4% of in-domain answers pass the gate — not because the gate misfires on correct
+answers (the 5 "correct" answers all pass cleanly), but because the current LLM
+generates answers that fail the NLI check for most in-domain questions. Of the 27
+blocked answers, 13 had explicit NLI contradiction evidence and 7 had no NLI signal
+at all. The remaining 7 "ambiguous" answers passed despite mixed signals.
 
-The 7 *halluc_missed* answers represent the gate's blind spot. To stress-test whether
-a future model's improved answers would pass the gate incorrectly:
+The DeBERTa domain-mismatch problem is real but secondary: it explains *why* the NLI
+signal rate is 61.9% rather than higher, not why coverage is low. Low coverage is
+primarily a model-quality issue (most answers NLI rejects), not a threshold problem.
 
-1. Manually craft plausible but wrong answers for the halluc_missed questions
-   (e.g., "3 business days" when the correct answer is different)
-2. Run `score_faithfulness(wrong_answer, chunks)` — expect faithfulness=0
-3. Run `score_faithfulness(correct_answer, chunks)` — expect faithfulness>0
+## Stress test for blocked_neutral cases
 
-If both score identically, the gate cannot distinguish the two and threshold tuning
-is ineffective. This would indicate the NLI model needs domain-specific fine-tuning
-or replacement with a stronger encoder.
+The 7 blocked_neutral answers are the gate's true blind spot. To verify the gate would
+pass a *correct* answer for the same question:
 
-The 7 halluc_missed cases in this evaluation were all correctly blocked by the gate,
-but for the wrong reason (low entailment of the wrong claim, not high contradiction).
+1. Craft the correct answer for each blocked_neutral question
+2. Run `score_faithfulness(correct_answer, chunks)` — expect faithfulness > 0
+3. Run `score_faithfulness(wrong_answer, chunks)` — expect faithfulness ≈ 0
+
+If both score identically, the NLI model cannot distinguish correct from wrong for that
+question and threshold tuning is ineffective. This would confirm domain-specific
+fine-tuning is needed for the DeBERTa encoder.
 
 ## Recommendations
 
 1. **Use threshold=0.05** (recommended by calibration) — any higher threshold only
    gates more *correct* ambiguous answers without improving hallucination detection.
 
-2. **Monitor the halluc_missed rate** as the LLM improves. If a new model achieves
-   >50% correct answers, re-run the analysis to check for false negatives in the
-   halluc_missed category.
+2. **Monitor the blocked_neutral rate** as the LLM improves. If a new model achieves
+   >50% correct answers, re-run the analysis to check whether those cases still score
+   as blocked_neutral or shift to halluc_caught (NLI gains signal).
 
 3. **For ambiguous answers** (both entailed and contradicted sentences), consider
    reporting the contradiction_rate alongside the answer rather than blocking entirely —
