@@ -59,3 +59,6 @@ def _no_real_dotenv(monkeypatch):
     monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: False)
     for var in _ENV_VARS_TESTS_ASSUME_ABSENT:
         monkeypatch.delenv(var, raising=False)
+    # Most tests exercise routes as local development does: no keys configured, auth opted
+    # out explicitly. tests/test_auth_fail_closed.py removes this to test the default.
+    monkeypatch.setenv("ALLOW_UNAUTHENTICATED", "1")

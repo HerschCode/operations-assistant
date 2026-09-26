@@ -19,6 +19,9 @@ services:
       # (a real deployed URL, a shared Docker network's service name, etc.)
       OPS_PERFORMANCE_API_URL: ${OPS_PERFORMANCE_API_URL:-http://host.docker.internal:8000}
       CHROMA_PERSIST_DIR: /app/data/chroma
+      # Local development only: with no API_KEY/API_KEYS set, the API now refuses requests
+      # (503) unless this is 1. Never set it on a deployed service.
+      ALLOW_UNAUTHENTICATED: ${ALLOW_UNAUTHENTICATED:-1}
     volumes:
       # Vector store persists across container restarts -- without this, every restart
       # would need scripts/index_documents.py run again before /chat could answer

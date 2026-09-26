@@ -77,10 +77,15 @@ async def require_api_key(request: Request, x_api_key: str = Header(default=None
     configured = _load_configured_keys()
 
     if not configured:
-        # No keys configured at all -- fail open for local development (matches
-        # this project's existing pattern of falling back to permissive defaults
-        # locally). A real deployment MUST set API_KEY or API_KEYS.
-        return
+        # No keys configured: fail closed. This used to fail open, so a deployment that
+        # lost its API_KEY (a renamed secret, a missing env var) silently served every
+        # route to anyone. Local development opts in explicitly.
+        if os.environ.get("ALLOW_UNAUTHENTICATED") == "1":
+            return
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication is not configured (set API_KEY/API_KEYS, or ALLOW_UNAUTHENTICATED=1 for local development)",
+        )
 
     if not x_api_key:
         raise HTTPException(status_code=401, detail="Missing or invalid X-API-Key header")
