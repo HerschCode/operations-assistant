@@ -3,6 +3,8 @@ reinvent how to reach operations-performance's API or the vector store."""
 import os
 import httpx
 
+from src.tools import upstream_auth
+
 
 def get_ops_performance_client() -> httpx.Client:
     base_url = os.environ.get("OPS_PERFORMANCE_API_URL", "http://localhost:8000")
@@ -23,7 +25,11 @@ def get_ops_performance_client() -> httpx.Client:
 def check_ops_performance_reachable() -> bool:
     try:
         with get_ops_performance_client() as client:
-            response = client.get("/health")
+            # A private Cloud Run service answers 403 to any call without an ID token, /health
+            # included, so under AUTH_MODE=google_id_token this probe must present one too.
+            # In the default api_key mode outbound_headers() is empty: the probe is unchanged.
+            headers = upstream_auth.outbound_headers(str(client.base_url))
+            response = client.get("/health", headers=headers)
             return response.status_code == 200
     except Exception:
         return False

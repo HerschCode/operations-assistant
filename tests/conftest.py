@@ -44,14 +44,14 @@ unrelated agent-loop bugs.
 Fix: neutralize `load_dotenv()` for the whole test session (covers the
 reload-refill case), AND unconditionally strip every env var any test
 implicitly assumes is absent (`API_KEY`, `API_KEYS`, `AGENT_PROVIDER`,
-`AGENT_MODEL`) before every single test (covers the collection-time
+`AGENT_MODEL`, `AUTH_MODE`) before every single test (covers the collection-time
 poisoning) -- so the suite behaves identically whether or not a real,
 populated `.env` happens to be sitting in the working directory, matching
 what CI already gets for free by never having one.
 """
 import pytest
 
-_ENV_VARS_TESTS_ASSUME_ABSENT = ("API_KEY", "API_KEYS", "AGENT_PROVIDER", "AGENT_MODEL")
+_ENV_VARS_TESTS_ASSUME_ABSENT = ("API_KEY", "API_KEYS", "AGENT_PROVIDER", "AGENT_MODEL", "AUTH_MODE")
 
 
 @pytest.fixture(autouse=True)

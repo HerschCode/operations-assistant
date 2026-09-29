@@ -20,6 +20,8 @@ import json
 import os
 import httpx
 
+from src.tools import upstream_auth
+
 REQUEST_TIMEOUT_SECONDS = 60  # from config/tools.yaml -- see that file's comment on why 60s
 # not the originally-documented 15s: a real deployment (Render free tier, both
 # services) can take 30-90s to wake from an idle sleep, and 15s wasn't enough patience
@@ -48,7 +50,15 @@ def _auth_headers() -> dict:
     # that project's API_KEY) is set. Found by an actual live call through both
     # deployed services, not by either project's own (individually-passing) test suite.
     key = os.environ.get("OPS_PERFORMANCE_API_KEY")
-    return {"X-API-Key": key} if key else {}
+    # AUTH_MODE=google_id_token (the Cloud Run deployment, where operations-performance is a
+    # private service) sends a Google ID token minted for its URL instead of that static key;
+    # the default, api_key, is exactly the behaviour above. See upstream_auth.py.
+    return upstream_auth.outbound_headers(_base_url(), {"X-API-Key": key} if key else {})
+
+
+def _auth_failure_message(path: str, exc: Exception) -> str:
+    # No request was sent: better an honest "unavailable" than an unauthenticated call.
+    return f"Could not authenticate to operations-performance API for {path}: {exc}"
 
 
 def _get_client(client: httpx.Client | None) -> tuple[httpx.Client, bool]:
@@ -91,6 +101,8 @@ def get(path: str, params: dict | None = None, client: httpx.Client | None = Non
         raise OpsPerformanceUnavailable(
             f"Could not reach operations-performance API at {_base_url()}{path}: {exc}"
         ) from exc
+    except upstream_auth.UpstreamAuthError as exc:
+        raise OpsPerformanceUnavailable(_auth_failure_message(path, exc)) from exc
     finally:
         if should_close:
             http_client.close()
@@ -114,6 +126,8 @@ def get_text(path: str, client: httpx.Client | None = None) -> str:
         raise OpsPerformanceUnavailable(
             f"Could not reach operations-performance API at {_base_url()}{path}: {exc}"
         ) from exc
+    except upstream_auth.UpstreamAuthError as exc:
+        raise OpsPerformanceUnavailable(_auth_failure_message(path, exc)) from exc
     finally:
         if should_close:
             http_client.close()
